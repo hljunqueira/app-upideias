@@ -1,0 +1,317 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Calendário Editorial - UP Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#050505", // Overridden for brand deep black
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#FF5368", // Coral
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#26262D", // Overridden for brand borders
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#111116", // Card background
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#8E8E93", // Gray text
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#26262D", // Card borders
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#ffffff",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#111116",
+                        "surface-container-high": "#1E1E24",
+                        "outline-variant": "#26262D",
+                        "surface-container-highest": "#26262D",
+                        "surface-container": "#111116",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#FF5368",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "16px", // Updated to 16px per style guidance
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px"
+                    },
+                    fontFamily: {
+                        "label-md": ["Inter"],
+                        "stats-display": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "stats-display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Base styles to enforce dark mode and hide scrollbars for bento grids */
+        body { background-color: #050505; color: #f8dcdc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Glassmorphism utility for floating elements over data */
+        .glass-overlay { background: rgba(17, 17, 22, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid #26262D; }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex flex-col md:flex-row">
+<!-- Navigation Drawer (Desktop) -->
+<nav class="hidden md:flex flex-col gap-md p-lg h-full w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flat no shadows z-50">
+<div class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">UpIdeias</h1>
+</div>
+<div class="flex flex-col gap-xs flex-grow">
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md">Posts</span>
+</a>
+<!-- Active -->
+<a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-label-md text-label-md">Insights IA</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="font-label-md text-label-md">UP Creator</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors rounded-lg mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Configurações</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-container-margin py-md w-full bg-background docked full-width top-0 flat no shadows glass-overlay sticky z-40">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional content creator in a modern, dark-toned studio setting, soft cinematic lighting, ambitious and focused expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAW_pll5Yk6Q6sCUnDcuZUbpIdP9qIsDn8sWJ_cQ9k6W5RO6EuJERRSNzoQ3fpV2rEUBOV0BEVnOUEWsy4aueZv84fHQfw_B5S431qB9Q7WwFTMxTxrpZtsDF71MBec79enoyFt_hXOyrtjb7iv4J-aIJAi0AinmuIS4eJakav-f9mODSEBTdFFZTvy0NzwjYaUUVEr8oswTdD9gWIXto4VrkUgFb0-7CfpwVKJ-Ohsf7tzFLqbm7LdwDXPfKehnw5zRS9UgNu5AV3">
+</div>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Olá, Creator</h2>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:opacity-80 transition-opacity scale-95 active:transition-transform bg-surface-container border border-outline">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 px-container-margin py-lg flex flex-col gap-lg max-w-7xl mx-auto w-full">
+<!-- Page Header & Actions -->
+<div class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-md">
+<div class="flex flex-col gap-xs">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-on-background tracking-tight">Calendário Editorial</h1>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Visualização semanal de planejamento e execução gerada por IA.</p>
+</div>
+<div class="flex flex-wrap items-center gap-sm">
+<button class="flex items-center gap-xs px-md py-sm rounded-lg border border-outline bg-transparent text-on-background hover:bg-surface-variant/50 transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Adicionar ideia
+                    </button>
+<button class="flex items-center gap-xs px-md py-sm rounded-lg bg-primary-container text-on-primary-container hover:bg-[#E64058] transition-colors font-label-md text-label-md font-semibold shadow-[0_0_15px_rgba(255,83,104,0.2)]">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                        Gerar calendário com IA
+                    </button>
+</div>
+</div>
+<!-- Sub-navigation Tabs -->
+<div class="flex items-center gap-lg border-b border-outline pb-xs overflow-x-auto hide-scrollbar">
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-on-background whitespace-nowrap pb-xs">Lista</button>
+<button class="font-label-md text-label-md text-primary border-b-2 border-primary pb-xs whitespace-nowrap">Semanal</button>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-on-background whitespace-nowrap pb-xs">Mensal</button>
+</div>
+<!-- Reminders (Lembretes) -->
+<div class="bg-surface-container border border-primary-container/30 rounded-xl p-md flex items-center gap-md shadow-[0_0_20px_rgba(255,83,104,0.05)]">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">campaign</span>
+</div>
+<div class="flex-1">
+<h3 class="font-label-md text-label-md text-on-background">Lembrete de Postagem</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Você tem um post de Instagram agendado para hoje às 18:00.</p>
+</div>
+<button class="font-label-md text-label-md text-primary hover:underline whitespace-nowrap">Ver detalhes</button>
+</div>
+<!-- Weekly View Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-md">
+<!-- Day Column: Seg -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-baseline gap-xs pb-sm border-b border-outline">
+<span class="font-headline-md text-headline-md font-bold text-on-background">12</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Seg</span>
+</div>
+<!-- Card: Publicado -->
+<div class="bg-surface-container border border-outline rounded-xl p-sm flex flex-col gap-sm hover:border-surface-variant transition-colors group cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">play_circle</span>
+<!-- Badge: Publicado -->
+<span class="font-label-md text-label-md px-2 py-1 rounded-full bg-tertiary/15 text-tertiary">Publicado</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-background leading-tight">Análise de Métricas Q3</h4>
+<div class="flex items-center gap-xs mt-auto pt-xs border-t border-outline/50">
+<span class="material-symbols-outlined text-on-surface-variant text-[14px]">schedule</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-[12px]">10:00</span>
+</div>
+</div>
+</div>
+<!-- Day Column: Ter -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-baseline gap-xs pb-sm border-b border-outline">
+<span class="font-headline-md text-headline-md font-bold text-primary">13</span>
+<span class="font-label-md text-label-md text-primary uppercase">Ter</span>
+</div>
+<!-- Card: Aprovado -->
+<div class="bg-surface-container border border-outline rounded-xl p-sm flex flex-col gap-sm hover:border-surface-variant transition-colors group cursor-pointer relative overflow-hidden">
+<!-- Subtle active day glow -->
+<div class="absolute -inset-1 bg-gradient-to-b from-primary-container/10 to-transparent opacity-50 pointer-events-none"></div>
+<div class="flex justify-between items-start relative z-10">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">article</span>
+<!-- Badge: Aprovado -->
+<span class="font-label-md text-label-md px-2 py-1 rounded-full bg-tertiary/15 text-tertiary">Aprovado</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-background leading-tight relative z-10">Como usar IA em dados</h4>
+<div class="flex items-center gap-xs mt-auto pt-xs border-t border-outline/50 relative z-10">
+<span class="material-symbols-outlined text-on-surface-variant text-[14px]">schedule</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-[12px]">18:00</span>
+</div>
+</div>
+</div>
+<!-- Day Column: Qua -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-baseline gap-xs pb-sm border-b border-outline">
+<span class="font-headline-md text-headline-md font-bold text-on-background">14</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Qua</span>
+</div>
+<!-- Card: Em Produção -->
+<div class="bg-surface-container border border-outline rounded-xl p-sm flex flex-col gap-sm hover:border-surface-variant transition-colors group cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">movie</span>
+<!-- Badge: Em produção -->
+<span class="font-label-md text-label-md px-2 py-1 rounded-full bg-secondary-container/50 text-secondary-fixed">Em produção</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-background leading-tight">Reels: Dicas Rápidas Dashboard</h4>
+<div class="flex items-center gap-xs mt-auto pt-xs border-t border-outline/50">
+<div class="w-5 h-5 rounded-full bg-surface-variant overflow-hidden border border-outline">
+<img alt="Assignee" class="w-full h-full object-cover" data-alt="Tiny avatar of a designer, high contrast dark theme style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwiQaJfGeMIPQ-q7GIY59nLd-mHexh005gMfNyU-JwdobltMEJM72LO3N5sMOX9DcgYGZV8D5JuPwobdr3D6owkqFUzfKf8ilp6HEXf-AmssaVPRShLpCmH3AQvN-uCnoWLi8TLar_lOFRQHJ6AeN0vNhEQ3xl69KUffQzQ6EVrfzncLPwLKjFWD2iaLY762_IM9DmV0uYr41_B5wFKP4aMIkP__zLEuVBnaWaZCnpM6-uUe-MFyW989NKrkxa8qjGes1RpVUiwVFb">
+</div>
+</div>
+</div>
+</div>
+<!-- Day Column: Qui -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-baseline gap-xs pb-sm border-b border-outline">
+<span class="font-headline-md text-headline-md font-bold text-on-background">15</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Qui</span>
+</div>
+<!-- Card: Ideia -->
+<div class="bg-surface-container border border-outline border-dashed rounded-xl p-sm flex flex-col gap-sm hover:border-solid transition-all group cursor-pointer opacity-70 hover:opacity-100">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">lightbulb</span>
+<!-- Badge: Ideia -->
+<span class="font-label-md text-label-md px-2 py-1 rounded-full bg-surface-variant text-on-surface-variant">Ideia</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface-variant group-hover:text-on-background transition-colors leading-tight">Thread: Futuro do SaaS</h4>
+</div>
+</div>
+<!-- Day Column: Sex -->
+<div class="flex flex-col gap-sm">
+<div class="flex items-baseline gap-xs pb-sm border-b border-outline">
+<span class="font-headline-md text-headline-md font-bold text-on-background">16</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Sex</span>
+</div>
+<!-- Empty State -->
+<button class="h-24 bg-transparent border border-outline border-dashed rounded-xl flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-xs py-base bg-surface-container border-t border-outline-variant flat no shadows rounded-t-xl glass-overlay">
+<!-- Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1 truncate w-full text-center text-[10px]">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md mt-1 truncate w-full text-center text-[10px]">Posts</span>
+</a>
+<!-- Active -->
+<a class="flex flex-col items-center justify-center text-primary bg-secondary-container/20 rounded-xl p-xs scale-90 transition-all duration-200 w-16" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-label-md text-label-md mt-1 truncate w-full text-center text-[10px]">IA</span>
+</a>
+<!-- Inactive -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="font-label-md text-label-md mt-1 truncate w-full text-center text-[10px]">UP Creator</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md mt-1 truncate w-full text-center text-[10px]">Config</span>
+</a>
+</nav>
+</body></html>

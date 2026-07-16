@@ -1,0 +1,315 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Estratégia com IA</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#1d1010",
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#ff5368",
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#423031",
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#1d1010",
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#e2bebe",
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#a98989",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#5c0015",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#680019",
+                        "surface-container-low": "#261818",
+                        "surface-container-high": "#362626",
+                        "outline-variant": "#5a4041",
+                        "surface-container-highest": "#423031",
+                        "surface-container": "#2b1c1c",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#ffb3b5",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter", "sans-serif"],
+                        "stats-display": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "stats-display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #423031;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a4041;
+        }
+    </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" data-snapdom="injected-import"></head>
+<body class="bg-background text-on-background min-h-screen flex overflow-hidden">
+<!-- DESKTOP NAVIGATION DRAWER -->
+<nav class="hidden md:flex flex-col gap-md p-lg h-full bg-surface-container-low border-r border-outline-variant w-64 fixed left-0 top-0 z-40">
+<div class="mb-xl">
+<span class="font-headline-lg text-headline-lg font-black text-primary">UpIdeias</span>
+</div>
+<div class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors scale-95 active:transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors scale-95 active:transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-body-lg text-body-lg">Posts</span>
+</a>
+<!-- ACTIVE ITEM -->
+<a class="flex items-center gap-sm px-sm py-xs bg-secondary-container text-on-secondary-container rounded-lg font-bold scale-95 active:transition-transform translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="psychology">psychology</span>
+<span class="font-body-lg text-body-lg">Insights IA</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors scale-95 active:transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+<span class="font-body-lg text-body-lg">UP Creator</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors scale-95 active:transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-lg text-body-lg">Configurações</span>
+</a>
+</div>
+</nav>
+<!-- MAIN CONTENT WRAPPER -->
+<div class="flex-1 flex flex-col md:ml-64 h-screen relative">
+<!-- MOBILE TOP APP BAR -->
+<header class="md:hidden flex justify-between items-center px-container-margin py-md w-full bg-background docked full-width top-0 z-30">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young creative content creator with vibrant pink lighting accents, looking confident against a dark minimalist studio background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCA1QUIcS_DGuYUKXAoi9EOB4zwz--AodSYdrZkP_cS52wJYyffeX89NI0BvzGCozf5j9TBXMzTZ4S1L0qr6VB6Wd7mx7s5V2kYZYdthzKS7_OBUFei0RZIEybLtHec8aimHq6ODbXm7vIlW3DDEHbok-Kr4DljHadsiUAg6q9jL6vVSMkHokF634XzyOP1awOHw0mz_Btdnt0hI7QA0o2HhANo9_rlK1lV5O6LKDJnT7G2Cu5gfS5kr31NwM218VMIWbis-wgpPT4O">
+</div>
+<h1 class="font-headline-md text-headline-md text-primary">Olá, Creator</h1>
+</div>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity scale-95 active:transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- SCROLLABLE CONTENT CANVAS -->
+<main class="flex-1 overflow-y-auto px-container-margin py-lg md:p-xl pb-24 md:pb-xl w-full max-w-7xl mx-auto">
+<!-- PAGE HEADER -->
+<section class="mb-xl flex flex-col md:flex-row md:justify-between md:items-end gap-md">
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background mb-base">Estratégia com IA</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Entenda seus números e descubra o que fazer para crescer.</p>
+</div>
+<button class="flex items-center justify-center gap-xs bg-primary-container text-on-primary-container font-label-md text-label-md py-sm px-lg rounded-lg hover:opacity-80 transition-opacity whitespace-nowrap group">
+<span class="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform" data-icon="auto_awesome">auto_awesome</span>
+                    Gerar nova análise
+                </button>
+</section>
+<!-- DYNAMIC CARDS (BENTO GRID) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-md mb-xl">
+<!-- CARD: O que está funcionando -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-md flex flex-col gap-sm relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-tertiary/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[16px] icon-fill" data-icon="check_circle">check_circle</span>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">O que está funcionando</h3>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-xs leading-relaxed">
+                        Seus <span class="text-tertiary font-semibold">Reels tutoriais</span> postados às terças-feiras estão retendo 45% mais público após os primeiros 3 segundos. O uso de áudios em alta combinados com cortes rápidos é o principal trator desse engajamento.
+                    </p>
+</div>
+<!-- CARD: O que precisa melhorar -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-md flex flex-col gap-sm relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-error/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-error/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[16px] icon-fill" data-icon="warning">warning</span>
+</div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">O que precisa melhorar</h3>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-xs leading-relaxed">
+                        A taxa de resposta nos comentários dos <span class="text-error font-semibold">Stories interativos</span> caiu 20%. Isso sinaliza que os CTAs (Call to Action) estão confusos ou o assunto não está gerando atrito suficiente para discussão.
+                    </p>
+</div>
+<!-- CARD: Oportunidade da semana -->
+<div class="bg-surface-container border border-primary/30 rounded-xl p-md flex flex-col gap-sm relative overflow-hidden group hover:bg-surface-container-high transition-colors md:col-span-2 lg:col-span-1 shadow-[0_0_15px_rgba(255,83,104,0.05)]">
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none group-hover:bg-primary/20 transition-all"></div>
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[16px] icon-fill" data-icon="lightbulb">lightbulb</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary uppercase tracking-wider">Oportunidade da semana</h3>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-xs leading-relaxed">
+                        Seu público demonstrou alto interesse na palavra-chave <span class="text-primary font-semibold">"Produtividade"</span> nos últimos 3 dias. Criar uma sequência de 3 stories hoje sobre seu método pessoal de organização tem 80% de chance de viralização no seu nicho.
+                    </p>
+</div>
+<!-- CARD: Ação imediata -->
+<div class="bg-secondary-container/30 border border-secondary/50 rounded-xl p-md flex flex-col gap-sm relative overflow-hidden group hover:bg-secondary-container/40 transition-colors md:col-span-2 lg:col-span-1">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] icon-fill" data-icon="bolt">bolt</span>
+</div>
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-wider">Ação imediata</h3>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface mt-xs leading-relaxed mb-sm">
+                        Há 15 comentários não respondidos nas últimas 2 horas em um post que está ganhando tração. Responda agora para alimentar o algoritmo.
+                    </p>
+<div class="mt-auto">
+<button class="bg-transparent border border-outline-variant text-on-surface hover:bg-surface-variant/30 font-label-md text-label-md py-xs px-sm rounded-lg transition-colors w-max">
+                            Ir para comentários
+                        </button>
+</div>
+</div>
+</section>
+<!-- HISTÓRICO DE ANÁLISES -->
+<section class="mt-xl">
+<h3 class="font-headline-md text-headline-md text-on-background mb-md">Histórico de análises anteriores</h3>
+<div class="flex flex-col gap-xs">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-sm border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors rounded-lg group cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Análise de Crescimento Q3</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Ontem, 14:30</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-sm border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors rounded-lg group cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Auditoria de Engajamento</p>
+<p class="font-label-md text-label-md text-on-surface-variant">12 Out 2023</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-sm border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors rounded-lg group cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Oportunidades de Monetização</p>
+<p class="font-label-md text-label-md text-on-surface-variant">05 Out 2023</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- MOBILE BOTTOM NAV BAR -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-xs py-base bg-surface-container border-t border-outline-variant docked full-width rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md text-[10px]">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="grid_view">grid_view</span>
+<span class="font-label-md text-label-md text-[10px]">Posts</span>
+</a>
+<!-- ACTIVE TAB -->
+<a class="flex flex-col items-center justify-center text-primary bg-secondary-container/20 rounded-xl p-xs scale-90 transition-all duration-200 w-16 relative" href="#">
+<div class="absolute inset-0 bg-primary/10 rounded-xl blur-sm pointer-events-none"></div>
+<span class="material-symbols-outlined mb-1 icon-fill" data-icon="psychology">psychology</span>
+<span class="font-label-md text-label-md text-[10px] font-bold">IA</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="rocket_launch">rocket_launch</span>
+<span class="font-label-md text-label-md text-[10px] whitespace-nowrap text-center leading-tight">UP<br>Creator</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md text-[10px]">Config</span>
+</a>
+</nav>
+</body></html>

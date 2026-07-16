@@ -1,0 +1,273 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Transforme métricas em estratégia</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS with custom config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#1d1010",
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#ff5368",
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#423031",
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#1d1010",
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#e2bebe",
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#a98989",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#5c0015",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#680019",
+                        "surface-container-low": "#261818",
+                        "surface-container-high": "#362626",
+                        "outline-variant": "#5a4041",
+                        "surface-container-highest": "#423031",
+                        "surface-container": "#2b1c1c",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#ffb3b5",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        xs: "8px",
+                        gutter: "16px",
+                        base: "4px",
+                        md: "16px",
+                        xl: "32px",
+                        "container-margin": "20px",
+                        sm: "12px",
+                        lg: "24px"
+                    },
+                    fontFamily: {
+                        "label-md": ["Inter", "sans-serif"],
+                        "stats-display": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "stats-display": ["40px", { lineHeight: "48px", letterSpacing: "-0.03em", fontWeight: "700" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-[#111116]/80 backdrop-blur-md border border-[#26262D];
+            }
+            .glow-effect {
+                box-shadow: 0 0 20px rgba(255, 83, 104, 0.15);
+            }
+            .text-gradient {
+                @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-container to-white;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden antialiased selection:bg-primary-container/30 selection:text-white">
+<!-- Header / Nav -->
+<header class="fixed top-0 w-full z-50 glass-panel border-b-0 border-x-0 border-t-0 shadow-sm transition-all duration-300" id="main-header">
+<div class="max-w-7xl mx-auto px-container-margin py-md flex justify-between items-center">
+<a class="flex items-center gap-2 group" href="#">
+<img alt="UpIdeias Logo" class="h-8 w-auto object-contain group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAODqGUwzC8HXSIWGLI4GJSF3MY4gLIOBazAXBw_HqIikRuZLxFyYtc_OQ9pal70Lz5PxNfBjH84d45leH0XuXftwHgHbi2dZJ8YhExjxaJ9Y6y4gEU6VpEF5fjeJ7Ybm53Rfe9rtMlX2ghaM-P1_iDsTahM9bQGWmDWvtICoo0zgAxktSZDbgc1GTw2-DbKsuxPy5maNQHRJyGun96CqeU8pX9d3VpvOTwo_FxzzgEc47x3iTqP5f6GPrPH2DPB9sRM_ws6JtRGDcj">
+<span class="font-headline-md text-headline-md text-on-background font-bold tracking-tight">UP Analytics</span>
+</a>
+<nav class="hidden md:flex gap-xl">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#beneficios">Benefícios</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#como-funciona">Como Funciona</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#planos">Planos</a>
+</nav>
+<div class="flex items-center gap-md">
+<a class="hidden md:block font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#">Entrar</a>
+<a class="bg-primary-container text-white font-label-md text-label-md px-lg py-sm rounded-lg hover:bg-[#E64058] transition-colors shadow-lg shadow-primary-container/20" href="#planos">Começar agora</a>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[100px]">
+<!-- Hero Section -->
+<section class="relative pt-xl pb-32 px-container-margin overflow-hidden">
+<!-- Decorative background elements -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center relative z-10">
+<!-- Hero Copy -->
+<div class="flex flex-col gap-lg z-10 text-center lg:text-left">
+<div class="inline-flex items-center gap-xs px-sm py-xs rounded-full border border-primary-container/30 bg-primary-container/10 w-fit mx-auto lg:mx-0">
+<span class="material-symbols-outlined text-primary-container text-[16px]">bar_chart</span>
+<span class="font-label-md text-label-md text-primary-container">Nova versão 2.0 disponível</span>
+</div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold tracking-tight text-white max-w-2xl leading-tight mx-auto lg:mx-0">
+                        Transforme métricas em <span class="text-gradient">estratégia.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mx-auto lg:mx-0">
+                        Tenha controle absoluto sobre seus dados. Uma plataforma SaaS de alta performance projetada para clareza, precisão e decisões baseadas em insights visuais atraentes.
+                    </p>
+<div class="flex flex-col sm:flex-row items-center gap-md mt-sm justify-center lg:justify-start">
+<a class="w-full sm:w-auto bg-primary-container text-white font-label-md text-label-md px-xl py-md rounded-lg hover:bg-[#E64058] transition-colors shadow-lg shadow-primary-container/20 text-center" href="#planos">
+                            Começar agora
+                        </a>
+<a class="w-full sm:w-auto border border-[#26262D] text-white font-label-md text-label-md px-xl py-md rounded-lg hover:bg-surface-container transition-colors text-center" href="#planos">
+                            Ver planos
+                        </a>
+</div>
+</div>
+<!-- Hero Visual (Bento/Floating Cards) -->
+<div class="relative h-[400px] md:h-[500px] w-full mt-xl lg:mt-0 perspective-1000">
+<!-- Main Dashboard Preview Card -->
+<div class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-2xl bg-[#0B0B0F] border border-[#26262D] shadow-2xl transform md:rotate-y-[-10deg] md:rotate-x-[5deg] transition-transform duration-700 hover:rotate-y-0 hover:rotate-x-0">
+<img alt="Premium mobile app analytics dashboard mockup" class="h-full w-full object-cover opacity-90 hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHc7PyYN-u_sFmzUAQCh3cmgY1Ku5v4pVdGlV74ww2ItnIx6dgBuS-xmGjidlPrZPjYbx1vFijTNJU1YsViHGgtwtxzSItsdK_dj18s7Q81JKuwupMwSk3Rwfp84nmmNP4k45AUgS_u-aBLspIjnxRkkqx1JLzgBu27aMFTq2qMrmc1_jEITzxwwQawarnvWWZSZUv6CT-Gbnj4d1UNQAwHJ2ZEkyYPVJu6g36SvR_Q5r_XeCbffSOfOrPRr3pIs4BykhUkMtpvruj">
+</div>
+<!-- Floating Floating Badge -->
+<div class="absolute -bottom-6 -right-6 md:-right-12 glass-panel rounded-full px-lg py-sm flex items-center gap-md shadow-2xl animate-[bounce_4s_infinite]">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">bolt</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant uppercase">Sincronização</div>
+<div class="font-headline-md text-headline-md text-white text-sm">Tempo Real</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Benefícios Section -->
+<section class="py-24 px-container-margin bg-[#0B0B0F] relative border-t border-[#26262D]" id="beneficios">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16 max-w-2xl mx-auto">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-white mb-md">Insights claros, decisões rápidas.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Nossa arquitetura de dados prioriza a clareza, eliminando ruídos visuais para focar no que realmente importa para o seu negócio.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Feature Card 1 -->
+<div class="bg-[#111116] border border-[#26262D] rounded-2xl p-xl hover:border-primary-container/50 transition-colors group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-lg group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container text-[24px]">visibility</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-white mb-sm">Visibilidade Total</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">Painéis minimalistas de alto contraste garantem que as métricas vitais se destaquem instantaneamente.</p>
+</div>
+<!-- Feature Card 2 -->
+<div class="bg-[#111116] border border-[#26262D] rounded-2xl p-xl hover:border-primary-container/50 transition-colors group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/5 rounded-bl-full pointer-events-none group-hover:bg-primary-container/10 transition-colors"></div>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-lg group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container text-[24px]">speed</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-white mb-sm">Alta Performance</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">Processamento em tempo real sem engasgos. Uma experiência fluida construída para operações ágeis.</p>
+</div>
+<!-- Feature Card 3 -->
+<div class="bg-[#111116] border border-[#26262D] rounded-2xl p-xl hover:border-primary-container/50 transition-colors group">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mb-lg group-hover:bg-primary-container/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container text-[24px]">architecture</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-white mb-sm">Estrutura Precisa</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">Camadas tonais sutis criam profundidade sem distrações, mantendo o foco exclusivo nos seus dados.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#050505] border-t border-[#26262D] pt-20 pb-10 px-container-margin">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-xl mb-16">
+<div class="col-span-1 md:col-span-2 flex flex-col gap-md">
+<a class="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity w-fit" href="#">
+<img alt="UpIdeias Logo Footer" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAODqGUwzC8HXSIWGLI4GJSF3MY4gLIOBazAXBw_HqIikRuZLxFyYtc_OQ9pal70Lz5PxNfBjH84d45leH0XuXftwHgHbi2dZJ8YhExjxaJ9Y6y4gEU6VpEF5fjeJ7Ybm53Rfe9rtMlX2ghaM-P1_iDsTahM9bQGWmDWvtICoo0zgAxktSZDbgc1GTw2-DbKsuxPy5maNQHRJyGun96CqeU8pX9d3VpvOTwo_FxzzgEc47x3iTqP5f6GPrPH2DPB9sRM_ws6JtRGDcj">
+<span class="font-headline-md text-headline-md text-white font-bold tracking-tight">UP Analytics</span>
+</a>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mt-sm">
+                        Plataforma SaaS de alta performance para análise de dados e decisões estratégicas. Precisão e sofisticação para o seu negócio.
+                    </p>
+</div>
+<div class="flex flex-col gap-md">
+<h4 class="font-label-md text-label-md text-white uppercase tracking-widest mb-2">Produto</h4>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#beneficios">Benefícios</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#como-funciona">Como funciona</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#planos">Preços</a>
+</div>
+<div class="flex flex-col gap-md">
+<h4 class="font-label-md text-label-md text-white uppercase tracking-widest mb-2">Empresa</h4>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#">Sobre</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#">Contato</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-white transition-colors" href="#">Termos de Uso</a>
+</div>
+</div>
+<div class="border-t border-[#26262D] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="font-body-md text-body-md text-on-surface-variant/60">
+                    © 2024 UP Ideias Analytics. Todos os direitos reservados.
+                </p>
+<div class="flex gap-4">
+<a class="text-on-surface-variant hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">language</span>
+</a>
+<a class="text-on-surface-variant hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple scroll handler for header
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('bg-[#111116]/95');
+                header.classList.remove('bg-transparent');
+            } else {
+                header.classList.remove('bg-[#111116]/95');
+                header.classList.add('bg-transparent');
+            }
+        });
+    </script>
+</body></html>

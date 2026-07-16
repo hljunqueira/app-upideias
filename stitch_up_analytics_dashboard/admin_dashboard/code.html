@@ -1,0 +1,420 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#1d1010",
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#ff5368",
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#423031",
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#1d1010",
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#e2bebe",
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#a98989",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#5c0015",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#680019",
+                        "surface-container-low": "#261818",
+                        "surface-container-high": "#362626",
+                        "outline-variant": "#5a4041",
+                        "surface-container-highest": "#423031",
+                        "surface-container": "#2b1c1c",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#ffb3b5",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "stats-display": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "stats-display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #050505;
+            color: #f8dcdc;
+        }
+        .card-level-1 {
+            background-color: #111116;
+            border: 1px solid #26262D;
+        }
+        .chart-gradient {
+            background: linear-gradient(180deg, rgba(255, 83, 104, 0.15) 0%, rgba(255, 83, 104, 0) 100%);
+        }
+        .text-coral {
+            color: #FF5368;
+        }
+        .bg-coral {
+            background-color: #FF5368;
+        }
+        .border-coral {
+            border-color: #FF5368;
+        }
+        .badge-positive {
+            background-color: rgba(90, 222, 150, 0.15);
+            color: #5ade96;
+        }
+        .badge-negative {
+            background-color: rgba(255, 83, 104, 0.15);
+            color: #FF5368;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom Scrollbar for Logs */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111116; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #26262D; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #423031; 
+        }
+    </style>
+</head>
+<body class="flex min-h-screen bg-[#050505]">
+<!-- NavigationDrawer (Web) -->
+<nav class="hidden md:flex flex-col gap-md p-lg h-full w-64 fixed left-0 top-0 border-r border-outline-variant bg-surface-container-low z-40">
+<div class="mb-xl px-xs">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary">UpIdeias</h1>
+<span class="font-label-md text-label-md text-on-surface-variant block mt-xs tracking-wider">ADMIN CONSOLE</span>
+</div>
+<div class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">Usuários</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md text-body-md">Assinaturas</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-body-md text-body-md">Uso IA</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg hover:bg-surface-variant transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Configurações</span>
+</a>
+</div>
+<div class="mt-auto">
+<div class="flex items-center gap-sm p-sm border-t border-outline-variant pt-md">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, professional circular avatar portrait of an admin user in a dark, high-contrast style. Soft studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_bxmZvUweEHHl29Z6doeLWnbJQDtHlmBKEREFnPVF2kwEv2fOqM7a0r0O3jiFVXuQawkY1JyZDtnbGIXC8jjnDw1yQ9_sMCfOBNT0v09nk32jK6HHhbqjA2i4TWGNW0LDjYNom20IB4dQhvbERsxwh5pPka4Gh6LGAM58Gi84B0aYQ41gMUOK0dB19MTQ7snoRFcVVVbvdf7l45MyMTfk9HZBH2x0KAe6paqZCs9WJevzodz048KOoPLYElGVOwdXnLrBXr3byH_G">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Admin Root</span>
+<span class="font-label-md text-label-md text-on-surface-variant opacity-70 text-[10px]">sys.admin@upideias</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 pb-24 md:pb-0 min-h-screen">
+<!-- TopAppBar (Mobile & Web) -->
+<header class="flex justify-between items-center px-container-margin py-md w-full bg-background docked full-width top-0 z-30 sticky md:static">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full object-cover md:hidden" data-alt="A small, professional circular avatar portrait of an admin user in a dark, high-contrast style. Soft studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0k5xRdNVZV4JDQSnplwV_mMeOk5PpD2eXo3ETGIfrhyf8BgQ_6HAgIeNkc6gvRdS6avqMMe1sPEqJGhavi8LbEIr5Ref1k9YUhBHZF7Vc7vK9AAmNOG-6tQeEt2BeAi2pFQj6J1_LKFFRLLOgD36pE4DfBwEY1xvlEbVFgP02RNZtDqtNEVgP3KcwXz8OQWjMeBNfPhn9ScNfe48W62wRhnzHO3HfeLtoxfcSwGPx112rhNlRTNCCV1I5nEIxgnhRvRvkRovYoC0h">
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-md md:text-headline-md font-bold text-primary">Ol\u00e1, Creator</h2>
+<span class="font-body-md text-body-md text-on-surface-variant hidden md:block">Visão Global de Negócios</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity scale-95 active:transition-transform relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-coral rounded-full border border-background"></span>
+</button>
+</header>
+<div class="p-container-margin md:p-xl md:pt-md flex flex-col gap-lg md:gap-xl max-w-7xl mx-auto">
+<!-- Contextual Filter/Time Range -->
+<div class="flex justify-between items-center w-full">
+<h3 class="font-headline-md text-headline-md text-on-surface hidden md:block">Visão Geral</h3>
+<div class="flex gap-xs overflow-x-auto w-full md:w-auto pb-2 md:pb-0 custom-scrollbar">
+<button class="px-sm py-xs rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md whitespace-nowrap hover:bg-surface-container-highest transition-colors">Hoje</button>
+<button class="px-sm py-xs rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md whitespace-nowrap hover:bg-surface-container-highest transition-colors">7 Dias</button>
+<button class="px-sm py-xs rounded-full bg-coral text-white font-label-md text-label-md whitespace-nowrap border border-coral">30 Dias</button>
+<button class="px-sm py-xs rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md whitespace-nowrap hover:bg-surface-container-highest transition-colors">YTD</button>
+</div>
+</div>
+<!-- Bento Grid: Key Metrics -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-sm md:gap-md">
+<!-- Metric: Total Users -->
+<div class="card-level-1 rounded-xl p-md flex flex-col justify-between min-h-[140px] hover:bg-surface-container-highest transition-colors group">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Total Usuários</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">group</span>
+</div>
+<div>
+<div class="font-stats-display text-stats-display text-on-surface mt-sm">124.5k</div>
+<div class="flex items-center gap-1 mt-1 badge-positive w-fit px-2 py-0.5 rounded-full text-[10px] font-bold">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+<span>+12.4%</span>
+</div>
+</div>
+</div>
+<!-- Metric: Active Subs -->
+<div class="card-level-1 rounded-xl p-md flex flex-col justify-between min-h-[140px] hover:bg-surface-container-highest transition-colors group">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Assinaturas Ativas</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">workspace_premium</span>
+</div>
+<div>
+<div class="font-stats-display text-stats-display text-on-surface mt-sm">89.2k</div>
+<div class="flex items-center gap-1 mt-1 badge-positive w-fit px-2 py-0.5 rounded-full text-[10px] font-bold">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+<span>+5.2%</span>
+</div>
+</div>
+</div>
+<!-- Metric: MRR -->
+<div class="card-level-1 rounded-xl p-md flex flex-col justify-between min-h-[140px] hover:bg-surface-container-highest transition-colors group col-span-2 md:col-span-1 relative overflow-hidden">
+<div class="absolute inset-0 bg-coral/5 z-0"></div>
+<div class="relative z-10 flex justify-between items-start">
+<span class="font-label-md text-label-md text-coral uppercase">Receita (MRR)</span>
+<span class="material-symbols-outlined text-coral text-[20px]">attach_money</span>
+</div>
+<div class="relative z-10">
+<div class="font-stats-display text-stats-display text-on-surface mt-sm text-[32px] md:text-stats-display">R$ 2.4M</div>
+<div class="flex items-center gap-1 mt-1 badge-positive w-fit px-2 py-0.5 rounded-full text-[10px] font-bold">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+<span>+18.9%</span>
+</div>
+</div>
+</div>
+<!-- Metric: AI Usage -->
+<div class="card-level-1 rounded-xl p-md flex flex-col justify-between min-h-[140px] hover:bg-surface-container-highest transition-colors group col-span-2 md:col-span-1">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Requisições IA</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[20px]">psychology</span>
+</div>
+<div>
+<div class="font-stats-display text-stats-display text-on-surface mt-sm text-[32px] md:text-stats-display">1.8M</div>
+<div class="flex items-center gap-1 mt-1 badge-negative w-fit px-2 py-0.5 rounded-full text-[10px] font-bold">
+<span class="material-symbols-outlined text-[12px]">trending_down</span>
+<span>-2.1%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Charts & Complex Data Area -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-md md:gap-lg">
+<!-- Main Chart Area (Growth) -->
+<div class="card-level-1 rounded-xl p-md lg:p-lg col-span-1 lg:col-span-2 flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Crescimento de Base</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Novos usuários vs Churn nos últimos 30 dias</p>
+</div>
+<button class="p-xs rounded-lg border border-outline-variant text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<!-- Abstract Chart Representation -->
+<div class="flex-1 relative min-h-[250px] w-full mt-4 flex items-end gap-1">
+<!-- Simulated Chart Bars - Y Axis labels hidden for minimalist look, implied by height -->
+<div class="absolute left-0 top-0 bottom-0 w-full border-b border-outline-variant/30 flex flex-col justify-between pb-6">
+<div class="w-full border-t border-outline-variant/10 h-0"></div>
+<div class="w-full border-t border-outline-variant/10 h-0"></div>
+<div class="w-full border-t border-outline-variant/10 h-0"></div>
+<div class="w-full border-t border-outline-variant/10 h-0"></div>
+</div>
+<!-- Minimalist bars -->
+<div class="relative w-full h-[200px] flex items-end justify-between px-2 z-10">
+<!-- Week 1 -->
+<div class="w-[8%] md:w-[10%] bg-surface-container-highest h-[30%] rounded-t-sm group relative">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#111116] border border-[#26262D] px-2 py-1 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-on-surface whitespace-nowrap">Sem 1: 1.2k</div>
+</div>
+<div class="w-[8%] md:w-[10%] bg-surface-container-highest h-[45%] rounded-t-sm"></div>
+<div class="w-[8%] md:w-[10%] bg-surface-container-highest h-[35%] rounded-t-sm"></div>
+<div class="w-[8%] md:w-[10%] bg-surface-container-highest h-[60%] rounded-t-sm"></div>
+<div class="w-[8%] md:w-[10%] bg-coral/80 h-[85%] rounded-t-sm relative group shadow-[0_0_15px_rgba(255,83,104,0.3)]">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#111116] border border-[#26262D] px-2 py-1 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-on-surface whitespace-nowrap">Pico: 4.5k</div>
+</div>
+<div class="w-[8%] md:w-[10%] bg-surface-container-highest h-[55%] rounded-t-sm"></div>
+<div class="w-[8%] md:w-[10%] bg-surface-container-highest h-[70%] rounded-t-sm"></div>
+</div>
+<!-- X Axis Labels -->
+<div class="absolute bottom-0 left-0 w-full flex justify-between px-4 text-[10px] text-on-surface-variant font-label-md">
+<span>01/Nov</span>
+<span>08/Nov</span>
+<span>15/Nov</span>
+<span>22/Nov</span>
+<span>30/Nov</span>
+</div>
+</div>
+</div>
+<!-- System Logs & Alerts Area -->
+<div class="card-level-1 rounded-xl p-md lg:p-lg col-span-1 flex flex-col max-h-[400px]">
+<div class="flex justify-between items-center mb-md pb-xs border-b border-outline-variant/30">
+<h3 class="font-headline-md text-headline-md text-on-surface">Status do Sistema</h3>
+<span class="flex items-center gap-1 font-label-md text-[10px] text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                            Operacional
+                        </span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-sm">
+<!-- Alert Item -->
+<div class="p-sm bg-surface-container-low rounded-lg border border-error/20 border-l-2 border-l-error flex gap-sm items-start">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5">warning</span>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface leading-tight">Falha de Integração Payment Gateway</p>
+<p class="font-body-md text-[11px] text-on-surface-variant mt-1">Timeout detectado em 45 requisições nos últimos 10 min.</p>
+<span class="text-[9px] text-on-surface-variant/50 mt-2 block">Há 2 min</span>
+</div>
+</div>
+<!-- Log Item -->
+<div class="p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex gap-sm items-start">
+<span class="material-symbols-outlined text-tertiary text-[18px] mt-0.5">check_circle</span>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface leading-tight">Backup Diário Concluído</p>
+<p class="font-body-md text-[11px] text-on-surface-variant mt-1">DB Principal &amp; Analytics (450GB) espelhados com sucesso.</p>
+<span class="text-[9px] text-on-surface-variant/50 mt-2 block">Há 4 horas</span>
+</div>
+</div>
+<!-- Log Item -->
+<div class="p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex gap-sm items-start">
+<span class="material-symbols-outlined text-coral text-[18px] mt-0.5">psychology</span>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface leading-tight">Pico de Uso API IA</p>
+<p class="font-body-md text-[11px] text-on-surface-variant mt-1">Limite de throughput atingido (80%). Auto-scaling acionado.</p>
+<span class="text-[9px] text-on-surface-variant/50 mt-2 block">Há 5 horas</span>
+</div>
+</div>
+<!-- Log Item -->
+<div class="p-sm bg-surface-container-lowest rounded-lg border border-outline-variant/30 flex gap-sm items-start">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] mt-0.5">update</span>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface leading-tight">Deploy v2.4.1</p>
+<p class="font-body-md text-[11px] text-on-surface-variant mt-1">Atualização de cache e otimização de queries.</p>
+<span class="text-[9px] text-on-surface-variant/50 mt-2 block">Ontem</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Metric Bar (Desktop) -->
+<section class="hidden md:flex card-level-1 rounded-xl p-md justify-between items-center">
+<div class="flex gap-lg items-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Métricas de Servidor</span>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-[11px] text-on-surface">CPU Load</span>
+<div class="w-24 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[45%]"></div>
+</div>
+<span class="font-label-md text-[11px] text-tertiary">45%</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-[11px] text-on-surface">Memory</span>
+<div class="w-24 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-coral w-[82%]"></div>
+</div>
+<span class="font-label-md text-[11px] text-coral">82%</span>
+</div>
+</div>
+<button class="font-label-md text-label-md text-coral border border-coral/30 px-sm py-xs rounded-lg hover:bg-coral/10 transition-colors">
+                    Ver Monitoramento Completo
+                </button>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-xs py-base bg-surface-container border-t border-outline-variant docked rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-primary bg-secondary-container/20 rounded-xl p-xs scale-90 transition-all duration-200 w-16" href="#">
+<span class="material-symbols-outlined" data-weight="fill">dashboard</span>
+<span class="font-label-md text-[10px] mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-[10px] mt-1">Posts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-md text-[10px] mt-1">IA</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="font-label-md text-[10px] mt-1 whitespace-nowrap">UP Creator</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl w-16" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-[10px] mt-1">Config</span>
+</a>
+</nav>
+</body></html>

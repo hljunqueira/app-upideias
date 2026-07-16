@@ -1,0 +1,295 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Cadastro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#180b0b",
+                      "background": "#1d1010",
+                      "on-surface": "#f8dcdc",
+                      "on-background": "#f8dcdc",
+                      "tertiary-fixed-dim": "#5ade96",
+                      "on-primary-fixed": "#40000c",
+                      "on-tertiary": "#00391f",
+                      "primary-container": "#ff5368",
+                      "secondary-fixed": "#ffdada",
+                      "surface-variant": "#423031",
+                      "secondary-container": "#802c35",
+                      "on-secondary-fixed-variant": "#7d2a33",
+                      "surface-dim": "#1d1010",
+                      "on-tertiary-fixed-variant": "#00522f",
+                      "on-secondary-container": "#ff9da2",
+                      "primary-fixed": "#ffdada",
+                      "error": "#ffb4ab",
+                      "error-container": "#93000a",
+                      "tertiary-container": "#00a765",
+                      "on-primary-fixed-variant": "#920027",
+                      "on-error-container": "#ffdad6",
+                      "on-surface-variant": "#e2bebe",
+                      "secondary-fixed-dim": "#ffb3b5",
+                      "tertiary-fixed": "#78fbb0",
+                      "surface": "#1d1010",
+                      "on-error": "#690005",
+                      "outline": "#a98989",
+                      "primary-fixed-dim": "#ffb3b5",
+                      "on-secondary-fixed": "#40000c",
+                      "on-primary-container": "#5c0015",
+                      "inverse-primary": "#b81b3a",
+                      "on-primary": "#680019",
+                      "surface-container-low": "#261818",
+                      "surface-container-high": "#362626",
+                      "outline-variant": "#5a4041",
+                      "surface-container-highest": "#423031",
+                      "surface-container": "#2b1c1c",
+                      "surface-tint": "#ffb3b5",
+                      "on-tertiary-fixed": "#002110",
+                      "on-tertiary-container": "#00321b",
+                      "primary": "#ffb3b5",
+                      "surface-bright": "#463535",
+                      "secondary": "#ffb3b5",
+                      "on-secondary": "#5f131e",
+                      "inverse-surface": "#f8dcdc",
+                      "inverse-on-surface": "#3d2c2d",
+                      "tertiary": "#5ade96"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "8px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "container-margin": "20px",
+                      "sm": "12px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "stats-display": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "stats-display": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.03em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        /* Minimalist high contrast aesthetic logic */
+        body {
+            background-color: #050505;
+        }
+        .bg-level-1 {
+            background-color: #111116;
+            border: 1px solid #26262D;
+        }
+        .input-bg {
+            background-color: #0B0B0F;
+            border: 1px solid #26262D;
+        }
+        .input-bg:focus {
+            border-color: #FF5368;
+            outline: none;
+        }
+        .btn-primary {
+            background-color: #FF5368;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #E64058;
+        }
+        .checkbox-custom {
+            accent-color: #FF5368;
+        }
+        
+        /* Subtle atmospheric background effect */
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vh;
+            background: radial-gradient(circle, rgba(255,83,104,0.03) 0%, rgba(5,5,5,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen flex items-center justify-center p-container-margin relative font-body-md">
+<div class="ambient-glow"></div>
+<main class="relative z-10 w-full max-w-[440px]">
+<!-- Logo Header -->
+<header class="flex flex-col items-center mb-xl text-center">
+<img alt="Logo UpIdeias" class="h-16 mb-md object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAODqGUwzC8HXSIWGLI4GJSF3MY4gLIOBazAXBw_HqIikRuZLxFyYtc_OQ9pal70Lz5PxNfBjH84d45leH0XuXftwHgHbi2dZJ8YhExjxaJ9Y6y4gEU6VpEF5fjeJ7Ybm53Rfe9rtMlX2ghaM-P1_iDsTahM9bQGWmDWvtICoo0zgAxktSZDbgc1GTw2-DbKsuxPy5maNQHRJyGun96CqeU8pX9d3VpvOTwo_FxzzgEc47x3iTqP5f6GPrPH2DPB9sRM_ws6JtRGDcj">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-white">Crie sua conta</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Acesse o UP Analytics e domine seus dados.</p>
+</header>
+<!-- Signup Card -->
+<div class="bg-level-1 rounded-xl p-lg sm:p-xl shadow-2xl">
+<form action="#" class="flex flex-col gap-md" method="POST">
+<!-- Nome -->
+<div class="flex flex-col gap-base">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase" for="nome">Nome Completo</label>
+<input class="input-bg rounded-lg px-md py-sm text-white font-body-md placeholder:text-surface-variant w-full focus:ring-0 transition-colors" id="nome" name="nome" placeholder="Digite seu nome" required="" type="text">
+</div>
+<!-- E-mail -->
+<div class="flex flex-col gap-base">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase" for="email">E-mail Corporativo</label>
+<input class="input-bg rounded-lg px-md py-sm text-white font-body-md placeholder:text-surface-variant w-full focus:ring-0 transition-colors" id="email" name="email" placeholder="nome@empresa.com" required="" type="email">
+</div>
+<!-- WhatsApp -->
+<div class="flex flex-col gap-base">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase" for="whatsapp">WhatsApp</label>
+<input class="input-bg rounded-lg px-md py-sm text-white font-body-md placeholder:text-surface-variant w-full focus:ring-0 transition-colors" id="whatsapp" name="whatsapp" placeholder="(00) 00000-0000" required="" type="tel">
+</div>
+<!-- Senha -->
+<div class="flex flex-col gap-base relative">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase" for="senha">Senha</label>
+<div class="relative w-full">
+<input class="input-bg rounded-lg px-md py-sm text-white font-body-md placeholder:text-surface-variant w-full focus:ring-0 transition-colors pr-xl" id="senha" name="senha" placeholder="Mínimo 8 caracteres" required="" type="password">
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-variant hover:text-on-surface-variant" onclick="togglePassword('senha', 'icon-senha')" type="button">
+<span class="material-symbols-outlined text-[20px]" id="icon-senha">visibility</span>
+</button>
+</div>
+</div>
+<!-- Confirmar Senha -->
+<div class="flex flex-col gap-base relative">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase" for="confirmar_senha">Confirmar Senha</label>
+<div class="relative w-full">
+<input class="input-bg rounded-lg px-md py-sm text-white font-body-md placeholder:text-surface-variant w-full focus:ring-0 transition-colors pr-xl" id="confirmar_senha" name="confirmar_senha" placeholder="Repita sua senha" required="" type="password">
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-variant hover:text-on-surface-variant" onclick="togglePassword('confirmar_senha', 'icon-confirmar')" type="button">
+<span class="material-symbols-outlined text-[20px]" id="icon-confirmar">visibility</span>
+</button>
+</div>
+</div>
+<!-- Checkboxes -->
+<div class="flex flex-col gap-sm mt-xs">
+<label class="flex items-start gap-sm cursor-pointer group">
+<input class="checkbox-custom mt-1 w-4 h-4 rounded border-outline-variant bg-transparent" required="" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-white transition-colors">
+                            Aceito os <a class="text-primary-container hover:underline" href="#">termos de uso</a> e <a class="text-primary-container hover:underline" href="#">política de privacidade</a>.
+                        </span>
+</label>
+<label class="flex items-start gap-sm cursor-pointer group">
+<input class="checkbox-custom mt-1 w-4 h-4 rounded border-outline-variant bg-transparent" type="checkbox">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-white transition-colors">
+                            Aceito receber alertas de métricas críticas pelo WhatsApp.
+                        </span>
+</label>
+</div>
+<!-- Submit Button -->
+<button class="btn-primary rounded-lg py-sm px-lg font-headline-md text-headline-md mt-sm shadow-[0_0_15px_rgba(255,83,104,0.3)] flex justify-center items-center gap-xs" type="submit">
+                    Criar conta
+                    <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</form>
+</div>
+<!-- Login Link -->
+<div class="text-center mt-lg">
+<span class="font-body-md text-body-md text-on-surface-variant">
+                Já tem uma conta? <a class="text-white font-semibold hover:text-primary-container transition-colors border-b border-transparent hover:border-primary-container pb-0.5" href="#">Entrar</a>
+</span>
+</div>
+</main>
+<script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+    </script>
+</body></html>

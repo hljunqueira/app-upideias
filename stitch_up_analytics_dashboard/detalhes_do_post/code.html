@@ -1,0 +1,269 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Detalhe do Post</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#1d1010",
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#ff5368",
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#423031",
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#1d1010",
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#e2bebe",
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#a98989",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#5c0015",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#680019",
+                        "surface-container-low": "#261818",
+                        "surface-container-high": "#362626",
+                        "outline-variant": "#5a4041",
+                        "surface-container-highest": "#423031",
+                        "surface-container": "#2b1c1c",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#ffb3b5",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "stats-display": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "stats-display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar for cleaner UI */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col pb-xl">
+<!-- Detail Header (Navigation Suppressed as per Task-Focused rule) -->
+<header class="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant px-container-margin py-md flex items-center justify-between">
+<button aria-label="Voltar" class="flex items-center justify-center p-xs rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-background">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-background">Detalhes do Post</h1>
+<button aria-label="Opções" class="flex items-center justify-center p-xs rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-on-background">more_vert</span>
+</button>
+</header>
+<main class="flex-1 flex flex-col gap-xl px-container-margin pt-md max-w-4xl mx-auto w-full">
+<!-- Post Preview Section -->
+<section class="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden flex flex-col md:flex-row shadow-sm">
+<div class="w-full md:w-1/3 aspect-square md:aspect-auto relative">
+<img class="w-full h-full object-cover" data-alt="A high-quality, professional photograph acting as a social media post placeholder. The image features a sleek, modern minimalist workspace in a dark mode aesthetic, illuminated by a single warm desk lamp. A modern smartphone sits on a dark wooden desk, displaying generic data charts in vibrant coral and white against a black screen. The overall mood is sophisticated, analytical, and highly focused, matching a premium SaaS brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdioEKDLBmk_QQH0dHM2ZbQznsZEL8rVeXGbu1fIz16kXAWqclbP_PA-TSIL6-nrua_GrABw0JDaglkM9N9dne7R7yEh-8TIFqR35e8148BRJkTjmqlBhmjkx893mI_uAmnvAxyz-4oW0ntGQWXkqanM1OaJKzoGjo3xHprpIm-zyVHzbu1wVwcmytXKgUHmEFrNZeYSTvhHbt0wUz6R1LAvGEXWoVUP8SgkJREl6Rao609hdnzElEQe8vvCU5fXW-jctd31ztTXji">
+</div>
+<div class="p-md flex flex-col gap-sm justify-between flex-1">
+<div>
+<div class="flex items-center gap-xs text-on-surface-variant mb-xs">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+<span class="font-label-md text-label-md">24 OUT 2023 • 18:30</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-background line-clamp-4">
+                        Desvendando os segredos da retenção de usuários! 🚀 Analisamos mais de 100k data points e descobrimos que o onboarding personalizado aumenta o LTV em até 40%. Arraste para o lado para ver o breakdown completo da estratégia. #DataAnalytics #SaaS #Growth
+                    </p>
+</div>
+<div class="flex flex-wrap gap-xs mt-sm">
+<span class="px-sm py-base bg-surface-variant text-on-background font-label-md text-label-md rounded-full">Carrossel</span>
+<span class="px-sm py-base bg-surface-variant text-on-background font-label-md text-label-md rounded-full">Educacional</span>
+</div>
+</div>
+</section>
+<!-- Metrics Bento Grid -->
+<section class="flex flex-col gap-md">
+<h2 class="font-headline-md text-headline-md text-on-background flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary-container">bar_chart</span>
+                Performance
+            </h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+<!-- Alcance -->
+<div class="col-span-2 md:col-span-4 bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col relative overflow-hidden">
+<div class="absolute right-0 top-0 w-32 h-32 bg-primary-container/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
+<span class="font-label-md text-label-md text-on-surface-variant mb-xs">ALCANCE TOTAL</span>
+<div class="flex items-end gap-sm">
+<span class="font-stats-display text-stats-display text-on-background">42.5K</span>
+<div class="flex items-center bg-tertiary/15 text-tertiary px-xs py-base rounded-full mb-sm">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="font-label-md text-[10px] ml-base">+24% vs média</span>
+</div>
+</div>
+</div>
+<!-- Engajamento -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex flex-col">
+<div class="flex items-center gap-xs mb-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] icon-fill text-primary-container">favorite</span>
+<span class="font-label-md text-label-md">LIKES</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-background">1,204</span>
+<span class="font-label-md text-label-md text-tertiary mt-xs">+12%</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex flex-col">
+<div class="flex items-center gap-xs mb-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] icon-fill">chat_bubble</span>
+<span class="font-label-md text-label-md">COMENTÁRIOS</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-background">84</span>
+<span class="font-label-md text-label-md text-tertiary mt-xs">+5%</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex flex-col">
+<div class="flex items-center gap-xs mb-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] icon-fill">send</span>
+<span class="font-label-md text-label-md">COMPART.</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-background">312</span>
+<span class="font-label-md text-label-md text-tertiary mt-xs">+45%</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-sm flex flex-col">
+<div class="flex items-center gap-xs mb-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] icon-fill">bookmark</span>
+<span class="font-label-md text-label-md">SALVAMENTOS</span>
+</div>
+<span class="font-headline-lg text-headline-lg text-on-background">518</span>
+<span class="font-label-md text-label-md text-tertiary mt-xs">+88%</span>
+</div>
+</div>
+</section>
+<!-- AI Insights Section (Glassmorphism inspired) -->
+<section class="flex flex-col gap-md relative">
+<div class="absolute inset-0 bg-gradient-to-b from-primary-container/5 to-transparent rounded-xl -z-10 pointer-events-none"></div>
+<h2 class="font-headline-md text-headline-md text-on-background flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary-container icon-fill">psychology</span>
+                Insights da Inteligência Artificial
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- O que funcionou -->
+<div class="bg-surface-container/60 backdrop-blur-sm border border-primary-container/30 rounded-xl p-md">
+<h3 class="font-label-md text-label-md text-primary-container mb-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        O QUE FUNCIONOU
+                    </h3>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-start gap-xs text-on-background font-body-md">
+<span class="material-symbols-outlined text-tertiary text-[18px] mt-[2px]">trending_up</span>
+                            O gancho "Desvendando os segredos" reteve 65% da audiência nos primeiros 3 segundos.
+                        </li>
+<li class="flex items-start gap-xs text-on-background font-body-md">
+<span class="material-symbols-outlined text-tertiary text-[18px] mt-[2px]">bookmark_added</span>
+                            A densidade de dados no slide 3 gerou o pico de salvamentos (+88% vs média).
+                        </li>
+</ul>
+</div>
+<!-- Diagnóstico -->
+<div class="bg-surface-container/60 backdrop-blur-sm border border-outline-variant rounded-xl p-md">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">troubleshoot</span>
+                        DIAGNÓSTICO DA IA
+                    </h3>
+<p class="text-on-background font-body-md text-opacity-90">
+                        O post performou excepcionalmente bem em métricas de fundo de funil (salvamentos/compartilhamentos). No entanto, a taxa de comentários foi apenas na média. A linguagem técnica pode ter inibido interações mais casuais. Recomenda-se adicionar uma pergunta direta e opinativa no final da legenda no próximo conteúdo similar.
+                    </p>
+</div>
+<!-- Sugestão -->
+<div class="col-span-1 md:col-span-2 bg-surface-container/60 backdrop-blur-sm border border-primary-container/20 rounded-xl p-md">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-label-md text-label-md text-primary-container flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">lightbulb</span>
+                            SUGESTÃO DE DESDOBRAMENTO
+                        </h3>
+<span class="px-xs py-base bg-primary-container/20 text-primary-container text-[10px] rounded font-bold tracking-wider">REELS</span>
+</div>
+<div class="bg-background/50 rounded-lg p-sm border border-outline-variant border-dashed">
+<p class="font-body-md text-on-background text-opacity-80 italic">
+                            "Transforme o carrossel em um Reel dinâmico de 30s. Use o áudio em alta 'Corporate Tech' e foque no ponto cego: 'Você está perdendo 40% do LTV porque seu onboarding é igual para todos'. Use os gráficos nativos do Insta para mostrar o contraste."
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Actions / Floating Bar -->
+<section class="mt-md mb-xl flex flex-col gap-sm">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm px-md rounded-xl flex items-center justify-center gap-xs hover:bg-opacity-90 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[18px]">movie</span>
+                Gerar roteiro para Reels
+            </button>
+<div class="flex gap-sm w-full">
+<button class="flex-1 border border-outline-variant bg-transparent text-on-background font-label-md text-label-md py-sm px-md rounded-xl flex items-center justify-center gap-xs hover:bg-surface-variant/50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+                    Salvar como ideia
+                </button>
+<button class="flex-1 border border-outline-variant bg-transparent text-on-background font-label-md text-label-md py-sm px-md rounded-xl flex items-center justify-center gap-xs hover:bg-surface-variant/50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">calendar_add_on</span>
+                    Enviar para calendário
+                </button>
+</div>
+</section>
+</main>
+</body></html>

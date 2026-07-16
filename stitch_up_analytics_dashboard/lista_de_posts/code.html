@@ -1,0 +1,396 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Posts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#1d1010",
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#ff5368",
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#423031",
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#1d1010",
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#e2bebe",
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#a98989",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#5c0015",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#680019",
+                        "surface-container-low": "#261818",
+                        "surface-container-high": "#362626",
+                        "outline-variant": "#5a4041",
+                        "surface-container-highest": "#423031",
+                        "surface-container": "#2b1c1c",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#ffb3b5",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "stats-display": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "stats-display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(38, 24, 24, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(90, 64, 65, 0.3);
+        }
+        
+        /* Hide scrollbar for filter list */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row antialiased selection:bg-primary-container selection:text-white">
+<!-- Navigation Drawer (Desktop) -->
+<nav class="hidden md:flex flex-col gap-md p-lg h-full bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant dark:border-outline-variant h-screen w-64 sticky top-0">
+<div class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg font-black text-primary dark:text-primary">UpIdeias</h1>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-body-lg text-body-lg">Posts</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">psychology</span>
+<span class="font-body-lg text-body-lg">Insights IA</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">rocket_launch</span>
+<span class="font-body-lg text-body-lg">UP Creator</span>
+</a>
+<a class="flex items-center gap-md p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="font-body-lg text-body-lg">Configurações</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col w-full max-w-5xl mx-auto pb-24 md:pb-lg">
+<!-- TopAppBar (Mobile & Desktop Header) -->
+<header class="flex justify-between items-center px-container-margin py-md w-full bg-background dark:bg-background sticky top-0 z-40 md:hidden">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young creative professional with short dark hair, wearing a dark minimal jacket. The background is a studio grey with subtle soft rim lighting on the face. Cinematic and high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3vrzriO9W_v_4nnOU3vc-U54evVGROMRNljWtZXhEZ_u-vDTCgzJxxL-QHwnOwnNJuhHiLeufY5-3-LJbvbp5RU2iO456-1XEg4dKxKguL7vweqt_0DsltzPZVNfABcKBK2vp8EwxO3l9aZnNoauiNRHmexHpf7sFG-jn6xQJKgf4B7T1OF4bktb-Yri1i_ic_-Bi4ABln5jGlavBGz7KsTwKBfhAzqtcgNsGcIJOqVwKbL9y-ZJbn0QBgJ8rTWOq1ih7LtEZCG8s">
+</div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary">Olá, Creator</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/20 transition-colors scale-95 active:transition-transform">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Desktop Header Substitute (Just Title) -->
+<header class="hidden md:flex justify-between items-center px-lg py-xl w-full">
+<h1 class="font-headline-lg text-headline-lg text-on-background">Lista de Posts</h1>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant/20 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young creative professional with short dark hair, wearing a dark minimal jacket. The background is a studio grey with subtle soft rim lighting on the face. Cinematic and high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFN56vC_AYRVr25NONhDyEOQQKUe6jmLy2yCuyPChIXJcrKuqAPUwPO1lkGbxrSoffiUbaEGIFr-SgQ3Cd3BIm4S7wxv1XS_xxsJ8ILFW8BjeDu2-QsS9fhm6aTIzrTxAgHh19ueip3lMH-W5e0ZfL145GwA8QDWvBJmWnghUMFP_uphRHwchPyqy5rADWLVy8UsBeFNfP9WylUmEix3B2herKiEtV1XK6wDrWBA5DLBFI3KlPO8zhrpKMT8JU0IO3NG_B-NgtY613">
+</div>
+</div>
+</header>
+<div class="px-container-margin md:px-lg flex flex-col gap-lg">
+<!-- Mobile Title -->
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background md:hidden mt-sm">Posts &amp; Analytics</h2>
+<!-- Highlight Cards (Bento Grid) -->
+<section class="grid grid-cols-2 gap-sm md:gap-md">
+<!-- Highlight 1: Melhor Post -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col justify-between relative overflow-hidden group hover:border-primary-container/50 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-transparent opacity-50 z-0"></div>
+<div class="relative z-10 flex flex-col h-full gap-sm">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Melhor do Mês</span>
+</div>
+<div class="mt-auto">
+<p class="font-stats-display text-stats-display text-on-background">12.4K</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Alcance total</p>
+</div>
+</div>
+</div>
+<!-- Highlight 2: Maior Salvamento -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col justify-between relative overflow-hidden group hover:border-tertiary-container/50 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-br from-tertiary-container/10 to-transparent opacity-50 z-0"></div>
+<div class="relative z-10 flex flex-col h-full gap-sm">
+<div class="flex items-center gap-xs text-tertiary-fixed-dim">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">bookmark_star</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Maior Retenção</span>
+</div>
+<div class="mt-auto">
+<p class="font-stats-display text-stats-display text-on-background">842</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Salvamentos</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Filters -->
+<section class="flex flex-col gap-sm">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md text-on-background">Análise Detalhada</h3>
+<button class="flex items-center gap-xs text-primary text-body-md font-body-md hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+                        Filtros Avançados
+                    </button>
+</div>
+<div class="flex gap-sm overflow-x-auto no-scrollbar pb-xs">
+<!-- Period -->
+<button class="whitespace-nowrap px-md py-xs rounded-full bg-primary-container text-white font-label-md text-label-md">Últimos 7 dias</button>
+<button class="whitespace-nowrap px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant/20 transition-colors">30 dias</button>
+<button class="whitespace-nowrap px-md py-xs rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant/20 transition-colors">Este mês</button>
+<!-- Divider -->
+<div class="w-px h-6 bg-outline-variant self-center mx-xs"></div>
+<!-- Format -->
+<button class="whitespace-nowrap flex items-center gap-xs px-md py-xs rounded-full bg-surface-container-high text-on-background font-label-md text-label-md border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">play_circle</span> Reels
+                    </button>
+<button class="whitespace-nowrap flex items-center gap-xs px-md py-xs rounded-full bg-transparent text-on-surface-variant font-label-md text-label-md border border-outline-variant hover:bg-surface-variant/20 transition-colors">
+<span class="material-symbols-outlined text-[16px]">view_carousel</span> Carrossel
+                    </button>
+</div>
+</section>
+<!-- Post List -->
+<section class="flex flex-col gap-sm">
+<!-- Post Item 1 -->
+<div class="glass-panel rounded-xl p-sm flex gap-md hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+<div class="relative w-24 h-32 md:w-32 md:h-32 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A moody, high-contrast flat lay of a modern workspace featuring a sleek black laptop, a mechanical keyboard with subtle RGB lighting, and a steaming cup of coffee. The lighting is cinematic, casting long shadows across a dark matte desk surface, perfectly fitting a sophisticated dark mode tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWcXiCh3HkzxEGxQoUnO8vC_YYNKagVKUWDfrqYIXlpNXieaisM6f5fmdS8pfmDdbVtN3Kw4mM1a6TEXBB2cRdZHn8V4V6SHJK5v_Vasi-4GJcmlpjtdGlI1-SOU9-kqjGSrH7vTYLziF6yHiyxXc-DxmAZSl52BiVA1JmOUgCW-AXFfAe0liGm6h3ZgGSDV_O-jucO8Kivzati0E6XllqsrZ5YtP_fueCyL9tzDRZst-sSAaaqBLumB56A4Qovy6yie6dUkb8eNTJ">
+<div class="absolute top-xs right-xs bg-black/60 backdrop-blur-sm rounded-full p-1 border border-white/10">
+<span class="material-symbols-outlined text-white text-[14px]">play_circle</span>
+</div>
+</div>
+<div class="flex flex-col justify-between flex-1 py-xs">
+<div class="flex justify-between items-start gap-sm">
+<h4 class="font-body-lg text-body-lg text-on-background line-clamp-2 leading-snug">Estratégias de Growth para 2024: O guia definitivo para SaaS</h4>
+<!-- AI Score Badge -->
+<div class="flex flex-col items-center justify-center bg-tertiary-container/20 border border-tertiary-container rounded-lg px-xs py-1 flex-shrink-0">
+<span class="font-label-md text-label-md text-tertiary-fixed-dim">IA Score</span>
+<span class="font-headline-md text-headline-md font-bold text-tertiary-fixed-dim">98</span>
+</div>
+</div>
+<!-- Metrics Row -->
+<div class="grid grid-cols-4 gap-xs mt-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">3.2K</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">142</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-primary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">842</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">visibility</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">12.4K</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Post Item 2 -->
+<div class="glass-panel rounded-xl p-sm flex gap-md hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+<div class="relative w-24 h-32 md:w-32 md:h-32 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Abstract 3D rendering of interconnected data nodes glowing in a vibrant coral color against an infinite deep black space. The nodes are connected by thin, precise light beams, illustrating complex analytics and network architecture in a highly sophisticated, minimalist style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfL0iz1fi4_MIjBskBlXYgOFQelf30fLGYncJpRyTaIr4o76Ew-mVDNOUKAJ-gDVOVS-s9ENuYtWCwhqLa_7TWA-r7L2uM5IdcuwEsp0bS-QtxeREny0-OJLlAzuRJIlwKSu0aTDnlSNy31HtffpiH2ygWyWYD7qhGb545eMHqgA6Sg1Sq8lS68naK3i6arghaRGs9ZGgS8KnqCwGN55ePiDPcmNMPnXr64wduDpHLKaPC6hELsrJ3sguDt4Krb4mmtR88NIlxBxy8">
+<div class="absolute top-xs right-xs bg-black/60 backdrop-blur-sm rounded-full p-1 border border-white/10">
+<span class="material-symbols-outlined text-white text-[14px]">view_carousel</span>
+</div>
+</div>
+<div class="flex flex-col justify-between flex-1 py-xs">
+<div class="flex justify-between items-start gap-sm">
+<h4 class="font-body-lg text-body-lg text-on-background line-clamp-2 leading-snug">5 Métricas que você está ignorando e destruindo sua conversão</h4>
+<!-- AI Score Badge -->
+<div class="flex flex-col items-center justify-center bg-surface-container-highest border border-outline-variant rounded-lg px-xs py-1 flex-shrink-0">
+<span class="font-label-md text-label-md text-on-surface-variant">IA Score</span>
+<span class="font-headline-md text-headline-md font-bold text-on-background">85</span>
+</div>
+</div>
+<!-- Metrics Row -->
+<div class="grid grid-cols-4 gap-xs mt-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">1.8K</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">89</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">bookmark</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">320</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">visibility</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">8.9K</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Post Item 3 -->
+<div class="glass-panel rounded-xl p-sm flex gap-md hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+<div class="relative w-24 h-32 md:w-32 md:h-32 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A macro shot of a sleek, dark metallic smartphone screen displaying a bright, minimalist coral-colored sparkline chart. The background is a velvety deep black, with soft dramatic lighting emphasizing the edge of the device and the vibrant data visualization on screen." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtSOgUqp8skOu76LTTE2bEexldxgR8HcQ-7z1QqF-0AmLN80T_k3Pk0HNikh3Tsb9MbViJCXW_hNCP8eRPHLeC7R-6YtiDP_47qL9nM1TPKwqzMKx9Gks59dmR70OSxl4cl5mtipFH5qX_AfW-hg0gjy6CuqsQiZxVYKsYbeXs12FqDVwuBJj0nWpQAhYZQgprpefTfLgTQqQeoKp_xAzp8yXV_qTw0SU-dcMD9WXt6vYrhnMTxkdF5ZPvWg504K8JLB8vO8DlKufl">
+</div>
+<div class="flex flex-col justify-between flex-1 py-xs">
+<div class="flex justify-between items-start gap-sm">
+<h4 class="font-body-lg text-body-lg text-on-background line-clamp-2 leading-snug">Design System: O segredo para escalar sua interface sem perder a identidade</h4>
+<!-- AI Score Badge -->
+<div class="flex flex-col items-center justify-center bg-error-container/20 border border-error-container rounded-lg px-xs py-1 flex-shrink-0">
+<span class="font-label-md text-label-md text-error">IA Score</span>
+<span class="font-headline-md text-headline-md font-bold text-error">62</span>
+</div>
+</div>
+<!-- Metrics Row -->
+<div class="grid grid-cols-4 gap-xs mt-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">954</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">32</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">bookmark</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">110</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-[2px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">visibility</span>
+</div>
+<span class="font-label-md text-label-md text-on-background mt-[2px]">4.2K</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-xs py-base bg-surface-container dark:bg-surface-container border-t border-outline-variant dark:border-outline-variant rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1 line-clamp-1">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary bg-secondary-container/20 rounded-xl p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-md text-label-md mt-1 line-clamp-1">Posts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-md text-label-md mt-1 line-clamp-1">IA</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="font-label-md text-label-md mt-1 line-clamp-1">UP Creator</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-xs hover:bg-surface-variant/10 scale-90 transition-all duration-200 w-16">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md mt-1 line-clamp-1">Config</span>
+</button>
+</nav>
+</body></html>

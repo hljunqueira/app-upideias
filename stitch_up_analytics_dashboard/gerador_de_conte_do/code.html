@@ -1,0 +1,338 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Gerador de Conteúdo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#180b0b",
+                      "background": "#1d1010",
+                      "on-surface": "#f8dcdc",
+                      "on-background": "#f8dcdc",
+                      "tertiary-fixed-dim": "#5ade96",
+                      "on-primary-fixed": "#40000c",
+                      "on-tertiary": "#00391f",
+                      "primary-container": "#ff5368",
+                      "secondary-fixed": "#ffdada",
+                      "surface-variant": "#423031",
+                      "secondary-container": "#802c35",
+                      "on-secondary-fixed-variant": "#7d2a33",
+                      "surface-dim": "#1d1010",
+                      "on-tertiary-fixed-variant": "#00522f",
+                      "on-secondary-container": "#ff9da2",
+                      "primary-fixed": "#ffdada",
+                      "error": "#ffb4ab",
+                      "error-container": "#93000a",
+                      "tertiary-container": "#00a765",
+                      "on-primary-fixed-variant": "#920027",
+                      "on-error-container": "#ffdad6",
+                      "on-surface-variant": "#e2bebe",
+                      "secondary-fixed-dim": "#ffb3b5",
+                      "tertiary-fixed": "#78fbb0",
+                      "surface": "#1d1010",
+                      "on-error": "#690005",
+                      "outline": "#a98989",
+                      "primary-fixed-dim": "#ffb3b5",
+                      "on-secondary-fixed": "#40000c",
+                      "on-primary-container": "#5c0015",
+                      "inverse-primary": "#b81b3a",
+                      "on-primary": "#680019",
+                      "surface-container-low": "#261818",
+                      "surface-container-high": "#362626",
+                      "outline-variant": "#5a4041",
+                      "surface-container-highest": "#423031",
+                      "surface-container": "#2b1c1c",
+                      "surface-tint": "#ffb3b5",
+                      "on-tertiary-fixed": "#002110",
+                      "on-tertiary-container": "#00321b",
+                      "primary": "#ffb3b5",
+                      "surface-bright": "#463535",
+                      "secondary": "#ffb3b5",
+                      "on-secondary": "#5f131e",
+                      "inverse-surface": "#f8dcdc",
+                      "inverse-on-surface": "#3d2c2d",
+                      "tertiary": "#5ade96"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "8px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "container-margin": "20px",
+                      "sm": "12px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "label-md": ["Inter"],
+                      "stats-display": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "stats-display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #423031; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface flex h-screen overflow-hidden antialiased selection:bg-primary-container/30">
+<!-- JSON NavigationDrawer (Desktop) -->
+<nav class="hidden md:flex flex-col gap-md p-lg h-full w-64 fixed left-0 top-0 border-r border-outline-variant bg-surface-container-low z-40">
+<div class="mb-xl">
+<span class="font-headline-lg text-headline-lg font-black text-primary">UpIdeias</span>
+</div>
+<div class="flex flex-col gap-xs flex-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:opacity-80 transition-opacity">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+<!-- Posts -->
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:opacity-80 transition-opacity">grid_view</span>
+<span class="font-body-lg text-body-lg">Posts</span>
+</a>
+<!-- Insights IA -->
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:opacity-80 transition-opacity">psychology</span>
+<span class="font-body-lg text-body-lg">Insights IA</span>
+</a>
+<!-- UP Creator (Active) -->
+<a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+<span class="font-body-lg text-body-lg">UP Creator</span>
+</a>
+<!-- Configurações -->
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-variant/20 rounded-lg transition-colors group mt-auto" href="#">
+<span class="material-symbols-outlined group-hover:opacity-80 transition-opacity">settings</span>
+<span class="font-body-lg text-body-lg">Configurações</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full md:ml-64 relative pb-20 md:pb-0">
+<!-- JSON TopAppBar (Mobile) -->
+<header class="md:hidden flex justify-between items-center px-container-margin py-md w-full bg-background docked full-width top-0 z-30">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">Olá, Creator</span>
+<button class="text-primary hover:opacity-80 transition-opacity scale-95 active:transition-transform">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Page Canvas -->
+<div class="flex-1 overflow-y-auto p-container-margin md:p-xl space-y-lg">
+<!-- Page Header -->
+<div class="flex flex-col gap-base">
+<h1 class="font-headline-md text-headline-md text-on-surface">Gerador de Conteúdo IA</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Configure os parâmetros abaixo para gerar ideias de alta conversão.</p>
+</div>
+<!-- Asymmetric Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-xl items-start">
+<!-- Left Column: Settings Form -->
+<div class="lg:col-span-4 bg-surface border border-outline-variant rounded-xl p-md md:p-lg flex flex-col gap-lg sticky top-lg">
+<!-- Nicho -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Nicho ou Tema Central</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">tag</span>
+<input class="w-full bg-background border border-outline-variant rounded-lg pl-xl pr-sm py-sm font-body-md text-body-md text-on-surface focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none transition-all placeholder:text-on-surface-variant/50" placeholder="Ex: Finanças para Autônomos" type="text">
+</div>
+</div>
+<!-- Objetivo -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Objetivo do Post</label>
+<div class="flex flex-wrap gap-sm">
+<button class="bg-primary-container text-on-primary-container border border-primary-container rounded-full px-md py-xs font-label-md text-label-md transition-colors">Vender</button>
+<button class="bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-highest rounded-full px-md py-xs font-label-md text-label-md transition-colors">Engajar</button>
+<button class="bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-highest rounded-full px-md py-xs font-label-md text-label-md transition-colors">Educar</button>
+<button class="bg-surface-container border border-outline-variant text-on-surface hover:bg-surface-container-highest rounded-full px-md py-xs font-label-md text-label-md transition-colors">Autoridade</button>
+</div>
+</div>
+<!-- Formato -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Formato</label>
+<select class="w-full bg-background border border-outline-variant rounded-lg px-sm py-sm font-body-md text-body-md text-on-surface focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none appearance-none">
+<option>Reels (Vídeo Curto)</option>
+<option>Carrossel</option>
+<option>Post Estático</option>
+<option>Stories (Sequência)</option>
+</select>
+</div>
+<!-- Tom de Voz -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Tom de Voz</label>
+<div class="grid grid-cols-2 gap-sm">
+<button class="bg-surface-container-highest border-l-2 border-primary-container text-on-surface rounded-md px-sm py-xs text-left font-body-md text-body-md flex items-center justify-between">
+                                Direto/Agressivo
+                                <span class="material-symbols-outlined text-[16px] text-primary-container">check</span>
+</button>
+<button class="bg-surface-container border border-outline-variant text-on-surface-variant hover:bg-surface-container-highest rounded-md px-sm py-xs text-left font-body-md text-body-md transition-colors">
+                                Descontraído
+                            </button>
+<button class="bg-surface-container border border-outline-variant text-on-surface-variant hover:bg-surface-container-highest rounded-md px-sm py-xs text-left font-body-md text-body-md transition-colors">
+                                Acadêmico
+                            </button>
+<button class="bg-surface-container border border-outline-variant text-on-surface-variant hover:bg-surface-container-highest rounded-md px-sm py-xs text-left font-body-md text-body-md transition-colors">
+                                Inspiracional
+                            </button>
+</div>
+</div>
+<!-- Generate Action -->
+<button class="mt-sm bg-primary-container text-on-primary-container font-label-md text-label-md uppercase tracking-wider rounded-lg py-sm flex items-center justify-center gap-xs hover:bg-inverse-primary transition-all shadow-[0_0_15px_rgba(255,83,104,0.3)] hover:shadow-[0_0_25px_rgba(255,83,104,0.5)]">
+<span class="material-symbols-outlined">auto_awesome</span>
+                        Gerar Conteúdo
+                    </button>
+</div>
+<!-- Right Column: Bento Grid Results -->
+<div class="lg:col-span-8 flex flex-col gap-md">
+<!-- Result Actions Bar -->
+<div class="flex flex-wrap items-center justify-between gap-sm mb-xs">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary-fixed-dim" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-body-md text-on-surface">Conteúdo gerado com sucesso</span>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-sm py-xs rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">content_copy</span> Copiar Tudo
+                            </button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">bookmark_add</span> Salvar ideia
+                            </button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-lg bg-surface-container-highest border border-primary-container/30 text-primary-container hover:bg-primary-container/10 transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span> Enviar para calendário
+                            </button>
+</div>
+</div>
+<!-- Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Título -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col gap-sm md:col-span-2 relative group overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-primary-container/5 to-transparent pointer-events-none"></div>
+<div class="flex justify-between items-center z-10">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">title</span> Título
+                                </h3>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface z-10">5 Erros que estão matando seu fluxo de caixa (e como resolver hoje)</p>
+</div>
+<!-- Gancho -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">phishing</span> Gancho (3 segundos)
+                                </h3>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface">"Você faturou alto esse mês, mas quando olhou a conta bancária... cadê o dinheiro? Eu sei onde ele está."</p>
+</div>
+<!-- CTA -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">touch_app</span> Call to Action (CTA)
+                                </h3>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface">"Comenta 'CAIXA' aqui embaixo que eu te envio minha planilha gratuita de controle diário."</p>
+</div>
+<!-- Roteiro/Legenda -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col gap-sm md:col-span-2 row-span-2">
+<div class="flex justify-between items-center border-b border-outline-variant pb-xs mb-xs">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">movie</span> Roteiro &amp; Legenda
+                                </h3>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+</div>
+<div class="prose prose-invert prose-sm max-w-none font-body-md text-body-md text-on-surface leading-relaxed">
+<p><strong>Cena 1 (Gancho):</strong> Câmera próxima, expressão séria segurando extrato bancário.</p>
+<p><strong>Cena 2 (Desenvolvimento):</strong> Corte rápido. Apontando para os 3 maiores vazamentos ocultos nas empresas: 1. Pró-labore misturado com pessoa física. 2. Precificação baseada no concorrente. 3. Falta de reserva para impostos.</p>
+<p><strong>Cena 3 (Resolução):</strong> Transição suave. Mostrando a tela do sistema separando as contas com um clique.</p>
+<br>
+<p><strong>Legenda Sugerida:</strong></p>
+<p>A maioria das empresas não quebra por falta de vendas, quebra por falta de gestão do fluxo de caixa. 💸</p>
+<p>Misturar contas pessoais e da empresa é o primeiro passo para o caos financeiro. Quando você não sabe para onde o dinheiro está indo, fica impossível planejar o crescimento.</p>
+<p>A regra de ouro é: separe as contas HOJE. Defina um pró-labore fixo e respeite-o.</p>
+</div>
+</div>
+<!-- Hashtags -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex flex-col gap-sm md:col-span-2">
+<div class="flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">tag</span> Hashtags Otimizadas
+                                </h3>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">content_copy</span></button>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-surface-container-highest text-on-surface-variant rounded px-sm py-base font-body-md text-body-md">#GestaoFinanceira</span>
+<span class="bg-surface-container-highest text-on-surface-variant rounded px-sm py-base font-body-md text-body-md">#FluxoDeCaixa</span>
+<span class="bg-surface-container-highest text-on-surface-variant rounded px-sm py-base font-body-md text-body-md">#Empreendedorismo</span>
+<span class="bg-surface-container-highest text-on-surface-variant rounded px-sm py-base font-body-md text-body-md">#FinancasEmpresariais</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- JSON BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-xs py-base bg-surface-container border-t border-outline-variant rounded-t-xl">
+<!-- Dashboard -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Dashboard</span>
+</a>
+<!-- Posts -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl group" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md mt-1">Posts</span>
+</a>
+<!-- IA -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl group" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-md text-label-md mt-1">IA</span>
+</a>
+<!-- UP Creator (Active) -->
+<a class="flex flex-col items-center justify-center text-primary bg-secondary-container/20 rounded-xl p-xs scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+<span class="font-label-md text-label-md mt-1">UP Creator</span>
+</a>
+<!-- Config -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-xs scale-90 transition-all duration-200 hover:bg-surface-variant/10 rounded-xl group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md mt-1">Config</span>
+</a>
+</nav>
+</body></html>

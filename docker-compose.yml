@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: up-analytics-web
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - WHATSAPP_API_URL=${WHATSAPP_API_URL}
+      - WHATSAPP_API_KEY=${WHATSAPP_API_KEY}
+      - WHATSAPP_SENDER_ID=${WHATSAPP_SENDER_ID}
+    env_file:
+      - .env
+    restart: always

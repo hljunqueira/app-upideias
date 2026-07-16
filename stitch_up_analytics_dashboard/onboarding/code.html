@@ -1,0 +1,207 @@
+<!DOCTYPE html><html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UP Analytics - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#180b0b",
+                        "background": "#1d1010",
+                        "on-surface": "#f8dcdc",
+                        "on-background": "#f8dcdc",
+                        "tertiary-fixed-dim": "#5ade96",
+                        "on-primary-fixed": "#40000c",
+                        "on-tertiary": "#00391f",
+                        "primary-container": "#ff5368",
+                        "secondary-fixed": "#ffdada",
+                        "surface-variant": "#423031",
+                        "secondary-container": "#802c35",
+                        "on-secondary-fixed-variant": "#7d2a33",
+                        "surface-dim": "#1d1010",
+                        "on-tertiary-fixed-variant": "#00522f",
+                        "on-secondary-container": "#ff9da2",
+                        "primary-fixed": "#ffdada",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#00a765",
+                        "on-primary-fixed-variant": "#920027",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#e2bebe",
+                        "secondary-fixed-dim": "#ffb3b5",
+                        "tertiary-fixed": "#78fbb0",
+                        "surface": "#1d1010",
+                        "on-error": "#690005",
+                        "outline": "#a98989",
+                        "primary-fixed-dim": "#ffb3b5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-primary-container": "#5c0015",
+                        "inverse-primary": "#b81b3a",
+                        "on-primary": "#680019",
+                        "surface-container-low": "#261818",
+                        "surface-container-high": "#362626",
+                        "outline-variant": "#5a4041",
+                        "surface-container-highest": "#423031",
+                        "surface-container": "#2b1c1c",
+                        "surface-tint": "#ffb3b5",
+                        "on-tertiary-fixed": "#002110",
+                        "on-tertiary-container": "#00321b",
+                        "primary": "#ffb3b5",
+                        "surface-bright": "#463535",
+                        "secondary": "#ffb3b5",
+                        "on-secondary": "#5f131e",
+                        "inverse-surface": "#f8dcdc",
+                        "inverse-on-surface": "#3d2c2d",
+                        "tertiary": "#5ade96"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "base": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "container-margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "stats-display": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "stats-display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #050505; /* Nível 0 (Fundo) */
+            color: #f8dcdc;
+        }
+        .card-level-1 {
+            background-color: #111116; /* Nível 1 (Cards) */
+            border-color: #26262D;
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(255, 83, 104, 0.1);
+        }
+        .bg-coral {
+            background-color: #FF5368;
+        }
+        .hover-bg-coral:hover {
+            background-color: #E64058;
+        }
+        .text-coral {
+            color: #FF5368;
+        }
+        .border-coral-focus:focus-within {
+            border-color: #FF5368;
+        }
+        /* Custom animated background gradient */
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 83, 104, 0.05) 0%, transparent 60%);
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden antialiased font-body-md text-body-md">
+<div class="ambient-glow"></div>
+<main class="w-full max-w-md mx-auto px-container-margin py-xl relative z-10 flex flex-col min-h-screen justify-center">
+<!-- Header Section -->
+<div class="text-center mb-xl">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-surface-container-high mb-md border border-outline-variant">
+<span class="material-symbols-outlined text-coral" style="font-size: 32px; font-variation-settings: 'FILL' 1;">
+                    link
+                </span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-xs">
+                Conecte seu Instagram profissional
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm mx-auto">
+                Integração oficial e segura com a Meta para liberar análises profundas e estratégias direcionadas por IA.
+            </p>
+</div>
+<!-- Value Proposition Cards (Bento-style layout) -->
+<div class="grid grid-cols-1 gap-md mb-xl">
+<div class="card-level-1 border rounded-xl p-md flex items-start gap-md glow-hover transition-shadow duration-300">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+                        storefront
+                    </span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-base">Conta Business ou Creator</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Requerida para acessar as métricas avançadas.</p>
+</div>
+</div>
+<div class="card-level-1 border rounded-xl p-md flex items-start gap-md glow-hover transition-shadow duration-300">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+                        shield
+                    </span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-base">Dados seguros</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Não temos acesso à sua senha. Conexão oficial via API da Meta.</p>
+</div>
+</div>
+<div class="card-level-1 border rounded-xl p-md flex items-start gap-md glow-hover transition-shadow duration-300">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+                        psychology
+                    </span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-base">Estratégia com IA</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Nossa IA analisa seus dados em tempo real para insights precisos.</p>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-sm mt-auto md:mt-0">
+<button class="w-full bg-coral hover-bg-coral text-white font-label-md text-label-md py-sm px-lg rounded-full flex items-center justify-center gap-xs transition-colors duration-200">
+<span class="material-symbols-outlined text-[18px]">
+                    add_link
+                </span>
+                Conectar Instagram
+            </button>
+<button class="w-full border border-[#26262D] hover:bg-surface-container-low text-on-surface font-label-md text-label-md py-sm px-lg rounded-full transition-colors duration-200">
+                Ainda não tenho conta profissional
+            </button>
+<button class="w-full text-on-surface-variant hover:text-on-surface font-label-md text-label-md py-sm px-lg rounded-full transition-colors duration-200 mt-xs">
+                Pular por enquanto
+            </button>
+</div>
+</main>
+</body></html>
