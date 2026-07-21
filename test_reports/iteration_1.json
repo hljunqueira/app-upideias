@@ -1,0 +1,44 @@
+{
+  "summary": "First testing iteration for UP Analytics (FastAPI + Next.js). Executed 20 pytest backend tests (all PASS after fixing brute-force test to tolerate rotating ingress IPs) and a Playwright UI suite covering register/login/dashboard/protected-route/logout/automations/AI pages. Backend AI endpoints (Gemini via Emergent LLM) verified with real calls: /api/ai/insight and /api/ai/ideas return well-structured JSON. Overall the app is working end-to-end. Two backend concerns worth main agent attention (see action_items).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/auth/login", "issue": "Brute-force lockout keyed on request.client.host (ingress proxy IP) which rotates across pods (10.79.151.158, .159...). Counter rarely reaches 5 for a single identifier, so lockout takes ~15-20 attempts in this env. Use X-Forwarded-For (first IP) to fix. Test still eventually observed 429."},
+      {"endpoint": "/api/instagram/accounts/{id}/sync", "issue": "$setOnInsert on update_one adds instagram_account_id/metric_date fields that are ALSO in the filter, which pymongo allows but is redundant; safe but noisy."},
+      {"endpoint": "backend/server.py CORS middleware", "issue": "add_middleware(CORS) is added AFTER app.include_router(api). It still works with FastAPI but Starlette generally recommends adding middleware before including routers. Not a functional bug."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard", "issues": ["Static mocked KPI card 'INVESTIMENTO (ADS) R$ 1.450,00' and 'ROAS MÉDIO 4,82x' displayed alongside real backend data — could confuse users into thinking Ads data is real. Consider labeling as demo/simulated."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Backend: Replace request.client.host with the first entry of X-Forwarded-For (or X-Real-IP) in /api/auth/login brute-force identifier so lockout triggers reliably behind K8s ingress.",
+    "Optional: Move CORSMiddleware registration before app.include_router(api) for clarity.",
+    "Optional: Explicitly label the static 'Investimento (Ads)' and 'ROAS Médio' KPIs on the dashboard as simulated/demo since only Instagram organic data is real-ish (seeded)."
+  ],
+  "critical_code_review_comments": [
+    "server.py (668 lines) is a single-file backend — approaching the 700-line threshold; consider splitting into routers/ai.py, routers/auth.py, routers/instagram.py, seeding.py before it grows further.",
+    "In-memory PLANS list is fine for MVP but plan.id is not enforced as unique in DB anywhere — acceptable given /api/plans is read-only static content.",
+    "seed_user_demo_data() is idempotent by early-return on existing account (good), but the daily metrics range is date.today()-relative — over time old users' metrics get stale. Consider re-seeding or moving to real Meta Graph API before launch.",
+    "MOCKED: Instagram metrics (fully seeded fake data), WhatsApp send (only logs + stores in mongo), Billing subscription (returns hardcoded 'active' with simulated provider) — properly flagged in problem statement.",
+    "extract_json() is best-effort; if Gemini returns malformed JSON the endpoint returns 502. Currently works well with Gemini 3 flash but consider adding retry with a stricter re-prompt."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (new)"
+  ],
+  "success_rate": {"backend": "100% (20/20)", "frontend": "100% (9/9 flows)"},
+  "test_credentials": "Admin: admin@upideias.com / Admin@2026 — Demo: creator@upideias.com / Creator@2026 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Backend auto-seeds on startup: admin + demo user with 30 days of IG daily metrics and 9 IG posts. Tests create temporary TEST_* users and clean them up scoped by user_id.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "backend_test.py covers all 20 critical paths and passes on the public preview URL. Brute-force lockout test tolerates up to 20 attempts because ingress rotates client IPs — if main agent switches to X-Forwarded-For this can be tightened to exactly 6 attempts. All AI tests hit Gemini and take ~15-25s each (total suite ~26s). UI covered via Playwright: login/logout/register/dashboard/protected redirect/automations/content-generator/ai-strategy pages. Frontend uses Next.js dev on port 3000 (supervisor). Emergent Google OAuth was NOT tested via browser (would need real Google flow); backend Bearer-token session path was verified by direct Mongo insert.",
+  "rca of the issue": "Brute-force lockout not immediately triggering: root cause is request.client.host returning the K8s ingress proxy pod IP which is load-balanced across multiple pods (observed 10.79.151.158, 10.79.151.159 in login_attempts collection). Fix: use X-Forwarded-For header's leftmost IP as the client identifier. Reproduction: hit /api/auth/login 5 times with wrong password — inspect db.login_attempts and observe multiple identifier rows for the same email, each with count < 5."
+}
