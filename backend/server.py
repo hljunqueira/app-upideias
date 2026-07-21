@@ -246,7 +246,10 @@ async def register(body: RegisterBody, response: Response):
 
 @api.post("/auth/login")
 async def login(body: LoginBody, request: Request, response: Response):
-    identifier = f"{request.client.host}:{body.email.lower()}"
+    client_ip = (request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+                 or request.headers.get("X-Real-IP", "")
+                 or request.client.host)
+    identifier = f"{client_ip}:{body.email.lower()}"
     attempt = await db.login_attempts.find_one({"identifier": identifier}, {"_id": 0})
     if attempt and attempt.get("count", 0) >= 5:
         locked_until = datetime.fromisoformat(attempt["locked_until"])

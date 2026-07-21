@@ -222,7 +222,7 @@ export default function Dashboard() {
           type="facebook"
         />
         <MetricCardPremium
-          name="ROAS Médio"
+          name="ROAS Médio — Demo"
           value="4,82x"
           change="+8,4%"
           icon={TrendingUp}
