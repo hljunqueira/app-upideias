@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Unbounded, Caveat } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-display" });
+const unbounded = Unbounded({ subsets: ["latin"], variable: "--font-display", weight: ["400", "500", "600", "700", "800", "900"] });
+const caveat = Caveat({ subsets: ["latin"], variable: "--font-script", weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: "UP Ideias — Estratégia, conteúdo e conhecimento em um só lugar",
@@ -18,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={`${inter.variable} ${outfit.variable} font-body text-upLightGray antialiased bg-upBlack min-h-screen`}>
+      <body className={`${inter.variable} ${unbounded.variable} ${caveat.variable} font-body text-upLightGray antialiased bg-upBlack min-h-screen`}>
         {children}
       </body>
     </html>

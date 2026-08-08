@@ -6,37 +6,45 @@ import { ArrowRight } from "lucide-react";
 export default function FinalCTA() {
   return (
     <>
-      <section className="relative py-32 lg:py-44 bg-upDark overflow-hidden noise" data-testid="final-cta-section">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-upPink/[0.08] blur-[140px] rounded-full" />
-        </div>
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
+      <section className="relative py-40 lg:py-56 overflow-hidden" data-testid="final-cta-section">
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          src="https://assets.mixkit.co/videos/19354/19354-720.mp4"
+        />
+        <div className="absolute inset-0 bg-upBlack/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-upBlack via-transparent to-upBlack" />
+
+        <div className="relative max-w-5xl mx-auto px-6 text-center">
           <motion.img
             src="/UP-Logo-removebg-preview.png"
             alt="UP Ideias"
-            initial={{ opacity: 0, scale: 0.7 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.7, rotate: -10 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="h-24 w-auto mx-auto mb-10 drop-shadow-[0_0_40px_rgba(255,83,104,0.5)]"
+            className="h-24 w-auto mx-auto mb-10 drop-shadow-[0_0_40px_rgba(255,83,104,0.6)]"
           />
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1]"
+            className="font-display text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight text-white leading-[1.0]"
           >
-            Pronto para crescer
+            PRONTO PARA
             <br />
-            com <span className="text-upPink">estratégia</span>?
+            CRESCER{" "}
+            <span className="font-script text-upPink text-6xl sm:text-7xl lg:text-9xl drop-shadow-[0_0_35px_rgba(255,83,104,0.5)]">
+              com estratégia?
+            </span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-6 text-lg text-upGray max-w-xl mx-auto leading-relaxed"
+            className="mt-8 text-lg lg:text-xl text-upLightGray/80 max-w-xl mx-auto leading-relaxed"
           >
             Junte-se aos criadores, negócios e agências que trocaram a sorte por dados,
             IA e conhecimento.
@@ -46,12 +54,12 @@ export default function FinalCTA() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-10"
+            className="mt-12"
           >
             <Link
               href="/register"
               data-testid="final-cta-btn"
-              className="group inline-flex items-center gap-2 bg-upPink hover:bg-upPinkDark text-white font-semibold text-lg px-10 py-5 rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(255,83,104,0.55)] hover:-translate-y-1"
+              className="group inline-flex items-center gap-3 bg-upPink hover:bg-upPinkDark text-white font-semibold text-lg px-12 py-6 rounded-full transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,83,104,0.65)] hover:-translate-y-1"
             >
               Criar minha conta grátis
               <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
@@ -89,7 +97,7 @@ export default function FinalCTA() {
         </div>
         <div className="border-t border-upBorder/60 py-6">
           <p className="text-center text-xs text-upGray">
-            © {new Date().getFullYear()} UP Ideias. Todos os direitos reservados. — <span className="text-upPink">by UpIdeias</span>
+            © {new Date().getFullYear()} UP Ideias. Todos os direitos reservados. — <span className="font-script text-upPink text-base">by UpIdeias</span>
           </p>
         </div>
       </footer>

@@ -50,11 +50,11 @@ export default function AnalyticsShowcase() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.1]"
+            className="font-display text-4xl lg:text-6xl font-bold tracking-tight text-white leading-[1.05]"
           >
             Pare de adivinhar.
             <br />
-            <span className="text-upPink">Meça, entenda e aja.</span>
+            <span className="font-script text-upPink text-6xl lg:text-8xl drop-shadow-[0_0_25px_rgba(255,83,104,0.35)]">Meça, entenda e aja.</span>
           </motion.h2>
           <div className="mt-12 space-y-8">
             {features.map((f, i) => (

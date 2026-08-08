@@ -17,13 +17,14 @@ export default function Cycle() {
 
   return (
     <section id="ciclo" ref={ref} className="relative py-32 lg:py-40 bg-upDark overflow-hidden noise grid-bg" data-testid="cycle-section">
+      <span className="absolute top-10 right-6 font-script text-upPink/20 text-8xl lg:text-9xl select-none rotate-[-6deg]">o ciclo</span>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-left max-w-3xl mb-20">
+        <div className="text-left max-w-3xl mb-24">
           <motion.p
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="uppercase tracking-[0.25em] text-upPink text-sm font-semibold mb-5"
+            className="uppercase tracking-[0.3em] text-upPink text-sm font-semibold mb-5"
           >
             Como funciona
           </motion.p>
@@ -32,19 +33,18 @@ export default function Cycle() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.1]"
+            className="font-display text-4xl lg:text-6xl font-bold tracking-tight text-white leading-[1.05]"
           >
-            O ciclo de crescimento <span className="text-upPink">UP</span>
+            O ciclo de crescimento <span className="text-upPink drop-shadow-[0_0_25px_rgba(255,83,104,0.4)]">UP</span>
           </motion.h2>
         </div>
 
         <div className="relative">
-          {/* Progress line */}
-          <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-upBorder">
+          <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-upBorder">
             <motion.div style={{ scaleX: lineScale }} className="h-full bg-upPink origin-left shadow-[0_0_12px_rgba(255,83,104,0.8)]" />
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-8">
             {steps.map((s, i) => (
               <motion.div
                 key={s.title}
@@ -55,10 +55,12 @@ export default function Cycle() {
                 className="relative flex flex-col items-center text-center group"
                 data-testid={`cycle-step-${i}`}
               >
-                <div className="relative z-10 w-16 h-16 rounded-2xl bg-upCard border border-upBorder flex items-center justify-center mb-6 group-hover:border-upPink group-hover:shadow-[0_0_28px_rgba(255,83,104,0.35)] group-hover:-translate-y-1 transition-all duration-300">
-                  <s.icon className="w-7 h-7 text-upPink" />
+                <span className="absolute -top-14 font-display font-bold text-[7rem] leading-none text-stroke opacity-60 select-none group-hover:text-stroke-pink transition-all duration-300">
+                  {i + 1}
+                </span>
+                <div className="relative z-10 w-24 h-24 rounded-3xl bg-upCard border border-upBorder flex items-center justify-center mb-6 group-hover:border-upPink group-hover:shadow-[0_0_35px_rgba(255,83,104,0.4)] group-hover:-translate-y-2 group-hover:rotate-3 transition-all duration-300">
+                  <s.icon className="w-9 h-9 text-upPink" />
                 </div>
-                <span className="font-display text-xs text-upGray tracking-[0.3em] mb-2">0{i + 1}</span>
                 <h3 className="font-display text-2xl font-bold text-white">{s.title}</h3>
                 <p className="text-upGray mt-3 leading-relaxed max-w-[240px]">{s.desc}</p>
               </motion.div>

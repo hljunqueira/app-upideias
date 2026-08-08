@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only testing of the redesigned UP Ideias landing page. All required data-testids present, preloader appears then disappears (~2.1s), hero renders with headline 'IDEIAS QUE SOBEM DE NÍVEL' + cursive 'feito para quem cria' + background <video>. Horizontal scroll-world reveals all 3 panels (POSTS ALEATÓRIOS / UP ANALYTICS / UP CREATOR) at increasing scroll depths. Analytics section, dashboard mockup, giant marquee visible on scroll. 6 course cards each contain a <video>. 4 cycle steps present. Pricing toggle correctly swaps UP Pro between R$197 (monthly) and R$164 (annual, from 1970/12 rounded) both ways. Nav login/register, hero primary/secondary CTAs, pricing pro CTA, and final CTA all navigate correctly (/register, /login, #mundo). Footer links to /login, /register, /terms, /privacy exist. Regression: GET /api/ returns 200 {status:ok}, login with admin@upideias.com/Admin@2026 redirects to /app/dashboard and dashboard renders (Seguidores 12.379, Alcance 25.914, chart, etc.). No React errors / hydration failures in console (only a benign Next RSC prefetch 'Failed to fetch' warning during rapid nav which falls back to browser navigation successfully).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Preloader locks body scroll for ~2.1s which is fine but consider skip-preloader on repeat visits (sessionStorage) so returning users are not delayed.",
+    "CustomCursor sets cursor:none on desktop - keyboard/touch accessibility unaffected, but ensure focus-visible outlines remain for accessibility (spot check ok).",
+    "SpotlightCard uses onMouseMove computing getBoundingClientRect on every event - fine at 3 cards but consider rAF-throttling if more cards are added.",
+    "Course card <video> autoplay uses external mixkit URLs - if any 404s in future, add poster fallback (currently no poster attribute observed).",
+    "Next RSC prefetch warning to /login was observed during rapid Playwright navigation; browser fallback works. Not user-visible but worth verifying preview ingress supports .rsc fetches."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@upideias.com / Admin@2026 (from /app/memory/test_credentials.md context)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "When testing this landing with Playwright, do NOT use force=True on links - the CustomCursor / preloader overlays are non-blocking and force=True with a stale mouse position was seen to mis-target clicks (initially caused false 'nav didn't navigate' + 'toggle monthly didn't switch back'). Normal .click() works. Also wait ~3.5-4s after page load before interacting to let preloader finish (body overflow hidden lifts at ~2.1s). Horizontal world section is 400vh tall - scroll page (not inner element) to reveal panels.",
+  "rca of the issue": "N/A - no bugs found. Initial false-positives during testing (hero-cta-primary going to /#hero, monthly toggle not reverting) were reproduced only when using Playwright's force=True click; normal click on the exact same selector navigates/toggles correctly. Root cause: force=True bypasses actionability and dispatches click at last-known mouse coordinate, which after prior scrolling can hit a different element."
+}

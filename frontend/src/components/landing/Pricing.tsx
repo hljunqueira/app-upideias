@@ -59,19 +59,91 @@ const plans = [
   },
 ];
 
+function SpotlightCard({ p, i, annual }: { p: (typeof plans)[0]; i: number; annual: boolean }) {
+  const [pos, setPos] = useState({ x: -300, y: -300 });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, delay: i * 0.12 }}
+      onMouseMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+      }}
+      onMouseLeave={() => setPos({ x: -300, y: -300 })}
+      className={`relative flex flex-col rounded-3xl border p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden ${
+        p.featured
+          ? "bg-upCard border-upPink/40 lg:scale-[1.05] shadow-[0_0_60px_rgba(255,83,104,0.18)]"
+          : "bg-upCard/60 border-upBorder hover:border-upPink/40"
+      }`}
+      data-testid={`pricing-card-${p.slug}`}
+    >
+      {p.featured && <span className="conic-border pointer-events-none opacity-70" />}
+      <span className={`absolute inset-[1px] rounded-3xl pointer-events-none ${p.featured ? "bg-upCard" : ""}`} />
+      {/* Spotlight */}
+      <span
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{ background: `radial-gradient(320px circle at ${pos.x}px ${pos.y}px, rgba(255,83,104,0.12), transparent 70%)` }}
+      />
+
+      <div className="relative">
+        {p.featured && (
+          <span className="absolute -top-11 left-1/2 -translate-x-1/2 bg-upPink text-white text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(255,83,104,0.5)]">
+            Mais popular
+          </span>
+        )}
+        <h3 className="font-display text-2xl font-bold text-white">{p.name}</h3>
+        <p className="text-upGray text-sm mt-2 leading-relaxed">{p.description}</p>
+        <div className="mt-6 flex items-baseline gap-1.5">
+          <span className="font-display text-5xl font-bold text-white">
+            R$ {annual ? Math.round(p.annual / 12) : p.monthly}
+          </span>
+          <span className="text-upGray text-sm">/mês</span>
+        </div>
+        <p className="text-xs text-upGray mt-1.5 h-4">
+          {annual ? `R$ ${p.annual.toLocaleString("pt-BR")} cobrados anualmente` : "cobrança mensal"}
+        </p>
+        <ul className="mt-8 space-y-3.5">
+          {p.features.map((f) => (
+            <li key={f} className="flex items-start gap-3 text-sm text-upLightGray">
+              <Check className="w-4 h-4 text-upPink shrink-0 mt-0.5" />
+              {f}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="relative flex-1" />
+      <Link
+        href="/register"
+        data-testid={`pricing-${p.slug}-cta`}
+        className={`relative mt-10 text-center font-semibold px-6 py-3.5 rounded-full transition-all duration-300 ${
+          p.featured
+            ? "bg-upPink hover:bg-upPinkDark text-white hover:shadow-[0_0_32px_rgba(255,83,104,0.5)]"
+            : "border border-upBorder text-white hover:border-upPink hover:bg-upPink/10"
+        }`}
+      >
+        {p.cta}
+      </Link>
+    </motion.div>
+  );
+}
+
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
 
   return (
     <section id="planos" className="relative py-32 lg:py-40 bg-upBlack overflow-hidden noise" data-testid="pricing-section">
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-upPink/[0.05] blur-[130px] rounded-full pointer-events-none" />
+      <span className="absolute top-16 right-8 font-script text-upPink/20 text-7xl lg:text-9xl select-none rotate-[5deg]">invista</span>
       <div className="max-w-7xl mx-auto px-6">
         <div className="max-w-3xl mb-16">
           <motion.p
             initial={{ opacity: 0, x: -24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="uppercase tracking-[0.25em] text-upPink text-sm font-semibold mb-5"
+            className="uppercase tracking-[0.3em] text-upPink text-sm font-semibold mb-5"
           >
             Planos
           </motion.p>
@@ -80,11 +152,11 @@ export default function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.1]"
+            className="font-display text-4xl lg:text-6xl font-bold tracking-tight text-white leading-[1.05]"
           >
             Invista no seu crescimento.
             <br />
-            <span className="text-upPink">7 dias grátis em qualquer plano.</span>
+            <span className="font-script text-upPink text-6xl lg:text-8xl drop-shadow-[0_0_25px_rgba(255,83,104,0.35)]">7 dias grátis.</span>
           </motion.h2>
         </div>
 
@@ -113,55 +185,7 @@ export default function Pricing() {
 
         <div className="grid lg:grid-cols-3 gap-8 items-stretch">
           {plans.map((p, i) => (
-            <motion.div
-              key={p.slug}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.6, delay: i * 0.12 }}
-              className={`relative flex flex-col rounded-3xl border p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-2 ${
-                p.featured
-                  ? "bg-upCard border-upPink/60 lg:scale-[1.05] shadow-[0_0_60px_rgba(255,83,104,0.18)] hover:shadow-[0_0_80px_rgba(255,83,104,0.3)]"
-                  : "bg-upCard/60 border-upBorder hover:border-upPink/40"
-              }`}
-              data-testid={`pricing-card-${p.slug}`}
-            >
-              {p.featured && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-upPink text-white text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(255,83,104,0.5)]">
-                  Mais popular
-                </span>
-              )}
-              <h3 className="font-display text-2xl font-bold text-white">{p.name}</h3>
-              <p className="text-upGray text-sm mt-2 leading-relaxed">{p.description}</p>
-              <div className="mt-6 flex items-baseline gap-1.5">
-                <span className="font-display text-5xl font-bold text-white">
-                  R$ {annual ? Math.round(p.annual / 12) : p.monthly}
-                </span>
-                <span className="text-upGray text-sm">/mês</span>
-              </div>
-              <p className="text-xs text-upGray mt-1.5 h-4">
-                {annual ? `R$ ${p.annual.toLocaleString("pt-BR")} cobrados anualmente` : "cobrança mensal"}
-              </p>
-              <ul className="mt-8 space-y-3.5 flex-1">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-upLightGray">
-                    <Check className="w-4 h-4 text-upPink shrink-0 mt-0.5" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                data-testid={`pricing-${p.slug}-cta`}
-                className={`mt-10 text-center font-semibold px-6 py-3.5 rounded-full transition-all duration-300 ${
-                  p.featured
-                    ? "bg-upPink hover:bg-upPinkDark text-white hover:shadow-[0_0_32px_rgba(255,83,104,0.5)]"
-                    : "border border-upBorder text-white hover:border-upPink hover:bg-upPink/10"
-                }`}
-              >
-                {p.cta}
-              </Link>
-            </motion.div>
+            <SpotlightCard key={p.slug} p={p} i={i} annual={annual} />
           ))}
         </div>
 

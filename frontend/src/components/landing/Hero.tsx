@@ -4,149 +4,144 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
 
-const headline = ["Estratégia,", "conteúdo", "e", "conhecimento."];
-
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yLogo = useTransform(scrollYProgress, [0, 1], [0, -180]);
-  const yText = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const orbY = useTransform(scrollYProgress, [0, 1], [0, 250]);
+  const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.25]);
+  const textY = useTransform(scrollYProgress, [0, 1], [0, 220]);
+  const opacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
   return (
-    <section id="hero" ref={ref} className="relative min-h-screen flex items-center overflow-hidden noise grid-bg" data-testid="hero-section">
-      {/* Glow aura */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div style={{ y: orbY }} className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full bg-upPink/[0.07] blur-[120px]" />
-        <motion.div style={{ y: yLogo }} className="absolute top-1/3 -left-40 w-[400px] h-[400px] rounded-full bg-upPink/[0.06] blur-[100px]" />
-        <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-upBlack to-transparent" />
-      </div>
+    <section id="hero" ref={ref} className="relative min-h-screen flex flex-col justify-center overflow-hidden" data-testid="hero-section">
+      {/* Video background */}
+      <motion.div style={{ scale: videoScale }} className="absolute inset-0">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+          src="https://assets.mixkit.co/videos/18140/18140-720.mp4"
+        />
+      </motion.div>
+      <div className="absolute inset-0 bg-upBlack/45" />
+      <div className="absolute inset-0 bg-gradient-to-b from-upBlack/80 via-transparent to-upBlack" />
+      <div className="absolute inset-0 bg-gradient-to-r from-upPink/[0.12] via-transparent to-transparent" />
 
-      <div className="relative max-w-7xl mx-auto px-6 pt-36 pb-24 grid lg:grid-cols-12 gap-16 items-center w-full">
-        <motion.div style={{ y: yText, opacity }} className="lg:col-span-7">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+      <motion.div style={{ y: textY, opacity }} className="relative max-w-7xl mx-auto px-6 w-full pt-32 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 2.1 }}
+          className="inline-flex items-center gap-2 border border-white/20 bg-white/5 backdrop-blur-xl rounded-full px-5 py-2 mb-10"
+          data-testid="hero-badge"
+        >
+          <Sparkles className="w-4 h-4 text-upPink" />
+          <span className="text-xs uppercase tracking-[0.3em] text-white">O ecossistema UP Ideias</span>
+        </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 2.15 }}
+          className="font-script text-upPink text-3xl lg:text-5xl mb-4 rotate-[-2deg] origin-left drop-shadow-[0_0_20px_rgba(255,83,104,0.4)]"
+        >
+          feito para quem cria —
+        </motion.p>
+        <h1 className="font-display font-bold tracking-tight leading-[0.95]">
+          <motion.span
+            initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 border border-upBorder bg-upCard/60 backdrop-blur-md rounded-full px-4 py-1.5 mb-8"
-            data-testid="hero-badge"
+            transition={{ duration: 0.9, delay: 2.2, ease: [0.22, 1, 0.36, 1] }}
+            className="block text-white text-6xl sm:text-7xl lg:text-[7.5rem]"
           >
-            <Sparkles className="w-3.5 h-3.5 text-upPink" />
-            <span className="text-xs uppercase tracking-[0.2em] text-upLightGray">O ecossistema UP Ideias</span>
-          </motion.div>
+            IDEIAS QUE
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0, y: 80 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 2.4, ease: [0.22, 1, 0.36, 1] }}
+            className="block text-stroke text-6xl sm:text-7xl lg:text-[7.5rem]"
+          >
+            SOBEM DE
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0, y: 80 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 2.6, ease: [0.22, 1, 0.36, 1] }}
+            className="block text-upPink text-6xl sm:text-7xl lg:text-[7.5rem] drop-shadow-[0_0_40px_rgba(255,83,104,0.45)]"
+          >
+            NÍVEL. ↗
+          </motion.span>
+        </h1>
 
-          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.04]">
-            {headline.map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.15 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                className="inline-block mr-[0.28em]"
-              >
-                {word}
-              </motion.span>
-            ))}
-            <motion.span
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
-              className="block text-upPink drop-shadow-[0_0_30px_rgba(255,83,104,0.35)]"
-            >
-              Tudo em um lugar.
-            </motion.span>
-          </h1>
-
+        <div className="mt-12 grid lg:grid-cols-2 gap-10 items-end">
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1 }}
-            className="mt-8 text-lg lg:text-xl text-upGray leading-relaxed max-w-xl"
+            transition={{ duration: 0.8, delay: 2.9 }}
+            className="text-lg lg:text-xl text-upLightGray/80 leading-relaxed max-w-xl"
           >
-            Métricas do Instagram com diagnóstico de IA, gerador de conteúdo e uma plataforma
-            de cursos estilo streaming. <span className="text-upLightGray">Transforme métricas em estratégia.</span>
+            Métricas do Instagram com diagnóstico de IA, gerador de conteúdo e uma
+            plataforma de cursos estilo streaming. <span className="text-white font-semibold">Transforme métricas em estratégia.</span>
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.15 }}
-            className="mt-10 flex flex-wrap items-center gap-4"
+            transition={{ duration: 0.8, delay: 3.05 }}
+            className="flex flex-wrap items-center gap-4 lg:justify-end"
           >
             <Link
               href="/register"
               data-testid="hero-cta-primary"
-              className="group inline-flex items-center gap-2 bg-upPink hover:bg-upPinkDark text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,83,104,0.5)] hover:-translate-y-1"
+              className="group inline-flex items-center gap-2 bg-upPink hover:bg-upPinkDark text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 hover:shadow-[0_0_45px_rgba(255,83,104,0.6)] hover:-translate-y-1"
             >
               Testar 7 dias grátis
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <a
-              href="#analytics"
+              href="#mundo"
               data-testid="hero-cta-secondary"
-              className="inline-flex items-center gap-2 border border-upBorder text-upLightGray hover:text-white hover:border-upPink/60 px-8 py-4 rounded-full transition-all duration-300 backdrop-blur-md bg-upCard/40"
+              className="inline-flex items-center gap-2 border border-white/25 text-white hover:border-upPink px-8 py-4 rounded-full transition-all duration-300 backdrop-blur-xl bg-white/5 hover:bg-upPink/10"
             >
-              Explorar o ecossistema
+              Entrar no mundo UP
             </a>
           </motion.div>
+        </div>
+      </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
-            className="mt-6 text-sm text-upGray"
-          >
-            Sem cartão de crédito · Cancele quando quiser
-          </motion.p>
-        </motion.div>
-
-        {/* Floating logo */}
-        <motion.div style={{ y: yLogo, opacity }} className="hidden lg:flex lg:col-span-5 justify-center relative">
-          <motion.div
-            animate={{ y: [0, -18, 0], rotate: [0, 2, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
-          >
-            <div className="absolute inset-0 bg-upPink/25 blur-[80px] rounded-full scale-75" />
-            <img
-              src="/UP-Logo-removebg-preview.png"
-              alt="Símbolo UP"
-              className="relative w-[380px] h-auto drop-shadow-[0_0_60px_rgba(255,83,104,0.4)]"
-            />
-          </motion.div>
-          <motion.div
-            animate={{ y: [0, 14, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute top-8 right-4 bg-upCard/70 backdrop-blur-xl border border-upBorder/60 rounded-2xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-          >
-            <p className="text-xs text-upGray">Engajamento</p>
-            <p className="font-display text-xl font-bold text-white">+4,8% <span className="text-upPink text-sm">↑</span></p>
-          </motion.div>
-          <motion.div
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute bottom-10 left-0 bg-upCard/70 backdrop-blur-xl border border-upBorder/60 rounded-2xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-          >
-            <p className="text-xs text-upGray">Nova aula disponível</p>
-            <p className="font-display text-sm font-bold text-white">Reels que Convertem</p>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      <motion.a
-        href="#problema"
+      {/* Bottom stats strip */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-upGray hover:text-upPink transition-colors"
-        data-testid="hero-scroll-hint"
-        aria-label="Rolar para baixo"
+        transition={{ delay: 3.3, duration: 0.8 }}
+        className="relative border-t border-white/10 bg-upBlack/40 backdrop-blur-xl"
       >
-        <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>
-          <ChevronDown className="w-6 h-6" />
-        </motion.div>
-      </motion.a>
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-6">
+          {[
+            ["+2,3x", "alcance com IA"],
+            ["30 dias", "de métricas analisadas"],
+            ["6+ trilhas", "no UP Creator"],
+            ["7 dias", "de teste grátis"],
+          ].map(([v, l]) => (
+            <div key={l} className="flex items-baseline gap-2">
+              <span className="font-display text-xl font-bold text-upPink">{v}</span>
+              <span className="text-xs text-upGray uppercase tracking-wider">{l}</span>
+            </div>
+          ))}
+          <motion.a
+            href="#mundo"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity }}
+            className="text-upGray hover:text-upPink transition-colors"
+            aria-label="Rolar para baixo"
+            data-testid="hero-scroll-hint"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </motion.a>
+        </div>
+      </motion.div>
     </section>
   );
 }
