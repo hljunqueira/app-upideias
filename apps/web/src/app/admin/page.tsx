@@ -27,7 +27,7 @@ export default function AdminDashboard() {
     { name: "Usuários Totais", value: "328", change: "+18 novos este mês", icon: Users },
     { name: "Perfis Conectados", value: "242", change: "+14 este mês", icon: Instagram },
     { name: "Faturamento Estimado", value: "R$ 18.420", change: "MRR Recorrente", icon: DollarSign },
-    { name: "Créditos IA Consumidos", value: "18.432", change: "Gemini API", icon: Cpu },
+    { name: "Créditos IA Consumidos", value: "18.432", change: "Gerações do Mês", icon: Cpu },
   ];
 
   const chartData = [
@@ -50,8 +50,8 @@ export default function AdminDashboard() {
     <div className="flex flex-col gap-8">
       {/* Title */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite">Administração UP Analytics</h1>
-        <p className="text-sm text-upGray mt-1">Gerencie a plataforma, planos, usuários e monitore logs integrados da VPS.</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite">Painel Geral de Administração</h1>
+        <p className="text-sm text-upGray mt-1">Gerencie planos, usuários, faturamento e monitore a performance da plataforma.</p>
       </div>
 
       {/* KPI Cards */}
@@ -108,9 +108,9 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="mt-8 p-4 rounded-xl bg-upDark/50 border border-upBorder text-center">
-            <span className="text-xs text-upGray block">Status dos Servidores VPS</span>
+            <span className="text-xs text-upGray block">Status da Infraestrutura</span>
             <span className="text-xs text-green-400 font-bold mt-1 inline-flex items-center gap-1.5 justify-center">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span> Supabase, n8n & Evolution Online
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Todos os Serviços Online
             </span>
           </div>
         </div>

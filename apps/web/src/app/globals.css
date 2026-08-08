@@ -1,22 +1,36 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
   --foreground-rgb: 243, 244, 246;
-  /* upLightGray equivalent */
-  --background-start-rgb: 5, 5, 5;
-  /* upBlack */
-  --background-end-rgb: 11, 11, 15;
-  /* upDark */
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  background: #050505;
   min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-body), sans-serif;
+}
+
+.font-script {
+  font-family: var(--font-script), cursive;
+}
+
+::selection {
+  background: rgba(255, 83, 104, 0.35);
+  color: #fff;
 }
 
 /* Custom scrollbar */
@@ -36,4 +50,90 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #ff5368;
+}
+
+/* Custom cursor — only on precise pointers on landing page */
+@media (hover: hover) and (pointer: fine) {
+  .landing-page, .landing-page a, .landing-page button, .landing-page [role="button"] {
+    cursor: none;
+  }
+}
+
+/* Gradient headline text */
+.text-grad {
+  background: linear-gradient(90deg, #ffffff 20%, #ff5368 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Brand coral tint over videos */
+.video-tint {
+  position: absolute;
+  inset: 0;
+  background: #ff5368;
+  mix-blend-mode: color;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Noise overlay */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee-fast {
+  animation: marquee 18s linear infinite;
+}
+
+/* Grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(38, 38, 45, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38, 38, 45, 0.35) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Rotating conic border for featured pricing */
+@keyframes spin-border {
+  to { transform: rotate(360deg); }
+}
+
+.conic-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.conic-border::before {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  background: conic-gradient(from 0deg, transparent 0deg, #ff5368 60deg, transparent 120deg, transparent 360deg);
+  animation: spin-border 5s linear infinite;
+}
+
+/* Hide horizontal scrollbar on shelf */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee, .animate-marquee-fast, .conic-border::before { animation: none; }
+  html { scroll-behavior: auto; }
 }

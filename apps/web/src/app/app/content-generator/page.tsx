@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { 
   PenTool, 
-  Sparkles, 
+  SlidersHorizontal,
   Send,
   Loader2,
   Calendar,
@@ -67,7 +67,7 @@ export default function ContentGeneratorPage() {
         {/* Settings Form */}
         <div className="md:col-span-1 bg-upCard border border-upBorder rounded-2xl p-6 h-fit">
           <h2 className="text-sm font-bold text-upWhite uppercase tracking-wider mb-6 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-upPink" />
+            <SlidersHorizontal className="w-4 h-4 text-upPink" />
             Parâmetros
           </h2>
 
@@ -202,8 +202,8 @@ export default function ContentGeneratorPage() {
             ))
           ) : (
             <div className="bg-upCard border border-upBorder rounded-2xl p-16 text-center text-upGray flex flex-col items-center justify-center gap-4 h-full min-h-[300px]">
-              <div className="w-12 h-12 rounded-xl bg-upPink/5 text-upPink flex items-center justify-center">
-                ✨
+              <div className="w-12 h-12 rounded-2xl bg-upPink/10 text-upPink border border-upPink/20 flex items-center justify-center">
+                <PenTool className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-upWhite">Aguardando Parâmetros</h3>

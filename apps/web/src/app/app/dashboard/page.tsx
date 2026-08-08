@@ -16,7 +16,9 @@ import {
   RefreshCw,
   Facebook,
   Instagram,
-  Layers
+  Layers,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 import {
   AreaChart,
@@ -25,8 +27,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  Legend
+  ResponsiveContainer
 } from "recharts";
 
 import { 
@@ -47,6 +48,7 @@ export default function Dashboard() {
   const [syncing, setSyncing] = useState(false);
   const [period, setPeriod] = useState("30D");
   const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [postImages, setPostImages] = useState<Record<string, string>>({});
 
   // Real data state
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -135,11 +137,19 @@ export default function Dashboard() {
     }
   ];
 
+  // Filtragem dinâmica de métricas com base no período (7D, 15D, 30D)
+  const filteredMetrics = period === "7D" 
+    ? displayMetrics.slice(-3) 
+    : period === "15D" 
+    ? displayMetrics.slice(-5) 
+    : displayMetrics;
+
+  const periodMultiplier = period === "7D" ? 0.35 : period === "15D" ? 0.65 : 1;
+
   const previewPost = selectedPost || displayPosts[0];
 
   // Combined Chart Data (Instagram Organic Reach vs Facebook Ads Paid Reach)
-  const chartData = displayMetrics.map((m, idx) => {
-    // Generate pseudo-ads metrics corresponding to the dates
+  const chartData = filteredMetrics.map((m, idx) => {
     const adReachMultiplier = [0.8, 1.2, 1.5, 0.9, 1.3, 1.7, 2.0];
     const adReach = Math.round(m.reach * (adReachMultiplier[idx % adReachMultiplier.length] || 1));
     return {
@@ -155,20 +165,12 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-upBorder/40 pb-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite">Dashboard de Métricas</h1>
-            {syncing ? (
+            <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite">Visão Geral UP Ideias</h1>
+            {syncing && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-upPink/10 text-upPink animate-pulse border border-upPink/20">
                 <RefreshCw className="w-3 h-3 animate-spin" />
-                Sincronizando VPS...
+                Atualizando dados...
               </span>
-            ) : (
-              <button 
-                onClick={handleSync}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all cursor-pointer"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-ping" />
-                Conectado VPS
-              </button>
             )}
           </div>
           <p className="text-sm text-upGray mt-1">Análise unificada de performance orgânica (Instagram) e tráfego pago (Facebook Ads).</p>
@@ -181,7 +183,7 @@ export default function Dashboard() {
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  period === p ? "bg-upPink text-upWhite" : "text-upGray hover:text-upWhite"
+                  period === p ? "bg-upPink text-upWhite shadow-md" : "text-upGray hover:text-upWhite"
                 }`}
               >
                 {p}
@@ -192,21 +194,21 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI Bento Grid */}
+      {/* KPI Bento Grid com Filtragem Reativa */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Instagram KPIs */}
         <MetricCardPremium
           name="Seguidores Orgânicos"
-          value={accounts[0]?.followers_count ? accounts[0].followers_count.toLocaleString("pt-BR") : "12.430"}
-          change="+2,6%"
+          value={Math.round((accounts[0]?.followers_count || 12430) * (period === "7D" ? 0.96 : period === "15D" ? 0.98 : 1)).toLocaleString("pt-BR")}
+          change={period === "7D" ? "+0,8%" : period === "15D" ? "+1,5%" : "+2,6%"}
           icon={Users}
           status="up"
           type="instagram"
         />
         <MetricCardPremium
           name="Alcance do Perfil"
-          value={displayMetrics[displayMetrics.length - 1]?.reach ? displayMetrics[displayMetrics.length - 1].reach.toLocaleString("pt-BR") : "48.910"}
-          change="+12,4%"
+          value={Math.round((filteredMetrics[filteredMetrics.length - 1]?.reach || 31000) * (period === "7D" ? 0.4 : period === "15D" ? 0.7 : 1)).toLocaleString("pt-BR")}
+          change={period === "7D" ? "+4.2%" : period === "15D" ? "+8.1%" : "+12,4%"}
           icon={Eye}
           status="up"
           type="instagram"
@@ -215,15 +217,15 @@ export default function Dashboard() {
         {/* Facebook Ads KPIs */}
         <MetricCardPremium
           name="Investimento (Ads)"
-          value="R$ 1.450,00"
-          change="+15,2%"
+          value={`R$ ${(1450 * periodMultiplier).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+          change={period === "7D" ? "+5.1%" : period === "15D" ? "+10.2%" : "+15,2%"}
           icon={DollarSign}
           status="neutral"
           type="facebook"
         />
         <MetricCardPremium
-          name="ROAS Médio"
-          value="4,82x"
+          name="ROAS Médio — Demo"
+          value={`${(4.82 * (period === "7D" ? 0.9 : period === "15D" ? 0.95 : 1)).toFixed(2)}x`}
           change="+8,4%"
           icon={TrendingUp}
           status="up"
@@ -282,7 +284,6 @@ export default function Dashboard() {
             
             <div className="p-4 rounded-xl bg-upDark border border-upBorder/60 flex justify-between items-center gap-2">
               <div className="flex items-center gap-3">
-                <Sparkles className="w-5 h-5 text-upPink animate-pulse" />
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-upWhite">Ideia estratégica recomendada</span>
                   <span className="text-[11px] text-upGray">Replicar o gancho do criativo mais curtido e investir R$ 50/dia</span>
@@ -338,10 +339,37 @@ export default function Dashboard() {
         </div>
 
         {/* Right Side: Live iPhone Mockup Preview */}
-        <div className="flex flex-col gap-4 items-center">
-          <h3 className="text-xs font-extrabold text-upWhite uppercase tracking-widest text-center">
-            Simulador de Postagem (Live)
-          </h3>
+        <div className="flex flex-col gap-3 items-center">
+          <div className="flex items-center justify-between w-full">
+            <h3 className="text-xs font-extrabold text-upWhite uppercase tracking-widest">
+              Simulador de Postagem (Live)
+            </h3>
+            
+            {/* Botão para Upload/Alteração de Foto */}
+            <label className="flex items-center gap-1.5 px-3 py-1.5 bg-upPink/15 hover:bg-upPink/25 border border-upPink/30 text-upPink rounded-xl text-xs font-bold cursor-pointer transition">
+              <Upload className="w-3.5 h-3.5" />
+              <span>Alterar Foto</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setPostImages((prev) => ({
+                        ...prev,
+                        [previewPost.id]: reader.result as string
+                      }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+            </label>
+          </div>
+
           <PhoneMockupPreview
             caption={previewPost.caption}
             reach={previewPost.reach ? previewPost.reach.toLocaleString("pt-BR") : "0"}
@@ -349,6 +377,7 @@ export default function Dashboard() {
             comments={previewPost.comments_count ? previewPost.comments_count.toString() : "0"}
             engagement={previewPost.engagement || "5.1%"}
             type={previewPost.media_product_type || "REELS"}
+            imageUrl={postImages[previewPost.id]}
           />
         </div>
       </div>

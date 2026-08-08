@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Unbounded, Caveat } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const unbounded = Unbounded({ subsets: ["latin"], variable: "--font-display", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
+const caveat = Caveat({ subsets: ["latin"], variable: "--font-script", weight: ["400", "500", "600", "700"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "UP Analytics by UpIdeias - Transforme métricas em estratégia",
-  description: "Plataforma SaaS para empresas, criadores e agências acompanharem métricas do Instagram, receberem diagnósticos com IA e gerenciarem automações.",
+  title: "UP Ideias — Estratégia, conteúdo e conhecimento em um só lugar",
+  description:
+    "O ecossistema UP Ideias: métricas do Instagram com IA (UP Analytics) e plataforma de cursos estilo streaming (UP Creator). Transforme métricas em estratégia.",
 };
 
 export default function RootLayout({
@@ -16,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={`${inter.className} text-upLightGray antialiased bg-upBlack min-h-screen`}>
+      <body className={`${inter.variable} ${unbounded.variable} ${caveat.variable} font-body text-upLightGray antialiased bg-upBlack min-h-screen`}>
         {children}
       </body>
     </html>

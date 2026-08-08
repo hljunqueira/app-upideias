@@ -9,6 +9,7 @@ interface PhoneMockupPreviewProps {
   comments: string;
   engagement: string;
   type: string;
+  imageUrl?: string;
   className?: string;
 }
 
@@ -16,11 +17,27 @@ export const PhoneMockupPreview: React.FC<PhoneMockupPreviewProps> = ({
   caption,
   reach,
   likes,
-  comments,
+  comments: _comments,
   engagement,
   type,
+  imageUrl: externalImageUrl,
   className,
 }) => {
+  const [customImage, setCustomImage] = React.useState<string | null>(null);
+
+  const displayImage = customImage || externalImageUrl;
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className={cn("relative mx-auto w-[280px] h-[550px] bg-black rounded-[40px] border-[8px] border-upBorder shadow-2xl overflow-hidden flex flex-col", className)}>
       {/* Dynamic Island / Notch */}
@@ -56,19 +73,34 @@ export const PhoneMockupPreview: React.FC<PhoneMockupPreviewProps> = ({
           {caption}
         </p>
 
-        {/* Media Box */}
-        <div className="relative aspect-square w-full rounded-xl bg-gradient-to-br from-upPink/20 to-purple-500/20 border border-upBorder/60 flex items-center justify-center overflow-hidden group">
-          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
-          <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[8px] font-bold text-upWhite uppercase">
-            {type}
-          </span>
-          <div className="z-10 flex flex-col items-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-upPink/10 text-upPink flex items-center justify-center border border-upPink/20 animate-pulse">
-              <Eye className="w-6 h-6" />
-            </div>
-            <span className="text-[9px] text-upWhite font-extrabold tracking-wider uppercase">Visualização Ativa</span>
-          </div>
-        </div>
+        {/* Media Box com Upload Interativo de Imagem */}
+        <label className="relative aspect-square w-full rounded-xl bg-gradient-to-br from-upPink/20 to-purple-500/20 border border-upBorder/60 flex items-center justify-center overflow-hidden group cursor-pointer">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
+
+          {displayImage ? (
+            <img src={displayImage} alt="Post" className="w-full h-full object-cover" />
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
+              <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[8px] font-bold text-upWhite uppercase z-20">
+                {type}
+              </span>
+              <div className="z-10 flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-upPink/20 text-upPink flex items-center justify-center border border-upPink/30 group-hover:scale-110 transition">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <span className="text-[9px] text-upWhite font-extrabold tracking-wider uppercase group-hover:text-upPink transition">
+                  Clique p/ alterar Foto 📷
+                </span>
+              </div>
+            </>
+          )}
+        </label>
 
         {/* Action Buttons */}
         <div className="flex justify-between items-center text-upWhite py-1">

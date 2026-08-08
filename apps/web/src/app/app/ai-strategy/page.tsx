@@ -14,6 +14,8 @@ import {
 import { generateAiInsight } from "@up-analytics/lib";
 import { AiInsight } from "@up-analytics/types";
 
+import { PlanGate } from "@/components/common/PlanGate";
+
 export default function AiStrategyPage() {
   const [insight, setInsight] = useState<AiInsight | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,8 @@ export default function AiStrategyPage() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-8">
+    <PlanGate featureKey="aiStrategy" featureTitle="Estratégia IA">
+      <div className="flex flex-col gap-8">
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -150,7 +153,6 @@ export default function AiStrategyPage() {
             {/* Ideas Suggestions */}
             <div className="bg-upCard border border-upBorder rounded-2xl p-6">
               <h3 className="text-sm font-bold text-upWhite uppercase tracking-wider mb-6 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-yellow-400" />
                 Sugestões de Post
               </h3>
               {insight.content_suggestions.map((suggestion: any, index: number) => (
@@ -176,5 +178,6 @@ export default function AiStrategyPage() {
         </div>
       )}
     </div>
+    </PlanGate>
   );
 }
