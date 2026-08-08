@@ -1,0 +1,71 @@
+{
+  "summary": "Frontend-only verification of (1) transparent/outlined stroke font removal, (2) Netflix-style course cards, (3) giant 01/02 solid coral low-opacity, plus regressions (preloader, CTAs, pricing toggle, horizontal world) on desktop 1920 and mobile 390. All checks pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verifications": {
+    "V1_stroke_removed": {
+      "elements_with_stroke_width_gt_0": 0,
+      "classHits_text_stroke_or_pink": 0,
+      "SOBEM_DE_class": "block text-grad text-5xl sm:text-7xl lg:text-[7.5rem]",
+      "SOBEM_DE_color": "rgba(0, 0, 0, 0)",
+      "SOBEM_DE_bgImage": "linear-gradient(90deg, rgb(255,255,255) 20%, rgb(255,83,104) 100%)",
+      "SOBEM_DE_bgClip": "text",
+      "SOBEM_DE_strokeWidth": "0px",
+      "screenshot_confirms_solid_gradient": true,
+      "result": "PASS"
+    },
+    "V2_netflix_cards": {
+      "shelf_present": true,
+      "card_count_desktop": 6,
+      "card_count_mobile": 6,
+      "hover_card1_playBtn_found": true,
+      "hover_card1_addBtn_found": true,
+      "hover_card1_panel_expanded_maxHeight_not_0": true,
+      "hover_card1_match_text_96_visible": true,
+      "hover_card1_video_paused": true,
+      "note": "Video autoplay blocked in headless without user gesture (acceptable per review note). Play() is invoked on hover, DOM assertions confirm hover state.",
+      "hover_scale_extraction": "None (transform format may be matrix3d); panel expansion is definitive proof hover applied",
+      "result": "PASS"
+    },
+    "V3_giant_numbers": {
+      "01_02_color": "rgba(255, 83, 104, 0.1)",
+      "01_02_strokeWidth": "0px",
+      "result": "PASS"
+    },
+    "regression": {
+      "preloader_disappears": true,
+      "hero_cta_primary_href": "/register",
+      "final_cta_btn_href": "/register",
+      "pricing_toggle_before": "R$ 197 visible",
+      "pricing_toggle_after_annual": "R$ 164 visible",
+      "POSTS_ALEATORIOS_class": "text-grad",
+      "console_errors": 0,
+      "page_errors": 0,
+      "result": "PASS"
+    },
+    "mobile_390": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "no_horizontal_overflow": true,
+      "shelf_cards": 6,
+      "result": "PASS"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CreatorShowcase.tsx: video preload='none' + autoplay on hover works on real browsers but silently fails in headless — consider a poster image or CSS-based motion fallback for accessibility/reduced-motion users (nice-to-have, not blocking).",
+    "globals.css: cursor:none is applied globally on hover-capable devices — acceptable given CustomCursor component, but ensure focus-visible outlines remain intact for keyboard users."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 6 verified stroke-font removal + Netflix card hover behavior + full regression. All 5 verification blocks pass. No blocking issues. Prior iterations 3-5 covered broader landing coverage.",
+  "rca of the issue": "N/A — no issues found"
+}

@@ -55,7 +55,7 @@ export default function Cycle() {
                 className="relative flex flex-col items-center text-center group"
                 data-testid={`cycle-step-${i}`}
               >
-                <span className="absolute -top-14 font-display font-bold text-[7rem] leading-none text-stroke opacity-60 select-none group-hover:text-stroke-pink transition-all duration-300">
+                <span className="absolute -top-14 font-display font-bold text-[7rem] leading-none text-upPink/10 select-none group-hover:text-upPink/25 transition-colors duration-300">
                   {i + 1}
                 </span>
                 <div className="relative z-10 w-24 h-24 rounded-3xl bg-upCard border border-upBorder flex items-center justify-center mb-6 group-hover:border-upPink group-hover:shadow-[0_0_35px_rgba(255,83,104,0.4)] group-hover:-translate-y-2 group-hover:rotate-3 transition-all duration-300">

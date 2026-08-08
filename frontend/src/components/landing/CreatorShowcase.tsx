@@ -1,26 +1,22 @@
 "use client";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef, useState } from "react";
-import { Clock, Film, Play } from "lucide-react";
+import { Check, ChevronDown, Clock, Film, Play, Plus, ThumbsUp } from "lucide-react";
 
 const courses = [
-  { tag: "Estratégia", title: "Estratégia de Conteúdo do Zero", lessons: 12, duration: "3h 40min", progress: 72, video: "https://assets.mixkit.co/videos/44054/44054-360.mp4" },
-  { tag: "Reels", title: "Reels que Convertem", lessons: 9, duration: "2h 15min", progress: 45, video: "https://assets.mixkit.co/videos/42291/42291-360.mp4" },
-  { tag: "Vendas", title: "Funil de Vendas no Instagram", lessons: 14, duration: "4h 05min", progress: 0, video: "https://assets.mixkit.co/videos/34481/34481-360.mp4" },
-  { tag: "Copy", title: "Copywriting Magnético", lessons: 10, duration: "2h 50min", progress: 100, video: "https://assets.mixkit.co/videos/44074/44074-360.mp4" },
-  { tag: "Dados", title: "Métricas na Prática", lessons: 8, duration: "1h 55min", progress: 20, video: "https://assets.mixkit.co/videos/30063/30063-360.mp4" },
-  { tag: "Branding", title: "Marca Pessoal Inesquecível", lessons: 11, duration: "3h 10min", progress: 0, video: "https://assets.mixkit.co/videos/50484/50484-360.mp4" },
+  { tag: "Estratégia", title: "Estratégia de Conteúdo do Zero", lessons: 12, duration: "3h 40min", progress: 72, match: 98, level: "Iniciante", video: "https://assets.mixkit.co/videos/44054/44054-360.mp4" },
+  { tag: "Reels", title: "Reels que Convertem", lessons: 9, duration: "2h 15min", progress: 45, match: 96, level: "Intermediário", video: "https://assets.mixkit.co/videos/42291/42291-360.mp4" },
+  { tag: "Vendas", title: "Funil de Vendas no Instagram", lessons: 14, duration: "4h 05min", progress: 0, match: 93, level: "Avançado", video: "https://assets.mixkit.co/videos/34481/34481-360.mp4" },
+  { tag: "Copy", title: "Copywriting Magnético", lessons: 10, duration: "2h 50min", progress: 100, match: 97, level: "Intermediário", video: "https://assets.mixkit.co/videos/44074/44074-360.mp4" },
+  { tag: "Dados", title: "Métricas na Prática", lessons: 8, duration: "1h 55min", progress: 20, match: 91, level: "Iniciante", video: "https://assets.mixkit.co/videos/30063/30063-360.mp4" },
+  { tag: "Branding", title: "Marca Pessoal Inesquecível", lessons: 11, duration: "3h 10min", progress: 0, match: 95, level: "Todos", video: "https://assets.mixkit.co/videos/50484/50484-360.mp4" },
 ];
 
 const tracks = ["Fundamentos", "Criadores de Conteúdo", "Social Media Pro", "Agências & Gestores"];
 
-function CourseCard({ c, i }: { c: (typeof courses)[0]; i: number }) {
+function NetflixCard({ c, i }: { c: (typeof courses)[0]; i: number }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hover, setHover] = useState(false);
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const rotateX = useSpring(useTransform(rx, [-0.5, 0.5], [8, -8]), { stiffness: 200, damping: 20 });
-  const rotateY = useSpring(useTransform(ry, [-0.5, 0.5], [-8, 8]), { stiffness: 200, damping: 20 });
 
   return (
     <motion.div
@@ -28,71 +24,109 @@ function CourseCard({ c, i }: { c: (typeof courses)[0]; i: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: i * 0.08 }}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        rx.set((e.clientY - r.top) / r.height - 0.5);
-        ry.set((e.clientX - r.left) / r.width - 0.5);
-      }}
       onMouseEnter={() => {
         setHover(true);
         videoRef.current?.play().catch(() => {});
       }}
       onMouseLeave={() => {
         setHover(false);
-        rx.set(0);
-        ry.set(0);
         if (videoRef.current) {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
         }
       }}
-      className="group snap-start w-[300px] shrink-0 rounded-3xl border border-upBorder bg-upCard overflow-hidden cursor-pointer hover:border-upPink/60 hover:shadow-[0_20px_60px_rgba(255,83,104,0.25)] transition-[border,box-shadow] duration-300"
+      className={`group relative snap-start w-[300px] shrink-0 rounded-xl bg-upCard overflow-visible transition-all duration-300 ease-out ${
+        hover ? "scale-[1.14] z-30 shadow-[0_24px_70px_rgba(0,0,0,0.85)]" : "scale-100 z-0"
+      }`}
       data-testid={`course-card-${i}`}
     >
-      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-upPink/[0.14] via-upDark to-upCard">
-        <span className="absolute inset-0 flex items-center justify-center">
-          <Film className="w-10 h-10 text-upPink/50" />
-        </span>
-        <video
-          ref={videoRef}
-          src={c.video}
-          muted
-          loop
-          playsInline
-          preload="none"
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${hover ? "opacity-100 scale-105" : "opacity-40 scale-100 grayscale"}`}
-        />
-        <span className="absolute inset-0 bg-upPink mix-blend-color opacity-40 pointer-events-none" />
-        <div className={`absolute inset-0 bg-gradient-to-t from-upCard via-transparent transition-opacity duration-300 ${hover ? "opacity-40" : "opacity-90"}`} />
-        <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${hover ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}>
-          <span className="w-14 h-14 rounded-full bg-upPink flex items-center justify-center shadow-[0_0_35px_rgba(255,83,104,0.7)]">
-            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+      <div className={`rounded-xl overflow-hidden border transition-colors duration-300 ${hover ? "border-upPink/40 bg-[#181820]" : "border-upBorder bg-upCard"}`}>
+        {/* Media */}
+        <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-upPink/[0.14] via-upDark to-upCard">
+          <span className="absolute inset-0 flex items-center justify-center">
+            <Film className="w-10 h-10 text-upPink/40" />
           </span>
-        </div>
-        <span className="absolute top-4 left-4 text-[11px] uppercase tracking-wider bg-upBlack/70 backdrop-blur-md text-upPink border border-upPink/30 rounded-full px-3 py-1 z-10">
-          {c.tag}
-        </span>
-        {c.progress === 100 && (
-          <span className="absolute top-4 right-4 text-[11px] bg-upPink text-white rounded-full px-3 py-1 font-semibold z-10">Concluído</span>
-        )}
-      </div>
-      <div className="p-5">
-        <h3 className="font-display font-semibold text-white text-base leading-snug">{c.title}</h3>
-        <div className="flex items-center gap-4 mt-3 text-xs text-upGray">
-          <span className="flex items-center gap-1.5"><Film className="w-3.5 h-3.5" /> {c.lessons} aulas</span>
-          <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {c.duration}</span>
-        </div>
-        <div className="mt-4 h-1.5 bg-upBorder/60 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            whileInView={{ width: `${c.progress}%` }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.4 + i * 0.1 }}
-            className="h-full bg-upPink rounded-full"
+          <video
+            ref={videoRef}
+            src={c.video}
+            muted
+            loop
+            playsInline
+            preload="none"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${hover ? "opacity-100" : "opacity-0"}`}
           />
+          <span className={`absolute inset-0 bg-upPink mix-blend-color pointer-events-none transition-opacity duration-500 ${hover ? "opacity-0" : "opacity-35"}`} />
+          <div className="absolute inset-0 bg-gradient-to-t from-upCard/90 via-transparent to-transparent" />
+          <span className="absolute top-3 left-3 text-[10px] uppercase tracking-wider bg-upBlack/70 backdrop-blur-md text-upPink border border-upPink/30 rounded-full px-2.5 py-0.5 z-10">
+            {c.tag}
+          </span>
+          {c.progress === 100 && (
+            <span className="absolute top-3 right-3 text-[10px] bg-upPink text-white rounded-full px-2.5 py-0.5 font-semibold z-10 flex items-center gap-1">
+              <Check className="w-3 h-3" /> Concluído
+            </span>
+          )}
+          {/* Netflix-style logo mark */}
+          <img src="/UP-Logo-removebg-preview.png" alt="" className="absolute bottom-2 left-3 h-6 w-auto opacity-80" />
         </div>
-        <p className="text-[11px] text-upGray mt-2">{c.progress > 0 ? `${c.progress}% assistido` : "Começar agora"}</p>
+
+        {/* Info */}
+        <div className="p-4">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-display font-semibold text-white text-[15px] leading-snug">{c.title}</h3>
+          </div>
+
+          {/* Netflix expanded panel */}
+          <div className={`overflow-hidden transition-all duration-300 ease-out ${hover ? "max-h-44 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"}`}>
+            <div className="flex items-center gap-2.5">
+              <button
+                aria-label={`Assistir ${c.title}`}
+                data-testid={`course-play-btn-${i}`}
+                className="w-9 h-9 rounded-full bg-white hover:bg-upLightGray flex items-center justify-center transition-colors"
+              >
+                <Play className="w-4 h-4 text-upBlack fill-upBlack ml-0.5" />
+              </button>
+              <button
+                aria-label="Adicionar à minha lista"
+                data-testid={`course-add-btn-${i}`}
+                className="w-9 h-9 rounded-full border-2 border-upGray/60 hover:border-white text-upLightGray hover:text-white flex items-center justify-center transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <button
+                aria-label="Avaliar curso"
+                className="w-9 h-9 rounded-full border-2 border-upGray/60 hover:border-white text-upLightGray hover:text-white flex items-center justify-center transition-colors"
+              >
+                <ThumbsUp className="w-4 h-4" />
+              </button>
+              <span className="ml-auto w-9 h-9 rounded-full border-2 border-upGray/60 text-upLightGray flex items-center justify-center">
+                <ChevronDown className="w-4 h-4" />
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 mt-3.5 text-xs">
+              <span className="text-upPink font-bold">{c.match}% pra você</span>
+              <span className="border border-upGray/50 text-upGray px-1.5 py-0.5 rounded text-[10px] uppercase">HD</span>
+              <span className="text-upLightGray/80">{c.level}</span>
+            </div>
+
+            <div className="flex items-center gap-4 mt-2.5 text-xs text-upGray">
+              <span className="flex items-center gap-1.5"><Film className="w-3.5 h-3.5" /> {c.lessons} aulas</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {c.duration}</span>
+            </div>
+          </div>
+
+          {/* Progress (always visible) */}
+          <div className="mt-3 h-1 bg-upBorder/60 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: `${c.progress}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.4 + i * 0.1 }}
+              className="h-full bg-upPink rounded-full"
+            />
+          </div>
+          <p className="text-[11px] text-upGray mt-1.5">{c.progress > 0 ? `${c.progress}% assistido` : "Começar agora"}</p>
+        </div>
       </div>
     </motion.div>
   );
@@ -156,17 +190,21 @@ export default function CreatorShowcase() {
             </span>
           ))}
         </motion.div>
+
+        <p className="font-display text-white font-semibold text-lg mt-14 mb-5 flex items-center gap-2">
+          Em alta no UP Creator <span className="text-upPink">›</span>
+        </p>
       </div>
 
-      <div className="mt-14 overflow-x-auto no-scrollbar snap-x snap-mandatory" data-testid="creator-shelf" style={{ perspective: 1200 }}>
-        <div className="flex gap-6 px-6 lg:px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] pb-8 pt-2 w-max">
+      <div className="overflow-x-auto no-scrollbar snap-x snap-mandatory" data-testid="creator-shelf">
+        <div className="flex gap-5 px-6 lg:px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] pt-4 pb-20 w-max">
           {courses.map((c, i) => (
-            <CourseCard key={c.title} c={c} i={i} />
+            <NetflixCard key={c.title} c={c} i={i} />
           ))}
         </div>
       </div>
 
-      <p className="text-center text-sm text-upGray mt-4">
+      <p className="text-center text-sm text-upGray -mt-8">
         Arraste para explorar <span className="text-upPink">→</span> Novos cursos todo mês
       </p>
     </section>

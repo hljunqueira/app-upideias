@@ -49,7 +49,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 2.4, ease: [0.22, 1, 0.36, 1] }}
-            className="block text-stroke text-5xl sm:text-7xl lg:text-[7.5rem]"
+            className="block text-grad text-5xl sm:text-7xl lg:text-[7.5rem]"
           >
             SOBEM DE
           </motion.span>

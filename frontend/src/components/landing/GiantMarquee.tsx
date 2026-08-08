@@ -10,7 +10,7 @@ export default function GiantMarquee() {
           <div key={k} className="flex items-center">
             {items.map((w, i) => (
               <span key={w + k} className="flex items-center">
-                <span className={`font-display font-bold text-6xl lg:text-7xl tracking-tight mx-6 ${i % 2 === 0 ? "text-stroke" : "text-upPink"}`}>
+                <span className={`font-display font-bold text-6xl lg:text-7xl tracking-tight mx-6 ${i % 2 === 0 ? "text-white/90" : "text-upPink"}`}>
                   {w}
                 </span>
                 <span className="text-upPink text-3xl mx-2">✦</span>

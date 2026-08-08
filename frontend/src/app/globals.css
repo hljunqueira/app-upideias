@@ -59,14 +59,11 @@ body {
   }
 }
 
-/* Outlined kinetic typography */
-.text-stroke {
-  -webkit-text-stroke: 2.5px rgba(255, 255, 255, 0.55);
-  color: transparent;
-}
-
-.text-stroke-pink {
-  -webkit-text-stroke: 2px rgba(255, 83, 104, 0.7);
+/* Gradient headline text */
+.text-grad {
+  background: linear-gradient(90deg, #ffffff 20%, #ff5368 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
 }
 
