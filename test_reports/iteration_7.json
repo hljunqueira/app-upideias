@@ -1,0 +1,37 @@
+{
+  "summary": "Iteration 7 — Auth UI overhaul + role-aware redirects + register plan selector + backend/DB spec doc. Backend smoke (GET /api/, POST /api/auth/login, GET /api/auth/me) passes. 11/11 frontend UI scenarios PASS: login page renders with all data-testids (heading 'Entrar na sua conta', email/password/submit/google/demo-user/demo-admin), manual creator login -> /app/dashboard, demo-admin-login-btn -> /admin with UP ADMIN branding + Painel Geral, demo-user-login-btn -> /app/dashboard, manual admin form login -> /admin (role-aware), header-admin-link with href='/admin' visible for admin on /app, invalid login shows login-error, register page has 3 plan buttons (start/pro/agencia) with visual selection change, new user registration (teste+<ts>@upideias.com/Teste@2026) succeeds and lands on /app/dashboard, landing regression OK. BACKEND_DATABASE.md exists at 149 lines.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/auth/login", "issue": "On invalid email format (e.g. '*@example.invalid'), backend returns raw 422 Pydantic validation JSON. Frontend surfaces the raw JSON string inside login-error instead of a friendly pt-BR message. Consider catching validation errors and returning {detail: 'E-mail inválido'}."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "LoginPage / error handler", "issue": "login-error displays raw FastAPI 422 JSON when email format is invalid (starts with '[{\"type\":\"value_error\"...'). Should parse detail[0].msg or map to friendly Portuguese text.", "selector": "[data-testid=\"login-error\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Register plan selector", "issues": ["Pro plan does NOT expose a distinguishable initial 'selected' state via aria-pressed or a class difference vs Start on first render (initial class of Pro matched Start after Start was clicked, meaning Pro was likely selected initially but no accessible attribute like aria-pressed/aria-selected is set — add aria-pressed for a11y). Visual selection change on click works."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_7.json"],
+  "action_items": [
+    "Parse /api/auth/login 422 responses in the frontend and show a friendly pt-BR message (e.g. 'E-mail ou senha inválidos') instead of raw JSON.",
+    "Add aria-pressed / aria-selected on register-plan-* buttons to improve a11y and enable state-based testing (currently only visual class differences).",
+    "Preload warnings for woff2 fonts appear on every auth page — either drop the <link rel=preload> or ensure font-family actually references them within the initial paint window."
+  ],
+  "critical_code_review_comments": [
+    "Dashboard page throws 'Failed to fetch' after logout because loadDashboardData still runs post-redirect (useEffect not aborted). Add an AbortController or guard by session state to avoid noisy console errors and possible race conditions.",
+    "AuthShell brand panel text 'UP IDEIAS' renders as styled markup — inner_text still shows 'UP' + 'IDEIAS' but the app sidebar's brand may be an SVG/logo without accessible text. Confirm sr-only label like <span className='sr-only'>UP Ideias</span> is present for screen readers.",
+    "Login error surface passes through backend detail without shape checking — hostile inputs could inject long JSON strings into the UI. Sanitize / cap length."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (smoke)", "frontend": "100% (11/11 scenarios; 1 medium UX polish item)"},
+  "test_credentials": "Admin: admin@upideias.com / Admin@2026; Assinante: creator@upideias.com / Creator@2026. Test-created user this iteration: teste+1786160899@upideias.com / Teste@2026 (persisted).",
+  "seed_data_creation": "Registered 1 new throwaway user via /register (teste+1786160899@upideias.com). Landing + backend seed data untouched.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Auth flows (form login, demo buttons, role redirects, register w/ plan selector, invalid login error) all functional. Only nit: login-error shows raw 422 JSON on invalid email format — fix in frontend error handler. Doc /app/docs/BACKEND_DATABASE.md verified (149 lines, comprehensive). Do not exhaustively test wrong-password path (5 attempts / 15 min lockout per ip:email). Use fresh browser contexts between admin/user because httpOnly cookies persist.",
+  "rca of the issue": "N/A — no functional failures. The single UX issue (raw 422 JSON in login-error) is caused by the frontend blindly rendering backend 'detail' as string. When Pydantic returns a validation error, detail is a list of dicts serialized to JSON in the error message. Fix: in login onSubmit catch, if err.detail is an array, show a generic friendly message ('Verifique seu e-mail e senha')."
+}

@@ -45,9 +45,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar for desktop */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-upBorder bg-upDark shrink-0">
         <div className="p-6 h-20 flex flex-col justify-center border-b border-upBorder/40">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-upWhite">UP <span className="text-upPink">Admin</span></span>
-            <span className="text-[10px] text-upPink uppercase tracking-wider font-semibold">by UpIdeias</span>
+          <div className="flex items-center gap-2.5">
+            <img src="/UP-Logo-removebg-preview.png" alt="UP Ideias" className="h-9 w-auto" />
+            <span className="font-display text-base font-bold tracking-tight text-upWhite">UP <span className="text-upPink">ADMIN</span></span>
           </div>
         </div>
 

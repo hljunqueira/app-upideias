@@ -103,10 +103,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar for desktop */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-upBorder bg-upDark shrink-0">
         <div className="p-6 h-20 flex flex-col justify-center border-b border-upBorder/40">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-upWhite">UP <span className="text-upPink">Analytics</span></span>
-            <span className="text-[10px] text-upGray uppercase tracking-wider font-semibold">by UpIdeias</span>
-          </div>
+          <Link href="/" className="flex items-center gap-2.5 group w-max">
+            <img src="/UP-Logo-removebg-preview.png" alt="UP Ideias" className="h-9 w-auto transition-transform duration-300 group-hover:-rotate-6" />
+            <span className="font-display text-base font-bold tracking-tight text-upWhite">UP <span className="text-upPink">IDEIAS</span></span>
+          </Link>
         </div>
 
         <nav className="flex-grow p-4 flex flex-col gap-1 overflow-y-auto">
@@ -223,6 +223,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-6">
+            {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                data-testid="header-admin-link"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-upPink/40 bg-upPink/10 text-upPink text-xs font-bold hover:bg-upPink hover:text-white transition-all"
+              >
+                Painel Admin
+              </Link>
+            )}
             <button className="relative text-upGray hover:text-upWhite transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-upPink"></span>
@@ -238,8 +247,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               )}
               <div className="hidden md:flex flex-col">
-                <span data-testid="header-user-name" className="text-sm font-bold text-upWhite">Olá, {firstName}</span>
-                <span className="text-xs text-upGray">{planLabel}</span>
+                <span data-testid="header-user-name" className="text-sm font-bold text-upWhite font-display">Olá, {firstName}</span>
+                <span className="text-xs text-upPink font-semibold">{user?.role === "admin" ? "Administrador" : planLabel}</span>
               </div>
             </div>
           </div>
