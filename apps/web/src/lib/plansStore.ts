@@ -2,10 +2,15 @@
 
 export interface PlanConfig {
   id: string;
-  name: "Iniciante" | "Pro" | "Agência" | "Enterprise";
-  priceMonthly: number;
+  name: string;
+  priceMonthly: number | string;
+  priceAnnual?: number;
+  description?: string;
+  featured?: boolean;
+  isCustomPrice?: boolean;
   aiCreditsMonthly: number;
   clientSlotsLimit: number; // 0, 5, -1 (ilimitado)
+  featuresList?: string[];
   allowedFeatures: {
     dashboard: boolean;
     posts: boolean;
@@ -25,8 +30,18 @@ export const INITIAL_PLANS: PlanConfig[] = [
     id: "iniciante",
     name: "Iniciante",
     priceMonthly: 49,
+    priceAnnual: 490,
+    description: "Para criadores e pequenos negócios começando com estratégia.",
+    featured: false,
     aiCreditsMonthly: 50,
     clientSlotsLimit: 0,
+    featuresList: [
+      "1 conta de Instagram · 1 usuário",
+      "Gerador de conteúdos e roteiros estratégicos",
+      "Métricas essenciais + 30 dias de histórico",
+      "UP Creator: acesso à trilha Fundamentos",
+      "Suporte por e-mail"
+    ],
     allowedFeatures: {
       dashboard: true,
       posts: true,
@@ -44,8 +59,20 @@ export const INITIAL_PLANS: PlanConfig[] = [
     id: "pro",
     name: "Pro",
     priceMonthly: 129,
+    priceAnnual: 1290,
+    description: "Para quem vive de conteúdo e quer escalar de verdade.",
+    featured: true,
     aiCreditsMonthly: 500,
     clientSlotsLimit: 0,
+    featuresList: [
+      "3 contas de Instagram · 3 usuários",
+      "Gerador ilimitado + Diagnóstico estratégico",
+      "Métricas avançadas + 90 dias de histórico",
+      "Calendário editorial completo",
+      "Relatórios semanais no WhatsApp",
+      "UP Creator completo + certificados",
+      "Suporte prioritário"
+    ],
     allowedFeatures: {
       dashboard: true,
       posts: true,
@@ -63,8 +90,20 @@ export const INITIAL_PLANS: PlanConfig[] = [
     id: "agencia",
     name: "Agência",
     priceMonthly: 299,
+    priceAnnual: 2990,
+    description: "Para agências e gestores com múltiplos clientes.",
+    featured: false,
     aiCreditsMonthly: 2000,
     clientSlotsLimit: 5,
+    featuresList: [
+      "10 contas de Instagram · 10 usuários",
+      "Gerações de conteúdo ilimitadas",
+      "Até 5 marcas com Área do Cliente exclusiva",
+      "Fluxo de aprovação de conteúdo",
+      "Relatórios PDF + alertas diários WhatsApp",
+      "UP Creator completo para a equipe",
+      "Onboarding guiado + suporte VIP"
+    ],
     allowedFeatures: {
       dashboard: true,
       posts: true,
@@ -81,9 +120,21 @@ export const INITIAL_PLANS: PlanConfig[] = [
   {
     id: "enterprise",
     name: "Enterprise",
-    priceMonthly: 699,
-    aiCreditsMonthly: -1, // Ilimitado
-    clientSlotsLimit: -1, // Ilimitado
+    priceMonthly: "Sob consulta",
+    isCustomPrice: true,
+    description: "Para grandes marcas e operações em alta escala.",
+    featured: false,
+    aiCreditsMonthly: -1,
+    clientSlotsLimit: -1,
+    featuresList: [
+      "Contas de Instagram e usuários ILIMITADOS",
+      "Créditos de IA totalmente ILIMITADOS",
+      "Marcas e clientes ILIMITADOS",
+      "Infraestrutura dedicada & SLA garantido",
+      "Gerente de conta exclusivo 24/7",
+      "Treinamentos ao vivo para a equipe",
+      "Desenvolvimento de recursos sob medida"
+    ],
     allowedFeatures: {
       dashboard: true,
       posts: true,
@@ -111,7 +162,20 @@ export function getStoredPlans(): PlanConfig[] {
       localStorage.setItem(STORAGE_KEY_PLANS, JSON.stringify(INITIAL_PLANS));
       return INITIAL_PLANS;
     }
-    return JSON.parse(raw);
+    const parsed: PlanConfig[] = JSON.parse(raw);
+    
+    return parsed.map((p) => {
+      const initial = INITIAL_PLANS.find((i) => i.id === p.id || i.name.toLowerCase() === p.name.toLowerCase());
+      const isEnterprise = p.id === "enterprise" || p.name.toLowerCase() === "enterprise";
+      return {
+        ...initial,
+        ...p,
+        priceMonthly: isEnterprise ? "Sob consulta" : p.priceMonthly,
+        isCustomPrice: isEnterprise || Boolean(p.isCustomPrice),
+        featured: p.id === "pro" || p.name.toLowerCase() === "pro" || Boolean(p.featured),
+        featuresList: (p.featuresList && p.featuresList.length > 0) ? p.featuresList : (initial?.featuresList || [])
+      };
+    });
   } catch {
     return INITIAL_PLANS;
   }
@@ -125,12 +189,12 @@ export function savePlansConfig(plans: PlanConfig[]): PlanConfig[] {
   return plans;
 }
 
-export function getActiveUserPlan(): "Iniciante" | "Pro" | "Agência" | "Enterprise" {
+export function getActiveUserPlan(): string {
   if (typeof window === "undefined") return "Pro";
-  return (localStorage.getItem(STORAGE_KEY_ACTIVE_PLAN) as any) || "Pro";
+  return localStorage.getItem(STORAGE_KEY_ACTIVE_PLAN) || "Pro";
 }
 
-export function setActiveUserPlan(planName: "Iniciante" | "Pro" | "Agência" | "Enterprise") {
+export function setActiveUserPlan(planName: string) {
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_ACTIVE_PLAN, planName);
     window.dispatchEvent(new CustomEvent("up_plans_updated"));
