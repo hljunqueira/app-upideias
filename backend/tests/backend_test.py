@@ -12,7 +12,7 @@ import requests
 from datetime import datetime, timezone, timedelta
 from pymongo import MongoClient
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://0e48ec80-255a-4e28-b586-efc5d56672ff.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://upideias-landing.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
