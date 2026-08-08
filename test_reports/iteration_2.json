@@ -1,0 +1,36 @@
+{
+  "summary": "Iteration 2 focuses on the new UP Ideias premium landing page (/) plus regression of login + backend health. All 12 landing scenarios from the review request passed end-to-end via Playwright on the public preview URL, and backend regression (health + login success + login wrong-password) passed via pytest. No fixes were required.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/auth/login", "issue": "Pre-existing (iteration_1): brute-force lockout keyed on request.client.host (K8s ingress IP rotates) — not re-tested this iteration but noted for main agent."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Landing / dashboard", "issues": ["Dashboard KPI 'INVESTIMENTO (ADS) R$ 1.450,00' is static/demo but is not labeled as such (ROAS is now labeled '— DEMO'). Minor, from previous iteration."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Landing components are cleanly split into 8 files under /app/frontend/src/components/landing/*.tsx — good modularization, no file exceeds ~180 lines.",
+    "Framer Motion whileInView with `once: true` is used consistently; content becomes visible reliably on first scroll — verified.",
+    "Pricing.annual math (Math.round(1970/12) = 164) matches the spec — verified in UI.",
+    "All landing CTAs use next/link with proper data-testid attributes — excellent testability.",
+    "Hero headline is split into <motion.span> words; DOM concatenation drops inter-word spacing (e.g. 'Estratégia,conteúdoeconhecimento.' when read via textContent) — visually fine due to mr-[0.28em] but be aware for accessibility/screen readers; consider adding whitespace between spans or aria-label on <h1>."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (3/3 regression tests re-run)", "frontend": "100% (12/12 landing flows)"},
+  "test_credentials": "Admin: admin@upideias.com / Admin@2026 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None this iteration. Backend auto-seed unchanged from iteration 1.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Landing page (/) is production-ready. Verified: hero headline + logo + primary/secondary CTAs; nav smooth-scroll to #analytics/#creator/#ciclo/#planos; nav-login-btn -> /login; nav-register-btn -> /register; hero-cta-primary -> /register; dashboard-mockup visible; creator-shelf visible with exactly 6 course cards; cycle-section has 4 steps; billing-annual-btn toggles UP Pro from R$ 197 -> R$ 164 and shows 'cobrados anualmente', billing-monthly-btn reverts to R$ 197; pricing-pro-cta -> /register; final-cta-btn -> /register; footer login/register/terms/privacy links present. Regression: admin login on /login redirects to /app/dashboard and dashboard renders metrics + AI diagnostic. Backend pytest (3 selected regression tests) all pass. No open blockers.",
+  "rca of the issue": "N/A — no bugs found this iteration."
+}
