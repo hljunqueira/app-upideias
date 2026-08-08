@@ -32,6 +32,14 @@ O repositório original era um monorepo Next.js/Expo desenhado para Supabase + G
 - Billing (sem gateway de pagamento)
 - KPIs de Ads no dashboard rotulados "— Demo"
 
+## Implementado (2026-08-08) — Landing Page "Scroll-World"
+- Nova landing (/) premium dark substituindo a antiga: preloader cinematográfico, cursor customizado, hero com vídeo de fundo tintado em coral (#FF5368), tipografia Unbounded (display) + Caveat (cursiva) + Inter (body)
+- Scroll-world: seção horizontal pinada (400vh) com 3 painéis (Problema / UP Analytics / UP Creator), dashboard animado (contadores, gráfico SVG se desenhando), marquee gigante, prateleira streaming com 6 cards de curso (preview em vídeo no hover + tilt 3D), ciclo Aprenda→Aplique→Meça→Cresça, pricing com spotlight cards + borda cônica no plano destaque, CTA final com vídeo
+- Novos planos: UP Start R$97 / UP Pro R$197 (destaque) / UP Agência R$497, toggle mensal/anual (2 meses grátis), CTAs → /register
+- Vídeos externos mixkit.co (mp4) com grayscale + .video-tint (mix-blend-mode: color) para coerência de marca
+- Correções pós-feedback: badge do hero removida, stroke text reforçado (2.5px/0.55), tint coral em todos os vídeos — verificado (iteration_4.json, 100% pass)
+- Nota técnica: <main> usa [overflow-x:clip] (overflow-x-hidden quebra position:sticky do scroll horizontal)
+
 ## Backlog priorizado
 - P0: Conectar Meta Instagram Graph API real (precisa META_APP_ID/SECRET + conta business aprovada)
 - P1: Persistir calendário editorial, aprovações e biblioteca no backend (hoje páginas usam dados estáticos internos)
