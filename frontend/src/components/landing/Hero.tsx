@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -20,25 +20,16 @@ export default function Hero() {
           muted
           loop
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover [filter:grayscale(1)_brightness(0.85)]"
           src="https://assets.mixkit.co/videos/18140/18140-720.mp4"
         />
+        <div className="video-tint" />
       </motion.div>
-      <div className="absolute inset-0 bg-upBlack/45" />
+      <div className="absolute inset-0 bg-gradient-to-r from-upBlack/85 via-upBlack/40 to-upBlack/30" />
       <div className="absolute inset-0 bg-gradient-to-b from-upBlack/80 via-transparent to-upBlack" />
       <div className="absolute inset-0 bg-gradient-to-r from-upPink/[0.12] via-transparent to-transparent" />
 
       <motion.div style={{ y: textY, opacity }} className="relative max-w-7xl mx-auto px-6 w-full pt-32 pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 2.1 }}
-          className="inline-flex items-center gap-2 border border-white/20 bg-white/5 backdrop-blur-xl rounded-full px-5 py-2 mb-10"
-          data-testid="hero-badge"
-        >
-          <Sparkles className="w-4 h-4 text-upPink" />
-          <span className="text-xs uppercase tracking-[0.3em] text-white">O ecossistema UP Ideias</span>
-        </motion.div>
 
         <motion.p
           initial={{ opacity: 0, x: -30 }}

@@ -63,6 +63,7 @@ function CourseCard({ c, i }: { c: (typeof courses)[0]; i: number }) {
           preload="metadata"
           className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${hover ? "opacity-100 scale-105" : "opacity-40 scale-100 grayscale"}`}
         />
+        <span className="absolute inset-0 bg-upPink mix-blend-color opacity-40 pointer-events-none" />
         <div className={`absolute inset-0 bg-gradient-to-t from-upCard via-transparent transition-opacity duration-300 ${hover ? "opacity-40" : "opacity-90"}`} />
         <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${hover ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}>
           <span className="w-14 h-14 rounded-full bg-upPink flex items-center justify-center shadow-[0_0_35px_rgba(255,83,104,0.7)]">

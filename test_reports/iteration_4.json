@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only verification of Hero badge removal + video coral-tint fixes + stroke visibility + regression. All 6 bug/regression checks PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verifications": {
+    "BUG1_badge_removed": "PASS — [data-testid='hero-badge'] not in DOM; 'O ECOSSISTEMA UP IDEIAS' not in body text.",
+    "BUG2_hero_video_tint": "PASS — hero <video> filter='grayscale(1) brightness(0.85)'; sibling div.video-tint present with backgroundColor rgb(255,83,104) and mix-blend-mode 'color'.",
+    "BUG3_sobem_de_stroke_visibility": "PASS — screenshot at ~3.5s clearly shows 'SOBEM DE' outlined line with visible white-alpha stroke (no longer washed out).",
+    "BUG4_other_video_sections": "PASS — horizontal-world: 2 videos each with grayscale filter + sibling .video-tint (panels 1 and 3). final-cta-section: video with grayscale filter + .video-tint (mix-blend-mode color). course-card-0: overlay span with mix-blend-mode 'color' and coral bg rgb(255,83,104).",
+    "REGRESSION_load_and_flows": "PASS — no JS pageerrors, no React/hydration errors (only harmless font preload warnings). Preloader removed from DOM after ~3.5s. Hero headline 'IDEIAS QUE / SOBEM DE / NÍVEL.' renders. hero-cta-primary href='/register'. final-cta-btn href='/register'.",
+    "REGRESSION_pricing_toggle": "PASS — Before annual toggle: R$ 97 / R$ 197 / R$ 497 (monthly). After clicking billing-annual-btn: R$ 81 / R$ 164 / R$ 414 (UP Pro correctly changed 197 -> 164)."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Videos autoplay across multiple hero/panel/final-cta sections streaming external mixkit MP4s — potential bandwidth/performance concern on mobile; consider poster + lazy load or reduced motion media query.",
+    "Preloader was verified as removed from DOM at 3.5s; ensure it also unmounts on slow-network without leaving pointer-events blocking overlay (not observed here, but worth verifying)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All hero badge/video-tint/stroke fixes verified via DOM checks + visual screenshot. Pricing toggle and CTA routing regression pass. If future iterations touch these files, reuse the same DOM assertions (grayscale filter substring + .video-tint sibling + mix-blend-mode 'color').",
+  "rca of the issue": "N/A — verification pass"
+}

@@ -9,9 +9,10 @@ export default function FinalCTA() {
       <section className="relative py-40 lg:py-56 overflow-hidden" data-testid="final-cta-section">
         <video
           autoPlay muted loop playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 [filter:grayscale(1)_brightness(0.9)]"
           src="https://assets.mixkit.co/videos/19354/19354-720.mp4"
         />
+        <div className="video-tint" />
         <div className="absolute inset-0 bg-upBlack/65" />
         <div className="absolute inset-0 bg-gradient-to-b from-upBlack via-transparent to-upBlack" />
 

@@ -19,9 +19,10 @@ export default function HorizontalWorld() {
           <div className="relative w-screen h-full flex items-center overflow-hidden">
             <video
               autoPlay muted loop playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-50"
+              className="absolute inset-0 w-full h-full object-cover opacity-50 [filter:grayscale(1)_brightness(0.9)]"
               src="https://assets.mixkit.co/videos/44820/44820-720.mp4"
             />
+            <div className="video-tint" />
             <div className="absolute inset-0 bg-gradient-to-r from-upBlack via-upBlack/60 to-upBlack/90" />
             <div className="relative max-w-7xl mx-auto px-6 w-full">
               <p className="uppercase tracking-[0.3em] text-upPink text-sm font-semibold mb-8">O problema</p>
@@ -72,9 +73,10 @@ export default function HorizontalWorld() {
           <div className="relative w-screen h-full flex items-center overflow-hidden">
             <video
               autoPlay muted loop playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              className="absolute inset-0 w-full h-full object-cover opacity-40 [filter:grayscale(1)_brightness(0.9)]"
               src="https://assets.mixkit.co/videos/44074/44074-720.mp4"
             />
+            <div className="video-tint" />
             <div className="absolute inset-0 bg-gradient-to-r from-upBlack via-upBlack/70 to-upBlack/40" />
             <span className="absolute -bottom-16 left-0 font-display font-bold text-[24rem] leading-none text-stroke-pink opacity-40 select-none">02</span>
             <div className="relative max-w-7xl mx-auto px-6 w-full">
