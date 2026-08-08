@@ -40,6 +40,11 @@ O repositório original era um monorepo Next.js/Expo desenhado para Supabase + G
 - Correções pós-feedback: badge do hero removida, stroke text reforçado (2.5px/0.55), tint coral em todos os vídeos — verificado (iteration_4.json, 100% pass)
 - Nota técnica: <main> usa [overflow-x:clip] (overflow-x-hidden quebra position:sticky do scroll horizontal)
 
+## Implementado (2026-08-08) — Mobile Refinado
+- BgVideo component: serve mixkit -360.mp4 em telas <=768px e -720.mp4 no desktop (hero, painéis do scroll-world, CTA final); cards de curso sempre -360.mp4 com preload="none"
+- Tipografia responsiva: hero text-5xl mobile, painéis text-4xl, números gigantes 01/02 em 9rem mobile (24rem desktop); stats do hero em grade 2 colunas
+- Sem overflow horizontal (scrollWidth = 390 em todo o scroll) — validado iteration_5.json 100% pass (mobile + regressão desktop)
+
 ## Backlog priorizado
 - P0: Conectar Meta Instagram Graph API real (precisa META_APP_ID/SECRET + conta business aprovada)
 - P1: Persistir calendário editorial, aprovações e biblioteca no backend (hoje páginas usam dados estáticos internos)
