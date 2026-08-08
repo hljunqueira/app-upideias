@@ -1,0 +1,20 @@
+{
+  "summary": "Mobile refinement testing (viewport 390x844) of UP Ideias landing. All 8 mobile checks pass plus desktop regression. Preloader hidden after ~4s, hero renders 3 clean lines ('IDEIAS QUE'/'SOBEM DE'/'NÍVEL. ↗') with no horizontal overflow (documentElement.scrollWidth = 390 at initial, mid-scroll and after full-page scroll). Hero video correctly loads -360.mp4 on mobile and -720.mp4 on desktop. Stats strip uses grid-template-columns '163px 163px' (2-col grid) and hero-scroll-hint chevron display:none on mobile. HorizontalWorld (data-testid=horizontal-world) contains all three panel texts (POSTS ALEATÓRIOS, UP ANALYTICS, UP CREATOR) and its two <video> elements both use -360.mp4 on mobile. Creator shelf has 6 course-card-* nodes, overflow-x:auto, scrollWidth 1968 > clientWidth 390 (swipeable), all 6 card videos have preload='none' and -360.mp4 sources. Pricing billing-annual-btn toggles UP Pro price from R$197 to R$164. final-cta-btn present with href='/register'. Desktop regression: hero uses -720.mp4, hero-cta-primary -> /register, all 3 world panels present, zero console/pageerror.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "BgVideo uses matchMedia only once on mount; if user rotates device or resizes across the 768px breakpoint, video src won't swap. Consider adding a resize/matchMedia change listener. Low priority for a landing page but worth noting."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Mobile refinement fully validated at 390x844. Elements reported as 'wider than viewport' by DOM scan (video 488px, w-[300vw] flex 1170px, marquee 5483px) all live inside overflow-hidden containers so page scrollWidth stays at 390. Do not treat those as bugs. Use ~4s wait for preloader; videos are external mixkit mp4s (headless may not paint but src attribute checks are sufficient)."
+}

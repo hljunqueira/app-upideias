@@ -4,12 +4,12 @@ import { useRef, useState } from "react";
 import { Clock, Film, Play } from "lucide-react";
 
 const courses = [
-  { tag: "Estratégia", title: "Estratégia de Conteúdo do Zero", lessons: 12, duration: "3h 40min", progress: 72, video: "https://assets.mixkit.co/videos/44054/44054-720.mp4" },
-  { tag: "Reels", title: "Reels que Convertem", lessons: 9, duration: "2h 15min", progress: 45, video: "https://assets.mixkit.co/videos/42291/42291-720.mp4" },
-  { tag: "Vendas", title: "Funil de Vendas no Instagram", lessons: 14, duration: "4h 05min", progress: 0, video: "https://assets.mixkit.co/videos/34481/34481-720.mp4" },
-  { tag: "Copy", title: "Copywriting Magnético", lessons: 10, duration: "2h 50min", progress: 100, video: "https://assets.mixkit.co/videos/44074/44074-720.mp4" },
-  { tag: "Dados", title: "Métricas na Prática", lessons: 8, duration: "1h 55min", progress: 20, video: "https://assets.mixkit.co/videos/30063/30063-720.mp4" },
-  { tag: "Branding", title: "Marca Pessoal Inesquecível", lessons: 11, duration: "3h 10min", progress: 0, video: "https://assets.mixkit.co/videos/50484/50484-720.mp4" },
+  { tag: "Estratégia", title: "Estratégia de Conteúdo do Zero", lessons: 12, duration: "3h 40min", progress: 72, video: "https://assets.mixkit.co/videos/44054/44054-360.mp4" },
+  { tag: "Reels", title: "Reels que Convertem", lessons: 9, duration: "2h 15min", progress: 45, video: "https://assets.mixkit.co/videos/42291/42291-360.mp4" },
+  { tag: "Vendas", title: "Funil de Vendas no Instagram", lessons: 14, duration: "4h 05min", progress: 0, video: "https://assets.mixkit.co/videos/34481/34481-360.mp4" },
+  { tag: "Copy", title: "Copywriting Magnético", lessons: 10, duration: "2h 50min", progress: 100, video: "https://assets.mixkit.co/videos/44074/44074-360.mp4" },
+  { tag: "Dados", title: "Métricas na Prática", lessons: 8, duration: "1h 55min", progress: 20, video: "https://assets.mixkit.co/videos/30063/30063-360.mp4" },
+  { tag: "Branding", title: "Marca Pessoal Inesquecível", lessons: 11, duration: "3h 10min", progress: 0, video: "https://assets.mixkit.co/videos/50484/50484-360.mp4" },
 ];
 
 const tracks = ["Fundamentos", "Criadores de Conteúdo", "Social Media Pro", "Agências & Gestores"];
@@ -60,7 +60,7 @@ function CourseCard({ c, i }: { c: (typeof courses)[0]; i: number }) {
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${hover ? "opacity-100 scale-105" : "opacity-40 scale-100 grayscale"}`}
         />
         <span className="absolute inset-0 bg-upPink mix-blend-color opacity-40 pointer-events-none" />

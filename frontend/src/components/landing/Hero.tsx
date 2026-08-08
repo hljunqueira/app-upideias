@@ -3,6 +3,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import BgVideo from "./BgVideo";
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -15,11 +16,7 @@ export default function Hero() {
     <section id="hero" ref={ref} className="relative min-h-screen flex flex-col justify-center overflow-hidden" data-testid="hero-section">
       {/* Video background */}
       <motion.div style={{ scale: videoScale }} className="absolute inset-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
+        <BgVideo
           className="w-full h-full object-cover [filter:grayscale(1)_brightness(0.85)]"
           src="https://assets.mixkit.co/videos/18140/18140-720.mp4"
         />
@@ -44,7 +41,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 2.2, ease: [0.22, 1, 0.36, 1] }}
-            className="block text-white text-6xl sm:text-7xl lg:text-[7.5rem]"
+            className="block text-white text-5xl sm:text-7xl lg:text-[7.5rem]"
           >
             IDEIAS QUE
           </motion.span>
@@ -52,7 +49,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 2.4, ease: [0.22, 1, 0.36, 1] }}
-            className="block text-stroke text-6xl sm:text-7xl lg:text-[7.5rem]"
+            className="block text-stroke text-5xl sm:text-7xl lg:text-[7.5rem]"
           >
             SOBEM DE
           </motion.span>
@@ -60,7 +57,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 2.6, ease: [0.22, 1, 0.36, 1] }}
-            className="block text-upPink text-6xl sm:text-7xl lg:text-[7.5rem] drop-shadow-[0_0_40px_rgba(255,83,104,0.45)]"
+            className="block text-upPink text-5xl sm:text-7xl lg:text-[7.5rem] drop-shadow-[0_0_40px_rgba(255,83,104,0.45)]"
           >
             NÍVEL. ↗
           </motion.span>
@@ -109,7 +106,7 @@ export default function Hero() {
         transition={{ delay: 3.3, duration: 0.8 }}
         className="relative border-t border-white/10 bg-upBlack/40 backdrop-blur-xl"
       >
-        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-6 py-4 sm:py-5 grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-6">
           {[
             ["+2,3x", "alcance com IA"],
             ["30 dias", "de métricas analisadas"],
@@ -117,15 +114,15 @@ export default function Hero() {
             ["7 dias", "de teste grátis"],
           ].map(([v, l]) => (
             <div key={l} className="flex items-baseline gap-2">
-              <span className="font-display text-xl font-bold text-upPink">{v}</span>
-              <span className="text-xs text-upGray uppercase tracking-wider">{l}</span>
+              <span className="font-display text-base sm:text-xl font-bold text-upPink">{v}</span>
+              <span className="text-[10px] sm:text-xs text-upGray uppercase tracking-wider">{l}</span>
             </div>
           ))}
           <motion.a
             href="#mundo"
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.6, repeat: Infinity }}
-            className="text-upGray hover:text-upPink transition-colors"
+            className="hidden sm:block text-upGray hover:text-upPink transition-colors"
             aria-label="Rolar para baixo"
             data-testid="hero-scroll-hint"
           >

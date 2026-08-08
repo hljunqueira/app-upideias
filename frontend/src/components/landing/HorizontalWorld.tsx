@@ -2,6 +2,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { BarChart3, PlaySquare, ArrowDown } from "lucide-react";
+import BgVideo from "./BgVideo";
 
 export default function HorizontalWorld() {
   const ref = useRef<HTMLDivElement>(null);
@@ -17,8 +18,7 @@ export default function HorizontalWorld() {
         <motion.div style={{ x }} className="flex h-full w-[300vw]">
           {/* Panel 1 — O Problema */}
           <div className="relative w-screen h-full flex items-center overflow-hidden">
-            <video
-              autoPlay muted loop playsInline
+            <BgVideo
               className="absolute inset-0 w-full h-full object-cover opacity-50 [filter:grayscale(1)_brightness(0.9)]"
               src="https://assets.mixkit.co/videos/44820/44820-720.mp4"
             />
@@ -27,9 +27,9 @@ export default function HorizontalWorld() {
             <div className="relative max-w-7xl mx-auto px-6 w-full">
               <p className="uppercase tracking-[0.3em] text-upPink text-sm font-semibold mb-8">O problema</p>
               <h2 className="font-display font-bold tracking-tight leading-[0.98]">
-                <span className="block text-stroke text-5xl sm:text-7xl lg:text-8xl">POSTS ALEATÓRIOS</span>
-                <span className="block text-white text-5xl sm:text-7xl lg:text-8xl mt-2">NÃO CONSTROEM</span>
-                <span className="block text-upPink text-5xl sm:text-7xl lg:text-8xl mt-2 drop-shadow-[0_0_30px_rgba(255,83,104,0.4)]">IMPÉRIOS.</span>
+                <span className="block text-stroke text-4xl sm:text-6xl lg:text-8xl">POSTS ALEATÓRIOS</span>
+                <span className="block text-white text-4xl sm:text-6xl lg:text-8xl mt-2">NÃO CONSTROEM</span>
+                <span className="block text-upPink text-4xl sm:text-6xl lg:text-8xl mt-2 drop-shadow-[0_0_30px_rgba(255,83,104,0.4)]">IMPÉRIOS.</span>
               </h2>
               <p className="mt-10 text-lg lg:text-xl text-upLightGray/70 max-w-xl leading-relaxed">
                 Sua empresa não precisa apenas de mais posts. Precisa de <span className="text-white font-semibold">estratégia</span>.
@@ -40,7 +40,7 @@ export default function HorizontalWorld() {
 
           {/* Panel 2 — UP Analytics */}
           <div className="relative w-screen h-full flex items-center overflow-hidden bg-upDark grid-bg">
-            <span className="absolute -top-10 right-0 font-display font-bold text-[24rem] leading-none text-stroke-pink opacity-40 select-none">01</span>
+            <span className="absolute -top-6 lg:-top-10 right-0 font-display font-bold text-[9rem] sm:text-[15rem] lg:text-[24rem] leading-none text-stroke-pink opacity-40 select-none">01</span>
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-upPink/[0.07] blur-[120px] rounded-full" />
             <div className="relative max-w-7xl mx-auto px-6 w-full grid lg:grid-cols-2 gap-12 items-center">
               <div>
@@ -50,7 +50,7 @@ export default function HorizontalWorld() {
                   </span>
                   <p className="uppercase tracking-[0.3em] text-upPink text-sm font-semibold">Pilar 01</p>
                 </div>
-                <h2 className="font-display font-bold tracking-tight text-white text-5xl sm:text-6xl lg:text-7xl leading-[1.0]">
+                <h2 className="font-display font-bold tracking-tight text-white text-4xl sm:text-6xl lg:text-7xl leading-[1.0]">
                   UP<br /><span className="text-upPink">ANALYTICS</span>
                 </h2>
                 <p className="mt-8 text-lg text-upLightGray/70 max-w-md leading-relaxed">
@@ -71,14 +71,13 @@ export default function HorizontalWorld() {
 
           {/* Panel 3 — UP Creator */}
           <div className="relative w-screen h-full flex items-center overflow-hidden">
-            <video
-              autoPlay muted loop playsInline
+            <BgVideo
               className="absolute inset-0 w-full h-full object-cover opacity-40 [filter:grayscale(1)_brightness(0.9)]"
               src="https://assets.mixkit.co/videos/44074/44074-720.mp4"
             />
             <div className="video-tint" />
             <div className="absolute inset-0 bg-gradient-to-r from-upBlack via-upBlack/70 to-upBlack/40" />
-            <span className="absolute -bottom-16 left-0 font-display font-bold text-[24rem] leading-none text-stroke-pink opacity-40 select-none">02</span>
+            <span className="absolute -bottom-8 lg:-bottom-16 left-0 font-display font-bold text-[9rem] sm:text-[15rem] lg:text-[24rem] leading-none text-stroke-pink opacity-40 select-none">02</span>
             <div className="relative max-w-7xl mx-auto px-6 w-full">
               <div className="flex items-center gap-3 mb-8">
                 <span className="w-12 h-12 rounded-2xl bg-upPink flex items-center justify-center shadow-[0_0_30px_rgba(255,83,104,0.5)]">
