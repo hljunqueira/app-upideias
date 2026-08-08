@@ -1,0 +1,117 @@
+{
+  "project_context": {
+    "theme": "dark premium",
+    "vibe": "Immersive scroll-world, scrollytelling, parallax/animations, 3D-feeling scroll experience",
+    "core_brand_colors": {
+      "primary": "#FF5368",
+      "primary_dark": "#E64058",
+      "background_void": "#050505",
+      "background_surface": "#0B0B0F",
+      "card_surface": "#111116",
+      "border": "#26262D",
+      "text_muted": "#6B7280"
+    },
+    "logos": {
+      "symbol": "/UP-Logo-removebg-preview.png",
+      "wordmark": "/UP_Ideias_transparente.png"
+    }
+  },
+  "typography": {
+    "headings": {
+      "font": "Outfit, Cabinet Grotesk, or Clash Display",
+      "classes": "font-bold tracking-tight text-white",
+      "strategy": "Expressive, large typography (text-5xl to text-7xl for hero), tight tracking. Use uppercase tracking-[0.2em] for small labels."
+    },
+    "body": {
+      "font": "Inter or Satoshi",
+      "classes": "text-upGray text-lg leading-relaxed",
+      "strategy": "High readability, loose line-height."
+    },
+    "accents": {
+      "classes": "uppercase tracking-[0.2em] text-upPink text-sm font-semibold",
+      "strategy": "Used for overlines, labels, small structural elements."
+    }
+  },
+  "colors": {
+    "background": "bg-upBlack or bg-upDark",
+    "cards": "bg-upCard",
+    "borders": "border-upBorder",
+    "text_primary": "text-white",
+    "text_secondary": "text-upGray",
+    "accent": "text-upPink bg-upPink",
+    "strategy": "Avoid generic SaaS blue. Utilize Void Black as primary canvas. Frost/Glass effects over #0B0B0F. Ensure high contrast against the dark background. DO NOT USE pure transparent backgrounds where content overlap happens."
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-upCard/70 border border-upBorder/50 shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
+    "glow_effects": "drop-shadow-[0_0_15px_rgba(255,83,104,0.3)]",
+    "grid_backgrounds": "Use subtle repeating radial gradients or CSS grid lines (border-upBorder/20) for technical aesthetic.",
+    "textures": "Subtle noise overlay (opacity 2-5%) to remove digital flatness."
+  },
+  "layouts": {
+    "hero": "Cinematic full-screen (min-h-screen) with floating elements, large typography. Headline: 'Transforme métricas em estratégia'. Background could include subtle abstract 3D elements or glowing orbs.",
+    "bento_grid": "For UP Analytics & UP Creator showcases. grid-cols-1 md:grid-cols-12 gap-6. Mix spanning items.",
+    "section_spacing": "Generous padding (py-24 to py-32) to let the dark theme breathe.",
+    "scrollytelling": "Sticky sections where content on left stays while right side scrolls through features (or vice versa). Use Framer Motion useScroll hook."
+  },
+  "motion": {
+    "libraries": [
+      "framer-motion",
+      "lucide-react"
+    ],
+    "scroll_world": "Use Framer Motion's useScroll and useTransform for parallax, text reveals, and opacity fades as users scroll.",
+    "micro_interactions": "Magnetic buttons, hover lifts (-translate-y-1), ghost-to-solid button transitions.",
+    "reveal": "Staggered fade-up for list items, scale-in for images.",
+    "chart_animations": "For UP Analytics: animate height/width of bars on enter. For UP Creator: hover on video cards scales up and shows 'Play' icon."
+  },
+  "components": {
+    "header": "Sticky nav, z-50, backdrop-blur-xl bg-upBlack/70, border-b border-upBorder. Logo on left, navigation center, CTA right.",
+    "hero_section": "Deep dark void background with a glowing coral aura. Animated text reveal. Dual CTAs.",
+    "analytics_showcase": "Animated dashboard mockups, charts drawing themselves, numbers counting up. Abstract network background.",
+    "creator_showcase": "Netflix-style horizontal scroll/carousel for course shelf. Video cards with hover preview, learning tracks, progress bars.",
+    "how_it_works": "Cycle section (Aprenda -> Aplique -> Meça -> Cresça) with scroll-linked progress indicator.",
+    "pricing": "3 plans: UP Start (R$97), UP Pro (R$197 - highlighted with glowing border and larger scale), UP Agência (R$497). 7-day trial mentions.",
+    "cta_section": "Final high-impact CTA linking to /register, with a minimalist footer.",
+    "scroll_indicator": "Fixed progress bar at the top or side."
+  },
+  "media": {
+    "image_urls": {
+      "abstract_network": {
+        "url": "https://images.unsplash.com/photo-1640906152676-dace6710d24b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMDNkJTIwbmV0d29yayUyMGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc4NjE1ODA3Nnww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract 3D network/cubes, perfect for UP Analytics / AI background texture."
+      },
+      "video_course_tablet": {
+        "url": "https://images.unsplash.com/photo-1761122827167-159d1d272313?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwzfHxwZXJzb24lMjB3YXRjaGluZyUyMHZpZGVvJTIwY291cnNlJTIwdGFibGV0JTIwZGFya3xlbnwwfHx8fDE3ODYxNTgwNzZ8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Person working at desk watching tablet - Use for UP Creator showcase."
+      },
+      "dark_texture": {
+        "url": "https://images.unsplash.com/photo-1638184984605-af1f05249a56?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzB8MHwxfHNlYXJjaHwyfHxkYXJrJTIwbW9kZXJuJTIwZ2VvbWV0cmljJTIwdGV4dHVyZXxlbnwwfHx8fDE3ODYxNTgwODh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Dark geometric texture (tunnel/curves) for section transitions or deep backgrounds."
+      }
+    }
+  },
+  "accessibility": {
+    "contrast": "Text must pass WCAG AA against #0B0B0F and #111116. Ensure upPink (#FF5368) has sufficient contrast on dark mode, use text-shadow if overlaid on images.",
+    "aria": "Include aria-labels for buttons, especially icon-only buttons. Use data-testid on all interactive elements (e.g. data-testid='pricing-pro-cta')",
+    "motion": "Respect prefers-reduced-motion CSS media query for heavy parallax."
+  },
+  "instructions_to_main_agent": [
+    "You are building a high-end, Next.js 14 marketing landing page.",
+    "Update 'src/app/page.tsx' completely to implement this design.",
+    "Use Framer Motion extensively for scroll animations, text reveals, and parallax. (Add 'use client' where necessary).",
+    "In the Pricing section, emphasize the 'UP Pro' plan with a subtle glow (drop-shadow using upPink) and a slightly larger scale.",
+    "Use standard Lucide React icons.",
+    "Always use 'data-testid' on interactive elements.",
+    "IMPORTANT: the app uses Tailwind config colors 'upPink', 'upPinkDark', 'upBlack', 'upDark', 'upCard', 'upBorder', 'upGray'. DO NOT use arbitrary colors like 'bg-[#111116]', use 'bg-upCard' or 'bg-upBlack'.",
+    "For the 'UP Analytics' section, build an animated Dashboard mock UI with Tailwind (divs resembling charts) - no need for complex charting libraries unless necessary, but motion is key.",
+    "For the 'UP Creator' section, implement a horizontal scrollable row (Netflix-style shelf) of course cards."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use generic centered layouts or simplistic gradients.",
+    "Create depth through layered design elements with z-index hierarchy and glassmorphism.",
+    "Never use pure transparent backgrounds where content overlap happens.",
+    "Every interaction needs micro-animations - hover states, transitions.",
+    "Use 2-3x more spacing (py-24 to py-32) than feels comfortable.",
+    "Never use AI assistant Emoji characters like 🤖🧠.",
+    "Prioritize optical alignment."
+  ]
+}
