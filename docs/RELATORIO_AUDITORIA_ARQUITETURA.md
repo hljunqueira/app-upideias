@@ -60,10 +60,8 @@ app-upideias/
 │
 ├── docs/                        # Documentação oficial, relatórios de auditoria e especificações
 │
-├── backend/                     # [REFERÊNCIA DE REGRAS/ENDPOINTS - NÃO REMOVER AINDA]
-│                                # Contém servidor FastAPI + MongoDB para consulta de lógica de IA e Mocks
-├── frontend/                    # [LEGADO - REMOVER APENAS NA FASE P1 APÓS VALIDAÇÕES DE VERCEL E NAVEGAÇÃO]
-└── apps/mobile/                 # [DESCONTINUADO - REMOVER APENAS NA FASE P1 APÓS CHECAGEM]
+├── backend/                     # [REFERÊNCIA TEMPORÁRIA] Contém servidor FastAPI + MongoDB para consulta de lógica de IA e Mocks
+├── AGENTS.md                    # [REGRA OFICIAL] Diretrizes e regras unificadas para agentes
 ```
 
 ---

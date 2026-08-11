@@ -1,6 +1,7 @@
 export * from './services/authService';
 export * from './services/planService';
 export * from './services/instagramService';
+export * from './services/socialProvider';
 export * from './services/aiService';
 export * from './services/automationService';
 export * from './services/contentService';

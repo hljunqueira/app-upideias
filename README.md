@@ -12,8 +12,7 @@ O projeto é estruturado em um monorepo com npm Workspaces:
 ```
 up-analytics/
 ├── apps/
-│   ├── web/           # Plataforma Web Next.js (App Router, Tailwind CSS, Recharts)
-│   └── mobile/        # Aplicativo Mobile Expo (Expo Router, NativeWind)
+│   └── web/           # Plataforma Web Responsiva Next.js 14 (App Router, Tailwind CSS, Recharts - Fonte ÚNICA do Frontend)
 ├── packages/
 │   ├── ui/            # Componentes visuais reutilizáveis
 │   ├── lib/           # Conectores, API Clients (Gemini, Evolution API, Supabase) e helpers
