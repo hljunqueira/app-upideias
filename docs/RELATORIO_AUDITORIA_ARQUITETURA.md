@@ -201,5 +201,11 @@ git push
 - `packages/types` como fonte única com `SocialPlatform` ('x'), `Social*` e `AudienceMetrics` (`camelCase`).
 - Isolamento/remoção segura dos diretórios `frontend/` e `apps/mobile/` após checagens.
 
-### 📍 P2 — Infraestrutura Real (Futuro)
-- Criar diretórios físicos `workers/`, Supabase Auth/Postgres, Phyllo API, Webhooks e Capacitor.
+### 📍 P2 — Infraestrutura Real (Sub-passos Sequenciais)
+- **P2.1 — Supabase / PostgreSQL:** Conexão e configuração das migrações do banco relacional.
+- **P2.2 — Auth Definitiva:** Transição para Supabase Auth (Google OAuth).
+- **P2.3 — Phyllo API:** Conexão do SDK/APIs de dados sociais.
+- **P2.4 — Workers VPS:** Implementação de `workers/social-sync` e `workers/ai-jobs` para tarefas privadas.
+- **P2.5 — Gemini IA Oficial:** Integração do SDK oficial do Google Gemini AI.
+- **P2.6 — Remoção do Emergent:** Desacoplamento completo de dependências legadas do Emergent Agent.
+- **P2.7 — Capacitor:** Configuração e empacotamento da Web Responsiva para Android e iOS.
