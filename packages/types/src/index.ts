@@ -69,10 +69,13 @@ export interface Subscription {
   updated_at: string;
 }
 
-export interface InstagramAccount {
+export type SocialPlatform = 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'x';
+
+export interface SocialAccount {
   id: string;
   user_id: string;
   client_id: string | null;
+  platform?: SocialPlatform;
   instagram_user_id: string;
   username: string;
   name: string | null;
@@ -89,7 +92,9 @@ export interface InstagramAccount {
   updated_at: string;
 }
 
-export interface InstagramDailyMetrics {
+export type InstagramAccount = SocialAccount;
+
+export interface SocialAccountMetrics {
   id: string;
   instagram_account_id: string;
   metric_date: string;
@@ -103,7 +108,9 @@ export interface InstagramDailyMetrics {
   created_at: string;
 }
 
-export interface InstagramMedia {
+export type InstagramDailyMetrics = SocialAccountMetrics;
+
+export interface SocialContent {
   id: string;
   instagram_account_id: string;
   instagram_media_id: string;
@@ -122,7 +129,9 @@ export interface InstagramMedia {
   updated_at: string;
 }
 
-export interface InstagramMediaMetrics {
+export type InstagramMedia = SocialContent;
+
+export interface SocialContentMetrics {
   id: string;
   instagram_media_id: string;
   metric_date: string;
@@ -135,6 +144,19 @@ export interface InstagramMediaMetrics {
   total_interactions: number;
   engagement_rate: number;
   created_at: string;
+}
+
+export type InstagramMediaMetrics = SocialContentMetrics;
+
+export interface AudienceMetrics {
+  accountId: string;
+  platform: SocialPlatform;
+  ageDistribution: Record<string, number>;
+  genderDistribution: Record<string, number>;
+  topCities: Array<{ city: string; country: string; percentage: number }>;
+  topCountries: Array<{ country: string; percentage: number }>;
+  peakActiveHours: Array<{ hour: number; dayOfWeek: number; engagementScore: number }>;
+  updatedAt: string;
 }
 
 export interface AiRequest {

@@ -20,7 +20,7 @@ export function PlanGate({
   featureTitle,
   children
 }: PlanGateProps) {
-  const [activePlan, setActivePlan] = useState<"Iniciante" | "Pro" | "Agência" | "Enterprise">("Pro");
+  const [activePlan, setActivePlan] = useState<string>("Pro");
   const [plans, setPlans] = useState<PlanConfig[]>([]);
 
   const loadData = () => {

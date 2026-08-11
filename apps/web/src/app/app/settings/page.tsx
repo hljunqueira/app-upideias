@@ -42,7 +42,7 @@ export default function SettingsPage() {
   const [postReminders, setPostReminders] = useState(true);
 
   // Active Plan State
-  const [activePlan, setActivePlan] = useState<"Iniciante" | "Pro" | "Agência" | "Enterprise">("Pro");
+  const [activePlan, setActivePlan] = useState<string>("Pro");
   const [userCredits, setUserCredits] = useState(450);
 
   const [savedStatus, setSavedStatus] = useState(false);
