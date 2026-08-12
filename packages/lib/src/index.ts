@@ -6,6 +6,11 @@ export * from './services/automationService';
 export * from './services/contentService';
 export * from './services/upCreatorService';
 export * from './supabase';
+export * from './phyllo/types';
+export * from './phyllo/client';
+export * from './providers/SocialProvider';
+export * from './providers/PhylloSocialProvider';
+
 
 export function formatCentsToReais(cents: number): string {
   const value = cents / 100;

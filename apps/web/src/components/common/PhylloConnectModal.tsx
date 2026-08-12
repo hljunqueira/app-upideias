@@ -1,7 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Instagram, Youtube, Sparkles, CheckCircle2, ShieldCheck, ArrowRight, RefreshCw } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Instagram, Youtube, CheckCircle2, ShieldCheck, ArrowRight, RefreshCw, AlertCircle } from "lucide-react";
+
+declare global {
+  interface Window {
+    PhylloConnect?: {
+      initialize: (config: {
+        clientDisplayName: string;
+        environment: 'staging' | 'production';
+        userId: string;
+        token: string;
+        workId?: string;
+      }) => {
+        on: (event: string, callback: (...args: any[]) => void) => void;
+        open: () => void;
+      };
+    };
+  }
+}
 
 interface PhylloConnectModalProps {
   isOpen: boolean;
@@ -12,20 +29,103 @@ interface PhylloConnectModalProps {
 export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnectModalProps) {
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [successPlatform, setSuccessPlatform] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false);
+
+  // Dynamically load Phyllo Connect Web SDK v2
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (window.PhylloConnect) {
+      setIsScriptLoaded(true);
+      return;
+    }
+
+    const scriptId = "phyllo-connect-sdk";
+    if (document.getElementById(scriptId)) {
+      setIsScriptLoaded(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://cdn.getphyllo.com/connect/v2/phyllo-connect.js";
+    script.async = true;
+    script.onload = () => setIsScriptLoaded(true);
+    script.onerror = () => setErrorMessage("Não foi possível carregar o widget do Phyllo Connect SDK.");
+    document.body.appendChild(script);
+  }, []);
 
   if (!isOpen) return null;
 
   const handleConnect = async (platform: string) => {
+    setErrorMessage(null);
     setConnectingPlatform(platform);
-    
-    // Simula abertura do Widget SDK da Phyllo (Phyllo Connect SDK)
-    setTimeout(() => {
-      setConnectingPlatform(null);
-      setSuccessPlatform(platform);
-      if (onSuccess) {
-        onSuccess(platform);
+
+    try {
+      // 1. Request temporary SDK Token server-side
+      const response = await fetch("/api/integrations/phyllo/connect-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.token || !data.userId) {
+        throw new Error(data.error || "Erro ao obter token de conexão seguro da Phyllo.");
       }
-    }, 1500);
+
+      // 2. Validate Phyllo SDK script availability
+      if (!window.PhylloConnect) {
+        throw new Error("SDK da Phyllo ainda não foi carregado. Aguarde um instante e tente novamente.");
+      }
+
+      // 3. Initialize official Phyllo Connect SDK
+      const phylloConnect = window.PhylloConnect.initialize({
+        clientDisplayName: "UP Analytics",
+        environment: "staging",
+        userId: data.userId,
+        token: data.token,
+      });
+
+      // 4. Attach Browser event listeners (official browser event names)
+      phylloConnect.on("accountConnected", (accountId: string, workId: string, userId: string) => {
+        console.log(`[PhylloConnect] accountConnected: accountId=${accountId}, platform=${platform}`);
+        setConnectingPlatform(null);
+        setSuccessPlatform(platform);
+        if (onSuccess) {
+          onSuccess(platform);
+        }
+      });
+
+      phylloConnect.on("accountDisconnected", (accountId: string, workId: string, userId: string) => {
+        console.log(`[PhylloConnect] accountDisconnected: accountId=${accountId}`);
+      });
+
+      phylloConnect.on("tokenExpired", (userId: string) => {
+        console.warn(`[PhylloConnect] tokenExpired for userId=${userId}`);
+        setConnectingPlatform(null);
+        setErrorMessage("O token de sessão expirou. Por favor, tente reconectar.");
+      });
+
+      phylloConnect.on("exit", (reason: string, userId: string) => {
+        console.log(`[PhylloConnect] exit: reason=${reason}`);
+        setConnectingPlatform(null);
+      });
+
+      phylloConnect.on("connectionFailure", (reason: string, accountId: string, workId: string, userId: string) => {
+        console.error(`[PhylloConnect] connectionFailure: reason=${reason}`);
+        setConnectingPlatform(null);
+        setErrorMessage(`Falha ao conectar conta social: ${reason || "Tente novamente"}`);
+      });
+
+      // 5. Open Phyllo Connect UI
+      phylloConnect.open();
+    } catch (err: any) {
+      console.error("[PhylloConnectModal] Connection error:", err?.message || err);
+      setConnectingPlatform(null);
+      setErrorMessage(err?.message || "Ocorreu um erro ao abrir a conexão de redes sociais.");
+    }
   };
 
   return (
@@ -38,7 +138,7 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
               <Instagram className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Vincular Conta Social (Phyllo SDK)</h3>
+              <h3 className="text-lg font-bold text-white">Vincular Conta Social</h3>
               <p className="text-xs text-upGray">Conexão segura direta via API oficial da rede social.</p>
             </div>
           </div>
@@ -50,6 +150,14 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-3 flex items-center gap-3 text-red-400 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         {/* Content */}
         {successPlatform ? (
@@ -80,9 +188,9 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
             <div className="space-y-3 pt-2">
               {/* Instagram */}
               <button
-                disabled={connectingPlatform === "instagram"}
+                disabled={connectingPlatform === "instagram" || !isScriptLoaded}
                 onClick={() => handleConnect("instagram")}
-                className="w-full p-4 rounded-2xl bg-gradient-to-r from-purple-900/20 via-pink-900/20 to-upCard/80 border border-purple-500/30 hover:border-upPink text-white font-bold text-xs flex items-center justify-between transition-all group"
+                className="w-full p-4 rounded-2xl bg-gradient-to-r from-purple-900/20 via-pink-900/20 to-upCard/80 border border-purple-500/30 hover:border-upPink text-white font-bold text-xs flex items-center justify-between transition-all group disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white">
@@ -100,11 +208,11 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
                 )}
               </button>
 
-              {/* TikTok / YouTube placeholders */}
+              {/* YouTube */}
               <button
-                disabled={connectingPlatform === "youtube"}
+                disabled={connectingPlatform === "youtube" || !isScriptLoaded}
                 onClick={() => handleConnect("youtube")}
-                className="w-full p-4 rounded-2xl bg-upCard/50 border border-upBorder/60 hover:border-red-500/50 text-white font-bold text-xs flex items-center justify-between transition-all group"
+                className="w-full p-4 rounded-2xl bg-upCard/50 border border-upBorder/60 hover:border-red-500/50 text-white font-bold text-xs flex items-center justify-between transition-all group disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-red-600 text-white">
