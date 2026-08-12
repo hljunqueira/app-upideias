@@ -18,7 +18,7 @@ import {
   FastForward,
   ShieldCheck
 } from "lucide-react";
-import { Course, Lesson, Module, getStoredCourses } from "@/lib/coursesStore";
+import { Course, Lesson, Module, fetchCoursesFromDb, getStoredCourses } from "@/lib/coursesStore";
 import { CertificateModal } from "@/components/creator/CertificateModal";
 
 export default function StudentCoursePlayerPage() {
@@ -36,6 +36,15 @@ export default function StudentCoursePlayerPage() {
   const [notes, setNotes] = useState<{ id: string; timestamp: string; text: string }[]>([]);
   const [newNoteText, setNewNoteText] = useState("");
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadCourse() {
+      const allCourses = await fetchCoursesFromDb();
+      const found = allCourses.find((c) => c.id === courseId) || allCourses[0];
+      setCourse(found || null);
+    }
+    loadCourse();
+  }, [courseId]);
 
   const [modules, setModules] = useState<Module[]>([
     {

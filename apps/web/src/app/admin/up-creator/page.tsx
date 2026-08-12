@@ -26,8 +26,12 @@ import {
   Trail,
   INITIAL_TRAILS,
   INITIAL_STUDENT_LOGS,
+  fetchCoursesFromDb,
+  fetchTrailsFromDb,
+  saveCourseToDb,
+  deleteCourseFromDb,
+  toggleLandingFeaturedInDb,
   getStoredCourses,
-  saveStoredCourses,
   getStoredTrails
 } from "@/lib/coursesStore";
 import { CourseModal } from "@/components/admin/CourseModal";
@@ -55,8 +59,13 @@ export default function AdminUpCreatorPage() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   useEffect(() => {
-    setCourses(getStoredCourses());
-    setTrails(getStoredTrails());
+    async function loadData() {
+      const loadedCourses = await fetchCoursesFromDb();
+      const loadedTrails = await fetchTrailsFromDb();
+      setCourses(loadedCourses);
+      setTrails(loadedTrails);
+    }
+    loadData();
 
     async function loadStudentsCount() {
       setLoadingStudents(true);
@@ -73,8 +82,8 @@ export default function AdminUpCreatorPage() {
     }
     loadStudentsCount();
 
-    const handleCourseUpdate = () => setCourses(getStoredCourses());
-    const handleTrailUpdate = () => setTrails(getStoredTrails());
+    const handleCourseUpdate = () => fetchCoursesFromDb().then(setCourses);
+    const handleTrailUpdate = () => fetchTrailsFromDb().then(setTrails);
 
     window.addEventListener("up_courses_updated", handleCourseUpdate);
     window.addEventListener("up_trails_updated", handleTrailUpdate);
@@ -85,31 +94,25 @@ export default function AdminUpCreatorPage() {
     };
   }, []);
 
-  const handleSaveCourse = (updatedCourse: Course) => {
-    let newCourses: Course[];
-    const exists = courses.some((c) => c.id === updatedCourse.id);
-    if (exists) {
-      newCourses = courses.map((c) => (c.id === updatedCourse.id ? updatedCourse : c));
-    } else {
-      newCourses = [updatedCourse, ...courses];
-    }
-    setCourses(newCourses);
-    saveStoredCourses(newCourses);
+  const handleSaveCourse = async (updatedCourse: Course) => {
+    await saveCourseToDb(updatedCourse);
+    const updated = await fetchCoursesFromDb();
+    setCourses(updated);
   };
 
-  const handleDeleteCourse = (id: string) => {
+  const handleDeleteCourse = async (id: string) => {
     if (!confirm("Tem certeza que deseja remover este curso do UP Creator?")) return;
-    const newCourses = courses.filter((c) => c.id !== id);
-    setCourses(newCourses);
-    saveStoredCourses(newCourses);
+    await deleteCourseFromDb(id);
+    const updated = await fetchCoursesFromDb();
+    setCourses(updated);
   };
 
-  const handleToggleLandingFeatured = (id: string) => {
-    const newCourses = courses.map((c) =>
-      c.id === id ? { ...c, isLandingPageFeatured: !c.isLandingPageFeatured } : c
-    );
-    setCourses(newCourses);
-    saveStoredCourses(newCourses);
+  const handleToggleLandingFeatured = async (id: string) => {
+    const target = courses.find((c) => c.id === id);
+    if (!target) return;
+    await toggleLandingFeaturedInDb(id, target.isLandingPageFeatured);
+    const updated = await fetchCoursesFromDb();
+    setCourses(updated);
   };
 
   const trackOptions = ["Todos", ...trails.map((t) => t.name)];

@@ -12,21 +12,50 @@ import {
   Trophy,
   Layers
 } from "lucide-react";
-import { Course, Trail, getStoredCourses, getStoredTrails } from "@/lib/coursesStore";
+import { Course, Trail, fetchCoursesFromDb, fetchTrailsFromDb } from "@/lib/coursesStore";
+import { getMe } from "@/lib/api";
+import { supabase } from "@up-analytics/lib";
 
 export default function UpCreatorPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [trails, setTrails] = useState<Trail[]>([]);
   const [selectedTrailId, setSelectedTrailId] = useState<string>("");
+  const [studentName, setStudentName] = useState("Aluno UP");
+  const [xpTotal, setXpTotal] = useState<number>(0);
+  const [streakDays, setStreakDays] = useState<number>(1);
+  const [levelTitle, setLevelTitle] = useState("Criador (Nível 1)");
 
   useEffect(() => {
-    const loadedCourses = getStoredCourses().filter((c) => c.status === "published");
-    const loadedTrails = getStoredTrails();
-    setCourses(loadedCourses);
-    setTrails(loadedTrails);
-    if (loadedTrails.length > 0) {
-      setSelectedTrailId(loadedTrails[0].id);
+    async function initData() {
+      const u = await getMe().catch(() => null);
+      if (u && u.name) {
+        setStudentName(u.name);
+      }
+
+      const loadedCourses = (await fetchCoursesFromDb()).filter((c) => c.status === "published");
+      const loadedTrails = await fetchTrailsFromDb();
+      setCourses(loadedCourses);
+      setTrails(loadedTrails);
+      if (loadedTrails.length > 0) {
+        setSelectedTrailId(loadedTrails[0].id);
+      }
+
+      if (u?.id) {
+        const { count } = await supabase
+          .from("user_lesson_progress")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", u.id);
+        
+        const completedCount = count || 0;
+        const totalXp = completedCount * 50;
+        setXpTotal(totalXp);
+        setStreakDays(completedCount > 0 ? Math.min(30, completedCount + 1) : 1);
+        if (totalXp >= 1000) setLevelTitle("Criador Pro (Nível 3)");
+        else if (totalXp >= 300) setLevelTitle("Criador Ativo (Nível 2)");
+        else setLevelTitle("Criador (Nível 1)");
+      }
     }
+    initData();
   }, []);
 
   const currentTrail = trails.find((t) => t.id === selectedTrailId) || trails[0];
@@ -36,10 +65,10 @@ export default function UpCreatorPage() {
     .sort((a, b) => a.orderIndex - b.orderIndex);
 
   const studentStats = {
-    name: "Henrique Junqueira",
-    level: "Criador Pro (Nível 3)",
-    xpTotal: 1450,
-    streakDays: 7
+    name: studentName,
+    level: levelTitle,
+    xpTotal: xpTotal,
+    streakDays: streakDays
   };
 
   const leaderboard = [
