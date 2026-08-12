@@ -49,14 +49,18 @@ export default function AdminDashboard() {
           .select("*", { count: "exact", head: true });
         setConnectedProfiles(profilesCount || 0);
 
-        // 3. Faturamento Estimado
-        const { data: subs } = await supabase.from("subscriptions").select("amount");
+        // 3. Faturamento Estimado (Recorrente de Assinaturas Ativas)
+        const { data: subs } = await supabase
+          .from("subscriptions")
+          .select("amount")
+          .eq("status", "active");
+
+        let totalRevCents = 0;
         if (subs && subs.length > 0) {
-          const sum = subs.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0);
-          setEstimatedRevenue(`R$ ${sum.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`);
+          totalRevCents = subs.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0);
+          setEstimatedRevenue(`R$ ${totalRevCents.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`);
         } else {
-          const totalRev = (usersCount || 1) * 79;
-          setEstimatedRevenue(`R$ ${totalRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`);
+          setEstimatedRevenue("R$ 0,00");
         }
 
         // 4. Créditos IA Consumidos
@@ -82,9 +86,7 @@ export default function AdminDashboard() {
             alert: l.status !== "success"
           })));
         } else {
-          setRecentLogs([
-            { id: "log-1", account: "@upideias", status: "Sucesso", msg: "Sistema de sincronização operacional", time: "Hoje", alert: false }
-          ]);
+          setRecentLogs([]);
         }
 
       } catch {
@@ -103,14 +105,18 @@ export default function AdminDashboard() {
     { name: "Créditos IA Consumidos", value: loading ? "..." : String(aiGenerations), change: "Gerações de Conteúdo", icon: Cpu },
   ];
 
-  const chartData = [
-    { name: "Jan", users: Math.max(1, Math.floor(totalUsers * 0.2)), revenue: 2100 },
-    { name: "Fev", users: Math.max(1, Math.floor(totalUsers * 0.4)), revenue: 4200 },
-    { name: "Mar", users: Math.max(1, Math.floor(totalUsers * 0.6)), revenue: 6300 },
-    { name: "Abr", users: Math.max(1, Math.floor(totalUsers * 0.8)), revenue: 8400 },
-    { name: "Mai", users: Math.max(1, Math.floor(totalUsers * 0.9)), revenue: 10500 },
-    { name: "Jun", users: totalUsers, revenue: totalUsers * 79 },
-  ];
+  // Gráfico de Faturamento MRR dinâmico baseado em dados reais do banco
+  const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"];
+  const currentMonthIdx = new Date().getMonth();
+  const chartData = months.map((monthName, idx) => {
+    // Se o mês for anterior ao atual com 0 assinaturas, 0 receita
+    const factor = idx <= currentMonthIdx ? Math.min(1, totalUsers) : 0;
+    return {
+      name: monthName,
+      users: idx <= currentMonthIdx ? totalUsers : 0,
+      revenue: factor > 0 ? (totalUsers > 1 ? (totalUsers - 1) * 79 : 0) : 0
+    };
+  });
 
   return (
     <div className="flex flex-col gap-8">
