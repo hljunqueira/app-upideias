@@ -23,16 +23,17 @@ import {
   FastForward,
   ShieldCheck
 } from "lucide-react";
-import { Course, Lesson, Module, getStoredCourses } from "@/lib/coursesStore";
+import { Course, Lesson, Module, fetchCoursesFromDb, fetchModulesFromDb } from "@/lib/coursesStore";
 import { CertificateModal } from "@/components/creator/CertificateModal";
 
 export default function StudentCoursePlayerPage() {
   const params = useParams();
-  const courseId = (params?.id as string) || "c-1";
+  const courseId = (params?.id as string) || "";
 
   const [course, setCourse] = useState<Course | null>(null);
-  const [activeModuleId, setActiveModuleId] = useState<string>("m-1");
-  const [activeLessonId, setActiveLessonId] = useState<string>("l-1");
+  const [modules, setModules] = useState<Module[]>([]);
+  const [activeModuleId, setActiveModuleId] = useState<string>("");
+  const [activeLessonId, setActiveLessonId] = useState<string>("");
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [isCopiedPrompt, setIsCopiedPrompt] = useState(false);
@@ -45,71 +46,31 @@ export default function StudentCoursePlayerPage() {
   // Modal de Certificado
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
 
-  // Módulos e Aulas simulados para a aula atual do curso
-  const [modules, setModules] = useState<Module[]>([
-    {
-      id: "m-1",
-      courseId,
-      title: "Módulo 1: Fundamentos da Estratégia de Conteúdo",
-      order: 1,
-      lessons: [
-        {
-          id: "l-1",
-          moduleId: "m-1",
-          title: "Aula 1: Introdução ao Método UP Creator",
-          description: "Nesta aula você entenderá os pilares de autoridade e retenção do método.",
-          videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          videoProvider: "youtube",
-          durationMinutes: 12,
-          isFreePreview: true,
-          xpPoints: 50,
-          attachments: [{ id: "att-1", title: "Guia de Boas-Vindas.pdf", url: "#", type: "pdf" }]
-        },
-        {
-          id: "l-2",
-          moduleId: "m-1",
-          title: "Aula 2: Definindo sua Persona & Linha Editorial",
-          description: "Como criar personas compradoras no Instagram.",
-          videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          videoProvider: "youtube",
-          durationMinutes: 18,
-          isFreePreview: false,
-          xpPoints: 50,
-          attachments: [{ id: "att-2", title: "Prompt de IA - Gerador de Persona.txt", url: "#", type: "prompt" }]
-        }
-      ]
-    },
-    {
-      id: "m-2",
-      courseId,
-      title: "Módulo 2: Roteirização & Hooks Virais",
-      order: 2,
-      lessons: [
-        {
-          id: "l-3",
-          moduleId: "m-2",
-          title: "Aula 1: A Física dos Primeiros 3 Segundos do Vídeo",
-          description: "Técnicas visuais e faladas para travar a rolagem do feed.",
-          videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          videoProvider: "youtube",
-          durationMinutes: 15,
-          isFreePreview: false,
-          xpPoints: 50
-        }
-      ]
-    }
-  ]);
-
   useEffect(() => {
-    const allCourses = getStoredCourses();
-    const current = allCourses.find((c) => c.id === courseId) || allCourses[0];
-    setCourse(current);
+    async function loadData() {
+      if (!courseId) return;
+      const allCourses = await fetchCoursesFromDb();
+      const found = allCourses.find((c) => c.id === courseId) || allCourses[0];
+      setCourse(found || null);
+
+      const targetId = found ? found.id : courseId;
+      const loadedModules = await fetchModulesFromDb(targetId);
+      setModules(loadedModules);
+      if (loadedModules.length > 0) {
+        setActiveModuleId(loadedModules[0].id);
+        if (loadedModules[0].lessons.length > 0) {
+          setActiveLessonId(loadedModules[0].lessons[0].id);
+        }
+      }
+    }
+    loadData();
   }, [courseId]);
 
-  const activeModule = modules.find((m) => m.id === activeModuleId) || modules[0];
+  const activeModule = modules.find((m) => m.id === activeModuleId) || modules[0] || { id: "", title: "", lessons: [] };
   const activeLesson =
     modules.flatMap((m) => m.lessons).find((l) => l.id === activeLessonId) ||
     modules[0]?.lessons[0];
+
 
   const toggleLessonCompletion = (lessonId: string) => {
     let updated: string[];

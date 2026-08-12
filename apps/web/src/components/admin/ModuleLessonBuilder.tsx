@@ -1,51 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { Course, Module, Lesson } from "@/lib/coursesStore";
+import { useState, useEffect } from "react";
+import {
+  Course,
+  Module,
+  Lesson,
+  fetchModulesFromDb,
+  saveModuleToDb,
+  deleteModuleFromDb,
+  saveLessonToDb,
+  deleteLessonFromDb
+} from "@/lib/coursesStore";
 import { ChevronDown, ChevronRight, Plus, Video, Edit, Trash2, Clock, Award, FileText } from "lucide-react";
 import { LessonModal } from "./LessonModal";
 import { ModuleModal } from "./ModuleModal";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
-  const [selectedCourseId, setSelectedCourseId] = useState<string>(courses[0]?.id || "c-1");
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(courses[0]?.id || "");
+  const [modules, setModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Estado dos Módulos simulados por curso
-  const [modules, setModules] = useState<Module[]>([
-    {
-      id: "m-1",
-      courseId: "c-1",
-      title: "Módulo 1: Fundamentos da Estratégia de Conteúdo",
-      description: "Visão geral e planejamento inicial de autoridade.",
-      order: 1,
-      lessons: [
-        {
-          id: "l-1",
-          moduleId: "m-1",
-          title: "Aula 1: Introdução ao Método UP Creator",
-          description: "Entenda os pilares da metodologia.",
-          videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-          videoProvider: "youtube",
-          durationMinutes: 12,
-          isFreePreview: true,
-          xpPoints: 50
-        },
-        {
-          id: "l-2",
-          moduleId: "m-1",
-          title: "Aula 2: Definindo sua Persona & Linha Editorial",
-          description: "Mapeamento prático do público-alvo.",
-          videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-          videoProvider: "youtube",
-          durationMinutes: 18,
-          isFreePreview: false,
-          xpPoints: 50
-        }
-      ]
-    }
-  ]);
-
-  const [expandedModuleId, setExpandedModuleId] = useState<string | null>("m-1");
+  const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
 
   // State dos Modais
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
@@ -58,8 +34,27 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
   // State do Modal de Confirmação de Exclusão
   const [deleteTarget, setDeleteTarget] = useState<{ type: "module" | "lesson"; moduleId: string; lessonId?: string } | null>(null);
 
+  useEffect(() => {
+    if (!selectedCourseId && courses.length > 0) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [courses, selectedCourseId]);
+
+  useEffect(() => {
+    async function loadCourseModules() {
+      if (!selectedCourseId) return;
+      setLoading(true);
+      const loaded = await fetchModulesFromDb(selectedCourseId);
+      setModules(loaded);
+      if (loaded.length > 0 && !expandedModuleId) {
+        setExpandedModuleId(loaded[0].id);
+      }
+      setLoading(false);
+    }
+    loadCourseModules();
+  }, [selectedCourseId]);
+
   const currentCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
-  const courseModules = modules.filter((m) => m.courseId === selectedCourseId);
 
   // --- CRUD DE MÓDULOS ---
   const handleOpenAddModule = () => {
@@ -72,11 +67,11 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
     setIsModuleModalOpen(true);
   };
 
-  const handleSaveModule = (title: string, description?: string) => {
+  const handleSaveModule = async (title: string, description?: string) => {
     if (editingModule) {
-      setModules(
-        modules.map((m) => (m.id === editingModule.id ? { ...m, title, description } : m))
-      );
+      const updatedMod: Module = { ...editingModule, title, description };
+      await saveModuleToDb(updatedMod);
+      setModules(modules.map((m) => (m.id === editingModule.id ? updatedMod : m)));
     } else {
       const newMod: Module = {
         id: `m-${Date.now()}`,
@@ -86,6 +81,7 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
         order: modules.length + 1,
         lessons: []
       };
+      await saveModuleToDb(newMod);
       setModules([...modules, newMod]);
       setExpandedModuleId(newMod.id);
     }
@@ -99,11 +95,13 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
     setDeleteTarget({ type: "lesson", moduleId, lessonId });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     if (deleteTarget.type === "module") {
+      await deleteModuleFromDb(deleteTarget.moduleId);
       setModules(modules.filter((m) => m.id !== deleteTarget.moduleId));
     } else if (deleteTarget.type === "lesson" && deleteTarget.lessonId) {
+      await deleteLessonFromDb(deleteTarget.lessonId);
       setModules(
         modules.map((m) => {
           if (m.id === deleteTarget.moduleId) {
@@ -129,7 +127,8 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
     setIsLessonModalOpen(true);
   };
 
-  const handleSaveLesson = (savedLesson: Lesson) => {
+  const handleSaveLesson = async (savedLesson: Lesson) => {
+    await saveLessonToDb(savedLesson, selectedCourseId);
     setModules(
       modules.map((m) => {
         if (m.id === savedLesson.moduleId) {
@@ -146,6 +145,7 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
       })
     );
   };
+
 
   return (
     <div className="space-y-6 animate-fadeIn">

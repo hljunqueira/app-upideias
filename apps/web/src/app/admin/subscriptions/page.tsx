@@ -34,12 +34,14 @@ interface SubscriptionItem {
 
 import { useEffect } from "react";
 import { supabase } from "@up-analytics/lib";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
+  const [deletingSubId, setDeletingSubId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSubscriptions() {
@@ -112,7 +114,7 @@ export default function AdminSubscriptionsPage() {
   const handleOpenAddModal = () => {
     setEditingSub(null);
     setFormData({
-      subscriptionId: `sub_pay_${Math.floor(10000 + Math.random() * 90000)}`,
+      subscriptionId: `SUB-${Math.floor(100000 + Math.random() * 900000)}`,
       customerName: "",
       customerEmail: "",
       planName: "Pro",
@@ -120,7 +122,7 @@ export default function AdminSubscriptionsPage() {
       cycle: "Mensal",
       paymentMethod: "Cartão de Crédito",
       status: "Ativa",
-      nextDueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR"),
+      nextDueDate: new Date(Date.now() + 30 * 86400000).toLocaleDateString("pt-BR"),
     });
     setIsModalOpen(true);
   };
@@ -141,10 +143,14 @@ export default function AdminSubscriptionsPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteSubscription = (id: string) => {
-    if (confirm("Deseja cancelar/remover esta assinatura do Gateway de Pagamentos?")) {
-      setSubscriptions((prev) => prev.filter((s) => s.id !== id));
-    }
+  const onRequestDeleteSubscription = (id: string) => {
+    setDeletingSubId(id);
+  };
+
+  const handleConfirmDeleteSubscription = () => {
+    if (!deletingSubId) return;
+    setSubscriptions((prev) => prev.filter((s) => s.id !== deletingSubId));
+    setDeletingSubId(null);
   };
 
   const handleSyncGateway = (id: string) => {
@@ -363,7 +369,7 @@ export default function AdminSubscriptionsPage() {
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteSubscription(sub.id)}
+                          onClick={() => onRequestDeleteSubscription(sub.id)}
                           className="p-1.5 rounded-lg bg-upDark hover:bg-rose-500/20 hover:text-rose-400 border border-upBorder/60 transition-all"
                           title="Cancelar Assinatura"
                         >
@@ -405,43 +411,37 @@ export default function AdminSubscriptionsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-upGray">Nome do Cliente</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Nome completo"
-                    value={formData.customerName}
-                    onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                    className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-upGray">E-mail</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="email@cliente.com"
-                    value={formData.customerEmail}
-                    onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
-                    className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
-                  />
-                </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-upGray">Nome do Cliente</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Ana Souza"
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                  className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-upGray">E-mail do Cliente</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="cliente@email.com"
+                  value={formData.customerEmail}
+                  onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
+                  className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-upGray">Plano</label>
                   <select
                     value={formData.planName}
-                    onChange={(e) => {
-                      const val = e.target.value as any;
-                      const price = val === "Start" ? "R$ 97,00" : val === "Pro" ? "R$ 197,00" : "R$ 497,00";
-                      setFormData({ ...formData, planName: val, amount: price });
-                    }}
-                    className="px-3 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                    onChange={(e) => setFormData({ ...formData, planName: e.target.value as any })}
+                    className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
                     <option value="Start">Start</option>
                     <option value="Pro">Pro</option>
@@ -450,11 +450,24 @@ export default function AdminSubscriptionsPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-upGray">Valor Recorrente</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-upGray">Ciclo</label>
                   <select
                     value={formData.cycle}
                     onChange={(e) => setFormData({ ...formData, cycle: e.target.value as any })}
-                    className="px-3 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                    className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
                     <option value="Mensal">Mensal</option>
                     <option value="Anual">Anual</option>
@@ -462,33 +475,20 @@ export default function AdminSubscriptionsPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-upGray">Valor</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="px-3 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-upGray">Forma de Pagamento</label>
+                  <label className="text-xs font-semibold text-upGray">Método</label>
                   <select
                     value={formData.paymentMethod}
                     onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as any })}
                     className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
-                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                    <option value="Cartão de Crédito">Cartão</option>
                     <option value="PIX">PIX</option>
                     <option value="Boleto">Boleto</option>
                   </select>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-upGray">Status da Cobrança</label>
+                  <label className="text-xs font-semibold text-upGray">Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
@@ -533,6 +533,17 @@ export default function AdminSubscriptionsPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Customizado de Confirmação de Exclusão */}
+      <ConfirmModal
+        isOpen={!!deletingSubId}
+        title="Cancelar / Excluir Assinatura"
+        description="Tem certeza que deseja cancelar e remover esta assinatura do Gateway de Pagamentos?"
+        confirmText="Sim, Remover Assinatura"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDeleteSubscription}
+        onClose={() => setDeletingSubId(null)}
+      />
     </div>
   );
 }

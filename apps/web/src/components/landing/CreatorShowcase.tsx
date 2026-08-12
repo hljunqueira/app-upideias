@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Play, X, Video, Sparkles, CheckCircle2 } from "lucide-react";
-import { Course, getStoredCourses } from "@/lib/coursesStore";
+import { Course, fetchCoursesFromDb, getStoredCourses } from "@/lib/coursesStore";
 
 const tracks = ["Todos", "Fundamentos", "Criadores de Conteúdo", "Social Media Pro", "Agências & Gestores"];
 
@@ -105,10 +105,15 @@ export default function CreatorShowcase() {
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
-    setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
+    async function loadFeaturedCourses() {
+      const fetched = await fetchCoursesFromDb();
+      setCourses(fetched.filter((c) => c.isLandingPageFeatured));
+    }
+    loadFeaturedCourses();
 
-    const handleUpdate = () => {
-      setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
+    const handleUpdate = async () => {
+      const fetched = await fetchCoursesFromDb();
+      setCourses(fetched.filter((c) => c.isLandingPageFeatured));
     };
 
     window.addEventListener("up_courses_updated", handleUpdate);

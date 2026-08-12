@@ -284,3 +284,106 @@ export async function deleteTrailFromDb(id: string): Promise<void> {
     console.error("Erro ao remover trilha do Supabase:", e);
   }
 }
+
+// --- HELPER DE MÓDULOS E AULAS SUPABASE ---
+export async function fetchModulesFromDb(courseId: string): Promise<Module[]> {
+  try {
+    const { data: dbModules, error: modErr } = await supabase
+      .from("modules")
+      .select("*")
+      .eq("course_id", courseId)
+      .order("order_index", { ascending: true });
+
+    if (modErr || !dbModules) {
+      return [];
+    }
+
+    const { data: dbLessons } = await supabase
+      .from("lessons")
+      .select("*")
+      .eq("course_id", courseId)
+      .order("order_index", { ascending: true });
+
+    const lessonsList = dbLessons || [];
+
+    const mapped: Module[] = dbModules.map((m: any) => {
+      const moduleLessons: Lesson[] = lessonsList
+        .filter((l: any) => l.module_id === m.id)
+        .map((l: any) => ({
+          id: l.id,
+          moduleId: l.module_id,
+          title: l.title,
+          description: l.description || "",
+          videoUrl: l.video_url,
+          videoProvider: l.video_provider || "youtube",
+          durationMinutes: l.duration_minutes || 12,
+          isFreePreview: l.is_free_preview ?? false,
+          xpPoints: l.xp_points || 50
+        }));
+
+      return {
+        id: m.id,
+        courseId: m.course_id,
+        title: m.title,
+        description: m.description || "",
+        order: m.order_index || 1,
+        lessons: moduleLessons
+      };
+    });
+
+    return mapped;
+  } catch (e) {
+    console.error("Erro ao buscar módulos no Supabase:", e);
+    return [];
+  }
+}
+
+export async function saveModuleToDb(module: Module): Promise<void> {
+  try {
+    await supabase.from("modules").upsert({
+      id: module.id,
+      course_id: module.courseId,
+      title: module.title,
+      description: module.description,
+      order_index: module.order
+    });
+  } catch (e) {
+    console.error("Erro ao salvar módulo no Supabase:", e);
+  }
+}
+
+export async function deleteModuleFromDb(id: string): Promise<void> {
+  try {
+    await supabase.from("modules").delete().eq("id", id);
+  } catch (e) {
+    console.error("Erro ao remover módulo do Supabase:", e);
+  }
+}
+
+export async function saveLessonToDb(lesson: Lesson, courseId: string): Promise<void> {
+  try {
+    await supabase.from("lessons").upsert({
+      id: lesson.id,
+      module_id: lesson.moduleId,
+      course_id: courseId,
+      title: lesson.title,
+      description: lesson.description,
+      video_url: lesson.videoUrl,
+      video_provider: lesson.videoProvider,
+      duration_minutes: lesson.durationMinutes,
+      is_free_preview: lesson.isFreePreview,
+      xp_points: lesson.xpPoints
+    });
+  } catch (e) {
+    console.error("Erro ao salvar aula no Supabase:", e);
+  }
+}
+
+export async function deleteLessonFromDb(id: string): Promise<void> {
+  try {
+    await supabase.from("lessons").delete().eq("id", id);
+  } catch (e) {
+    console.error("Erro ao remover aula do Supabase:", e);
+  }
+}
+

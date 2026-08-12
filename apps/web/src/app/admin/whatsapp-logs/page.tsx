@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MessageSquare,
   Search,
@@ -16,6 +16,7 @@ import {
   Clock,
   Trash2
 } from "lucide-react";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface WhatsappLogItem {
   id: string;
@@ -34,6 +35,7 @@ export default function AdminWhatsappLogsPage() {
   const [logs, setLogs] = useState<WhatsappLogItem[]>(INITIAL_LOGS);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
+  const [deletingLogId, setDeletingLogId] = useState<string | null>(null);
   
   // Modal State para Disparo Manual
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,10 +81,14 @@ export default function AdminWhatsappLogsPage() {
     );
   };
 
-  const handleDeleteLog = (id: string) => {
-    if (confirm("Deseja remover este registro de log de WhatsApp?")) {
-      setLogs((prev) => prev.filter((l) => l.id !== id));
-    }
+  const onRequestDeleteLog = (id: string) => {
+    setDeletingLogId(id);
+  };
+
+  const handleConfirmDeleteLog = () => {
+    if (!deletingLogId) return;
+    setLogs((prev) => prev.filter((l) => l.id !== deletingLogId));
+    setDeletingLogId(null);
   };
 
   const handleSendWhatsapp = (e: React.FormEvent) => {
@@ -260,7 +266,7 @@ export default function AdminWhatsappLogsPage() {
                           <RefreshCw className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteLog(log.id)}
+                          onClick={() => onRequestDeleteLog(log.id)}
                           className="p-1.5 rounded-lg bg-upDark hover:bg-rose-500/20 hover:text-rose-400 border border-upBorder/60 transition-all"
                           title="Excluir Log"
                         >
@@ -362,6 +368,18 @@ export default function AdminWhatsappLogsPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Customizado de Confirmação de Exclusão */}
+      <ConfirmModal
+        isOpen={!!deletingLogId}
+        title="Excluir Log de WhatsApp"
+        description="Tem certeza que deseja remover este registro de log de disparo WhatsApp?"
+        confirmText="Sim, Excluir Log"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDeleteLog}
+        onClose={() => setDeletingLogId(null)}
+      />
     </div>
   );
 }
+

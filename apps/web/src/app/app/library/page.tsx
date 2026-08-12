@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { PlanGate } from "@/components/common/PlanGate";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export interface LibraryItem {
   id: string;
@@ -45,6 +46,7 @@ export default function LibraryPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [previewItem, setPreviewItem] = useState<LibraryItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deletingLibraryItemId, setDeletingLibraryItemId] = useState<string | null>(null);
 
   // New Item Form State
   const [newTitle, setNewTitle] = useState("");
@@ -93,15 +95,19 @@ export default function LibraryPage() {
     setNewFileUrl("");
   };
 
-  const handleDeleteItem = (id: string, e?: React.MouseEvent) => {
+  const onRequestDeleteItem = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (confirm("Tem certeza que deseja remover este item da biblioteca?")) {
-      const filtered = items.filter((i) => i.id !== id);
-      saveItemsToStorage(filtered);
-      if (previewItem?.id === id) {
-        setPreviewItem(null);
-      }
+    setDeletingLibraryItemId(id);
+  };
+
+  const handleConfirmDeleteItem = () => {
+    if (!deletingLibraryItemId) return;
+    const filtered = items.filter((i) => i.id !== deletingLibraryItemId);
+    saveItemsToStorage(filtered);
+    if (previewItem?.id === deletingLibraryItemId) {
+      setPreviewItem(null);
     }
+    setDeletingLibraryItemId(null);
   };
 
   const handleCopyLink = (url: string) => {
@@ -226,7 +232,7 @@ export default function LibraryPage() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={(e) => handleDeleteItem(item.id, e)}
+                    onClick={(e) => onRequestDeleteItem(item.id, e)}
                     className="p-1.5 text-upGray hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
                     title="Excluir item"
                   >
@@ -424,7 +430,7 @@ export default function LibraryPage() {
 
               <div className="flex items-center justify-between pt-4 border-t border-upBorder/40">
                 <button
-                  onClick={() => handleDeleteItem(previewItem.id)}
+                  onClick={() => onRequestDeleteItem(previewItem.id)}
                   className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -454,6 +460,17 @@ export default function LibraryPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Customizado de Confirmação de Exclusão */}
+      <ConfirmModal
+        isOpen={!!deletingLibraryItemId}
+        title="Excluir Item da Biblioteca"
+        description="Tem certeza que deseja remover este arquivo/asset da sua biblioteca? Esta ação não pode ser desfeita."
+        confirmText="Sim, Excluir Item"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDeleteItem}
+        onClose={() => setDeletingLibraryItemId(null)}
+      />
     </div>
     </PlanGate>
   );

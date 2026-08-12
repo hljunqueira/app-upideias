@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { AdminSuggestContentModal } from "@/components/admin/AdminSuggestContentModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 import { supabase } from "@up-analytics/lib";
 
@@ -71,6 +72,9 @@ export default function AdminUsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserItem | null>(null);
   const [suggestUser, setSuggestUser] = useState<UserItem | null>(null);
+  
+  // Modal State para Confirmação de Exclusão
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<{
@@ -120,10 +124,14 @@ export default function AdminUsersPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteUser = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este usuário?")) {
-      setUsers((prev) => prev.filter((u) => u.id !== id));
-    }
+  const onRequestDeleteUser = (id: string) => {
+    setDeletingUserId(id);
+  };
+
+  const handleConfirmDeleteUser = () => {
+    if (!deletingUserId) return;
+    setUsers((prev) => prev.filter((u) => u.id !== deletingUserId));
+    setDeletingUserId(null);
   };
 
   const handleSaveUser = (e: React.FormEvent) => {
@@ -329,7 +337,7 @@ export default function AdminUsersPage() {
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user.id)}
+                          onClick={() => onRequestDeleteUser(user.id)}
                           className="p-2 rounded-xl bg-upDark hover:bg-rose-500/20 hover:text-rose-400 border border-upBorder/60 transition-all text-upGray"
                           title="Excluir Usuário"
                         >
@@ -345,61 +353,64 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Modal de Sugestão de Conteúdo pelo Admin */}
-      <AdminSuggestContentModal
-        isOpen={Boolean(suggestUser)}
-        onClose={() => setSuggestUser(null)}
-        user={suggestUser}
-      />
+      {/* Modal de sugestão de conteúdo do admin */}
+      {suggestUser && (
+        <AdminSuggestContentModal
+          isOpen={!!suggestUser}
+          onClose={() => setSuggestUser(null)}
+          user={suggestUser}
+        />
+      )}
 
-      {/* Modal CRUD (Criar / Editar) */}
+      {/* Modal de Criação / Edição de Usuário */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-upBlack/80 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-lg bg-upDark border border-upBorder/80 rounded-2xl shadow-[0_0_50px_rgba(255,83,104,0.15)] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-upBorder/60">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                {editingUser ? <Edit2 className="w-5 h-5 text-upPink" /> : <Plus className="w-5 h-5 text-upPink" />}
-                {editingUser ? "Editar Usuário" : "Novo Usuário"}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-upDark border border-upBorder/80 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between border-b border-upBorder/60 pb-4">
+              <h3 className="text-lg font-bold text-white">
+                {editingUser ? "Editar Usuário" : "Criar Novo Usuário"}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-1 text-upGray hover:text-white rounded-lg">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1.5 text-upGray hover:text-white rounded-lg hover:bg-upCard transition-all"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveUser} className="p-6 flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
+            <form onSubmit={handleSaveUser} className="space-y-4">
+              <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-upGray">Nome Completo</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ex: João Souza"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                  placeholder="Ex: João da Silva"
+                  className="w-full px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
+              <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-upGray">E-mail</label>
                 <input
                   type="email"
                   required
-                  placeholder="exemplo@dominio.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                  placeholder="usuario@email.com"
+                  className="w-full px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-upGray">Instagram (@handle)</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-upGray">Handle do Instagram (@)</label>
                 <input
                   type="text"
-                  required
-                  placeholder="@seuperfil"
                   value={formData.instagramHandle}
                   onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
-                  className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
+                  placeholder="@seuusuario"
+                  className="w-full px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                 />
               </div>
 
@@ -408,12 +419,12 @@ export default function AdminUsersPage() {
                   <label className="text-xs font-semibold text-upGray">Plano</label>
                   <select
                     value={formData.plan}
-                    onChange={(e) => setFormData({ ...formData, plan: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
                     className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
-                    <option value="Iniciante">Iniciante (R$97)</option>
-                    <option value="Pro">Pro (R$197)</option>
-                    <option value="Agência">Agência (R$497)</option>
+                    <option value="Start">Start</option>
+                    <option value="Pro">Pro</option>
+                    <option value="Agência">Agência</option>
                   </select>
                 </div>
 
@@ -450,6 +461,17 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+
+      {/* Modal Customizado de Confirmação de Exclusão */}
+      <ConfirmModal
+        isOpen={!!deletingUserId}
+        title="Excluir Usuário"
+        description="Tem certeza que deseja remover este usuário? O acesso dele ao painel será revogado."
+        confirmText="Sim, Excluir Usuário"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDeleteUser}
+        onClose={() => setDeletingUserId(null)}
+      />
     </div>
   );
 }
