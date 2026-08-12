@@ -72,7 +72,7 @@ export interface Subscription {
 export type SocialPlatform = 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'x';
 
 /**
- * Modelo de domínio público seguro para UI e Frontend
+ * Modelo de domínio público seguro para UI e Frontend.
  * NÃO contém tokens ou segredos de acesso ao provedor.
  */
 export interface SocialAccount {
@@ -93,14 +93,16 @@ export interface SocialAccount {
   created_at: string;
   updated_at: string;
 
-  // Campos de compatibilidade legada (deprecados)
+  // Campos de identificação legados para compatibilidade (deprecados)
   instagram_user_id?: string;
-  access_token?: string;
-  token_expires_at?: string | null;
 }
 
 /**
- * Credenciais secretas gerenciadas EXCLUSIVAMENTE pelo backend/worker seguro
+ * Credenciais secretas gerenciadas EXCLUSIVAMENTE pelo backend/worker seguro.
+ * RESTRIÇÃO DE SEGURANÇA:
+ * - NÃO utilizar em componentes React UI;
+ * - NÃO serializar para o browser ou respostas de API pública;
+ * - NÃO armazenar em stores do frontend (Zustand/Redux/Context).
  */
 export interface SocialConnectionCredentials {
   accountId: string;
@@ -115,7 +117,7 @@ export type InstagramAccount = SocialAccount;
 export interface SocialAccountMetrics {
   id: string;
   accountId: string;
-  platform?: SocialPlatform;
+  platform: SocialPlatform;
   metric_date: string;
   followers_count: number;
   reach: number;
@@ -136,7 +138,7 @@ export interface SocialContent {
   id: string;
   accountId: string;
   externalContentId: string;
-  platform?: SocialPlatform;
+  platform: SocialPlatform;
   media_type: string;
   media_product_type: string;
   caption: string | null;
