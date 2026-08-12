@@ -35,11 +35,15 @@ import { TrailRoadmapView } from "@/components/admin/TrailRoadmapView";
 import { ModuleLessonBuilder } from "@/components/admin/ModuleLessonBuilder";
 import { StudentAnalyticsView } from "@/components/admin/StudentAnalyticsView";
 
+import { supabase } from "@up-analytics/lib";
+
 export default function AdminUpCreatorPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [trails, setTrails] = useState<Trail[]>(INITIAL_TRAILS);
   const [activeTab, setActiveTab] = useState<"courses" | "trails" | "modules" | "analytics">("courses");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [totalStudents, setTotalStudents] = useState<number>(0);
+  const [loadingStudents, setLoadingStudents] = useState(true);
 
   // Filtros
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,6 +57,21 @@ export default function AdminUpCreatorPage() {
   useEffect(() => {
     setCourses(getStoredCourses());
     setTrails(getStoredTrails());
+
+    async function loadStudentsCount() {
+      setLoadingStudents(true);
+      try {
+        const { count } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true });
+        setTotalStudents(count || 0);
+      } catch {
+        /* ignore */
+      } finally {
+        setLoadingStudents(false);
+      }
+    }
+    loadStudentsCount();
 
     const handleCourseUpdate = () => setCourses(getStoredCourses());
     const handleTrailUpdate = () => setTrails(getStoredTrails());
@@ -195,9 +214,11 @@ export default function AdminUpCreatorPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-upGray uppercase tracking-wider font-semibold">Alunos Acessando</p>
-              <h3 className="text-2xl font-extrabold text-white mt-1">1.248</h3>
+              <h3 className="text-2xl font-extrabold text-white mt-1">
+                {loadingStudents ? "..." : totalStudents}
+              </h3>
               <span className="text-[10px] text-emerald-400 font-semibold mt-1 block">
-                +12% este mês
+                Alunos na plataforma
               </span>
             </div>
             <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-2xl group-hover:scale-110 transition duration-300">
