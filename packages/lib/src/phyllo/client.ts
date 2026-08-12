@@ -3,7 +3,7 @@ import { PhylloUser, PhylloUsersListResponse, PhylloSdkTokenResponse, PhylloAcco
 
 /**
  * Validates HMAC SHA-256 signature from Phyllo-Signatures header against RAW body.
- * Supports comma-separated multiple signatures in header (e.g. durante rotação de chaves).
+ * Supports comma-separated multiple signatures, v1=/sha256= prefixes, and hex or base64 encodings.
  */
 export function verifyPhylloSignature(rawBody: string, signatureHeader: string | null, secret: string): boolean {
   if (!signatureHeader || !secret || secret.trim() === '') {
@@ -11,20 +11,42 @@ export function verifyPhylloSignature(rawBody: string, signatureHeader: string |
   }
 
   try {
-    const computedSignature = crypto
+    const computedHex = crypto
       .createHmac('sha256', secret)
       .update(rawBody, 'utf8')
       .digest('hex');
 
-    const expectedBuffer = Buffer.from(computedSignature, 'utf8');
-    const candidateSignatures = signatureHeader.split(',').map((s) => s.trim());
+    const computedBase64 = crypto
+      .createHmac('sha256', secret)
+      .update(rawBody, 'utf8')
+      .digest('base64');
 
-    for (const rawCandidate of candidateSignatures) {
-      const cleanCandidate = rawCandidate.replace(/^(v\d+=|sha256=)/i, '').trim();
+    const hexBuffer = Buffer.from(computedHex, 'utf8');
+    const base64Buffer = Buffer.from(computedBase64, 'utf8');
+
+    // Split comma or semicolon-separated signatures
+    const candidateParts = signatureHeader.split(/[,;]/).map((s) => s.trim());
+
+    for (const rawCandidate of candidateParts) {
+      if (!rawCandidate) continue;
+
+      // Extract signature value if key=value formatted (e.g. v1=hex, sha256=hex, t=12345)
+      const cleanCandidate = rawCandidate.replace(/^(t=\d+|v\d+=|sha256=)/i, '').trim();
+
+      if (!cleanCandidate) continue;
+
       const headerBuffer = Buffer.from(cleanCandidate, 'utf8');
 
-      if (expectedBuffer.length === headerBuffer.length) {
-        if (crypto.timingSafeEqual(expectedBuffer, headerBuffer)) {
+      // Compare Hex
+      if (hexBuffer.length === headerBuffer.length) {
+        if (crypto.timingSafeEqual(hexBuffer, headerBuffer)) {
+          return true;
+        }
+      }
+
+      // Compare Base64
+      if (base64Buffer.length === headerBuffer.length) {
+        if (crypto.timingSafeEqual(base64Buffer, headerBuffer)) {
           return true;
         }
       }

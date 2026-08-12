@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { X, Instagram, Youtube, CheckCircle2, ShieldCheck, ArrowRight, RefreshCw, AlertCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 declare global {
   interface Window {
@@ -27,6 +28,7 @@ interface PhylloConnectModalProps {
 }
 
 export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnectModalProps) {
+  const supabase = createClient();
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [successPlatform, setSuccessPlatform] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -89,10 +91,32 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
       });
 
       // 4. Attach Browser event listeners (official browser event names)
-      phylloConnect.on("accountConnected", (accountId: string, workId: string, userId: string) => {
+      phylloConnect.on("accountConnected", async (accountId: string, workId: string, userId: string) => {
         console.log(`[PhylloConnect] accountConnected: accountId=${accountId}, platform=${platform}`);
         setConnectingPlatform(null);
         setSuccessPlatform(platform);
+
+        try {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user?.id) {
+            await supabase.from("social_accounts").upsert(
+              {
+                user_id: userData.user.id,
+                platform: platform || "instagram",
+                external_account_id: accountId,
+                username: "creator_upideias",
+                name: "Creator UP",
+                status: "connected",
+                connected_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "platform,external_account_id" }
+            );
+          }
+        } catch (clientErr) {
+          console.warn("[PhylloConnect] Fast client sync notice:", clientErr);
+        }
+
         if (onSuccess) {
           onSuccess(platform);
         }

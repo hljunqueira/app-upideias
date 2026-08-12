@@ -426,7 +426,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
 
       {/* Modal de Conexão de Redes Sociais via Phyllo Connect SDK */}
-      <PhylloConnectModal isOpen={isPhylloModalOpen} onClose={() => setIsPhylloModalOpen(false)} />
+      <PhylloConnectModal
+        isOpen={isPhylloModalOpen}
+        onClose={() => setIsPhylloModalOpen(false)}
+        onSuccess={() => {
+          getInstagramAccounts().then((accs) => {
+            if (accs && accs.length > 0) {
+              setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "@upideias");
+            }
+          });
+        }}
+      />
     </div>
   );
 }
