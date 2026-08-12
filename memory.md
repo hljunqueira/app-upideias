@@ -13,3 +13,10 @@
 - **P2.1:** CONCLUÍDO (Infraestrutura Supabase self-hosted, schema social agnóstico, RLS, grants, seed, build e HTTPS `api.upideias.com` configurados).
   - *Pendência Técnica:* Backup off-site para bucket S3/R2 configurado como **`BLOQUEADOR DE GO-LIVE COM DADOS REAIS DE CLIENTES`**.
 - **P2.2 (Supabase Auth / Google OAuth):** PRÓXIMO PASSO (Aguardando merge do PR P2.1).
+
+## Convenções de Código e Decisões de UI/UX
+
+- **Conexão com Banco no UP Creator:** Todos os cursos, módulos, aulas e trilhas do UP Creator devem ser persistidos no Supabase (`courses`, `modules`, `lessons`, `learning_trails`). É proibido reinserir arrays de mock estáticos no `coursesStore.ts`.
+- **Padronização de Confirmações de Exclusão (`ConfirmModal`):** É estritamente proibido usar `window.confirm()` nativo do navegador. Qualquer modal/ação de exclusão deve utilizar o componente `@/components/ui/ConfirmModal`.
+- **Proteção de Vídeos no UP Creator (`ProtectedVideoPlayer`):** Toda exibição de vídeo/aula deve utilizar o `<ProtectedVideoPlayer />` (`@/components/creator/ProtectedVideoPlayer`). O player aplica overlay transparente no topo do iframe (bloqueando clique em "Assistir no YouTube" e título), desabilita o menu de contexto (`onContextMenu`), oculta a marca do YouTube e aceita comandos da API do Iframe do YouTube (`postMessage`) para controlar a velocidade de reprodução (1x, 1.25x, 1.5x, 2x). Os vídeos no YouTube Studio devem ser gravados/configurados como **Não Listados** com incorporação liberada.
+
