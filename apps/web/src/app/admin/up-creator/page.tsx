@@ -38,6 +38,7 @@ import { CourseModal } from "@/components/admin/CourseModal";
 import { TrailRoadmapView } from "@/components/admin/TrailRoadmapView";
 import { ModuleLessonBuilder } from "@/components/admin/ModuleLessonBuilder";
 import { StudentAnalyticsView } from "@/components/admin/StudentAnalyticsView";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 import { supabase } from "@up-analytics/lib";
 
@@ -54,9 +55,13 @@ export default function AdminUpCreatorPage() {
   const [selectedTrack, setSelectedTrack] = useState("Todos");
   const [selectedStatus, setSelectedStatus] = useState("Todos");
 
-  // State do Modal
+  // State do Modal de Curso
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+
+  // State do Modal de Confirmação de Exclusão
+  const [deletingCourseId, setDeletingCourseId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -100,11 +105,21 @@ export default function AdminUpCreatorPage() {
     setCourses(updated);
   };
 
-  const handleDeleteCourse = async (id: string) => {
-    if (!confirm("Tem certeza que deseja remover este curso do UP Creator?")) return;
-    await deleteCourseFromDb(id);
-    const updated = await fetchCoursesFromDb();
-    setCourses(updated);
+  const onRequestDeleteCourse = (id: string) => {
+    setDeletingCourseId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingCourseId) return;
+    setIsDeleting(true);
+    try {
+      await deleteCourseFromDb(deletingCourseId);
+      const updated = await fetchCoursesFromDb();
+      setCourses(updated);
+    } finally {
+      setIsDeleting(false);
+      setDeletingCourseId(null);
+    }
   };
 
   const handleToggleLandingFeatured = async (id: string) => {
@@ -443,7 +458,7 @@ export default function AdminUpCreatorPage() {
                       </button>
 
                       <button
-                        onClick={() => handleDeleteCourse(c.id)}
+                        onClick={() => onRequestDeleteCourse(c.id)}
                         className="text-red-400 hover:text-red-300 transition"
                         title="Excluir Curso"
                       >
@@ -524,7 +539,7 @@ export default function AdminUpCreatorPage() {
                             <Edit className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => handleDeleteCourse(c.id)}
+                            onClick={() => onRequestDeleteCourse(c.id)}
                             className="p-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition"
                             title="Excluir"
                           >
@@ -570,6 +585,18 @@ export default function AdminUpCreatorPage() {
         onSave={handleSaveCourse}
         initialCourse={editingCourse}
         tracks={trackOptions}
+      />
+
+      {/* MODAL CUSTOMIZADO DE CONFIRMAÇÃO DE EXCLUSÃO */}
+      <ConfirmModal
+        isOpen={!!deletingCourseId}
+        title="Excluir Curso do UP Creator"
+        description="Tem certeza que deseja remover este curso? Ele deixará de ser exibido na Landing Page e na Plataforma do Aluno."
+        confirmText="Sim, Excluir Curso"
+        cancelText="Cancelar"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingCourseId(null)}
       />
     </div>
   );
