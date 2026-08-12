@@ -89,6 +89,25 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    // Bloqueio de acesso para contas suspensas/desativadas pelo admin
+    try {
+      if (currentUser?.id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (profile?.status === 'Suspenso') {
+          const loginUrl = new URL('/login', request.url);
+          loginUrl.searchParams.set('error', 'account_suspended');
+          return NextResponse.redirect(loginUrl);
+        }
+      }
+    } catch {
+      // Ignorar falhas transitórias de leitura do perfil
+    }
+
     // Se houver um cookie de intenção de checkout pendente, redirecionar para o checkout
     const pendingCheckout = request.cookies.get('up_pending_checkout')?.value;
     if (pendingCheckout && pendingCheckout.startsWith('/checkout')) {
