@@ -55,8 +55,19 @@ export default function Dashboard() {
 
   // Real data state
   const [accounts, setAccounts] = useState<any[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [metrics, setMetrics] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
+
+  const loadAccountData = async (accId: string) => {
+    const fetchedMetrics = await getDashboardMetrics(accId);
+    const fetchedPosts = await getInstagramPosts(accId);
+    setMetrics(fetchedMetrics);
+    setPosts(fetchedPosts);
+    if (fetchedPosts.length > 0) {
+      setSelectedPost(fetchedPosts[0]);
+    }
+  };
 
   // Fetch real data on mount
   const loadDashboardData = async () => {
@@ -66,15 +77,11 @@ export default function Dashboard() {
       setAccounts(fetchedAccounts);
 
       if (fetchedAccounts.length > 0) {
-        const activeAccount = fetchedAccounts[0];
-        const fetchedMetrics = await getDashboardMetrics(activeAccount.id);
-        const fetchedPosts = await getInstagramPosts(activeAccount.id);
-
-        setMetrics(fetchedMetrics);
-        setPosts(fetchedPosts);
-        if (fetchedPosts.length > 0) {
-          setSelectedPost(fetchedPosts[0]);
-        }
+        const activeId = selectedAccountId && fetchedAccounts.some((a) => a.id === selectedAccountId)
+          ? selectedAccountId
+          : fetchedAccounts[0].id;
+        setSelectedAccountId(activeId);
+        await loadAccountData(activeId);
       } else {
         if (typeof window !== "undefined" && !localStorage.getItem("up_onboarding_completed")) {
           setShowOnboarding(true);
@@ -91,10 +98,18 @@ export default function Dashboard() {
     loadDashboardData();
   }, []);
 
+  const handleAccountChange = async (accId: string) => {
+    setSelectedAccountId(accId);
+    setLoading(true);
+    await loadAccountData(accId);
+    setLoading(false);
+  };
+
   const handleSync = async () => {
-    if (accounts.length === 0) return;
+    const targetId = selectedAccountId || accounts[0]?.id;
+    if (!targetId) return;
     setSyncing(true);
-    await mockSyncInstagramMetrics(accounts[0].id);
+    await mockSyncInstagramMetrics(targetId);
     await loadDashboardData();
     setSyncing(false);
   };
@@ -183,7 +198,25 @@ export default function Dashboard() {
           <p className="text-sm text-upGray mt-1">Análise unificada de performance orgânica (Instagram) e tráfego pago (Facebook Ads).</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Seletor de Conta Social */}
+          {accounts.length > 0 && (
+            <div className="flex items-center gap-2 bg-upCard px-3 py-1.5 rounded-xl border border-upBorder/80 shadow-sm">
+              <Instagram className="w-4 h-4 text-upPink shrink-0" />
+              <select
+                value={selectedAccountId}
+                onChange={(e) => handleAccountChange(e.target.value)}
+                className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer pr-1"
+              >
+                {accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id} className="bg-upDark text-white">
+                    @{acc.username || acc.account_name || "Perfil Conectado"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="inline-flex bg-upCard rounded-xl p-1 border border-upBorder">
             {["7D", "15D", "30D"].map((p) => (
               <button
