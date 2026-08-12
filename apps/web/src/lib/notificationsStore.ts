@@ -35,19 +35,21 @@ function formatRelativeTime(dateStr?: string): string {
 /**
  * Busca notificacoes reais do banco de dados PostgreSQL / Supabase
  */
+import { getInstagramAccounts } from "@up-analytics/lib";
+
 export async function fetchNotificationsFromDatabase(scope: "admin" | "user"): Promise<NotificationItem[]> {
   const items: NotificationItem[] = [];
 
   try {
     // 1. Buscar notificacoes diretas da tabela 'notifications'
-    const { data: dbNotifs } = await supabase
+    const { data: dbNotifs, error: dbError } = await supabase
       .from("notifications")
       .select("*")
       .eq("scope", scope)
       .order("created_at", { ascending: false })
       .limit(10);
 
-    if (dbNotifs && dbNotifs.length > 0) {
+    if (!dbError && dbNotifs && dbNotifs.length > 0) {
       dbNotifs.forEach((n: any) => {
         items.push({
           id: n.id,
@@ -109,12 +111,9 @@ export async function fetchNotificationsFromDatabase(scope: "admin" | "user"): P
       }
     }
 
-    // 3. Para escopo User: Gerar notificacoes dinamicas do banco
+    // 3. Para escopo User: Gerar notificacoes dinamicas do banco usando getInstagramAccounts (com fallback seguro)
     if (scope === "user") {
-      const { data: accounts } = await supabase
-        .from("instagram_accounts")
-        .select("id, username, status, connected_at")
-        .eq("status", "connected");
+      const accounts = await getInstagramAccounts();
 
       if (accounts && accounts.length > 0) {
         accounts.forEach((acc: any) => {

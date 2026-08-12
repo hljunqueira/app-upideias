@@ -12,15 +12,39 @@ export async function mockSyncInstagramMetrics(accountId: string): Promise<boole
 }
 
 export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
-  const { data, error } = await supabase
-    .from('instagram_accounts')
-    .select('*')
-    .eq('status', 'connected');
+  try {
+    const { data, error } = await supabase
+      .from('instagram_accounts')
+      .select('*')
+      .eq('status', 'connected');
 
-  if (error || !data) {
-    return [];
+    if (!error && data && data.length > 0) {
+      return data as InstagramAccount[];
+    }
+  } catch (e) {
+    // Ignora e tenta fallback na tabela social_accounts
   }
-  return data as InstagramAccount[];
+
+  try {
+    const { data, error } = await supabase
+      .from('social_accounts')
+      .select('*')
+      .eq('status', 'connected');
+
+    if (!error && data) {
+      return data.map((acc: any) => ({
+        id: acc.id,
+        user_id: acc.user_id,
+        username: acc.platform_username || acc.account_name || 'perfil',
+        account_name: acc.account_name || 'Perfil Conectado',
+        followers_count: acc.followers_count || 0,
+        status: acc.status || 'connected',
+        connected_at: acc.created_at || new Date().toISOString()
+      })) as unknown as InstagramAccount[];
+    }
+  } catch (e) {}
+
+  return [];
 }
 
 export async function getDashboardMetrics(accountId: string): Promise<InstagramDailyMetrics[]> {

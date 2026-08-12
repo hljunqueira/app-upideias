@@ -339,7 +339,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right Side: Live iPhone Mockup Preview */}
+          {/* Right Side: Live iPhone Mockup Preview */}
         <div className="flex flex-col gap-3 items-center">
           <div className="flex items-center justify-between w-full">
             <h3 className="text-xs font-extrabold text-upWhite uppercase tracking-widest">
@@ -356,7 +356,7 @@ export default function Dashboard() {
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
+                  if (file && previewPost?.id) {
                     const reader = new FileReader();
                     reader.onloadend = () => {
                       setPostImages((prev) => ({
@@ -372,13 +372,13 @@ export default function Dashboard() {
           </div>
 
           <PhoneMockupPreview
-            caption={previewPost.caption}
-            reach={previewPost.reach ? previewPost.reach.toLocaleString("pt-BR") : "0"}
-            likes={previewPost.like_count ? previewPost.like_count.toLocaleString("pt-BR") : "0"}
-            comments={previewPost.comments_count ? previewPost.comments_count.toString() : "0"}
-            engagement={previewPost.engagement || "5.1%"}
-            type={previewPost.media_product_type || "REELS"}
-            imageUrl={postImages[previewPost.id]}
+            caption={previewPost?.caption || "Seu perfil conectado no UP Analytics está pronto para receber publicações estratégicas."}
+            reach={previewPost?.reach ? previewPost.reach.toLocaleString("pt-BR") : "0"}
+            likes={previewPost?.like_count ? previewPost.like_count.toLocaleString("pt-BR") : "0"}
+            comments={previewPost?.comments_count ? previewPost.comments_count.toString() : "0"}
+            engagement={previewPost?.engagement || "0.0%"}
+            type={previewPost?.media_product_type || "REELS"}
+            imageUrl={previewPost?.id ? postImages[previewPost.id] : undefined}
           />
         </div>
       </div>
