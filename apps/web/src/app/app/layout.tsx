@@ -131,7 +131,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
     try {
       await apiLogout();
-    } catch {}
+    } catch {
+      /* ignore logout error */
+    }
     router.push("/");
   };
 

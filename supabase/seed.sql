@@ -8,7 +8,7 @@ INSERT INTO plans (id, slug, name, description, monthly_price_cents, annual_pric
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Insert Plan Limits
-INSERT INTO plan_limits (plan_id, max_instagram_accounts, max_users, max_ai_requests_month, history_days, max_clients, max_scheduled_posts, max_whatsapp_messages_month) VALUES
+INSERT INTO plan_limits (plan_id, max_social_accounts, max_users, max_ai_requests_month, history_days, max_clients, max_scheduled_posts, max_whatsapp_messages_month) VALUES
 -- Iniciante
 ('b30349b1-5911-4700-8438-e67c9c049ee6', 1, 1, 15, 15, 0, 5, 0),
 -- Pro
