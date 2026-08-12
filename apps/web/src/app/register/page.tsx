@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, AlertCircle } from "lucide-react";
 import AuthShell from "@/components/auth/AuthShell";
 import { apiRegister, loginWithGoogle } from "@/lib/api";
-
-const plans = [
-  { slug: "start", name: "Start", price: "R$ 97" },
-  { slug: "pro", name: "Pro", price: "R$ 197", featured: true },
-  { slug: "agencia", name: "Agência", price: "R$ 497" },
-];
+import { PlanConfig, getStoredPlans } from "@/lib/plansStore";
 
 export default function Register() {
   const router = useRouter();
@@ -19,9 +14,18 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [plan, setPlan] = useState("pro");
+  const [plansList, setPlansList] = useState<PlanConfig[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    const list = getStoredPlans();
+    setPlansList(list);
+    const handleUpdate = () => setPlansList(getStoredPlans());
+    window.addEventListener("up_plans_updated", handleUpdate);
+    return () => window.removeEventListener("up_plans_updated", handleUpdate);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,25 +73,28 @@ export default function Register() {
 
       {/* Plan selector */}
       <div className="grid grid-cols-3 gap-2.5 mt-7">
-        {plans.map((p) => (
-          <button
-            key={p.slug}
-            type="button"
-            data-testid={`register-plan-${p.slug}`}
-            onClick={() => setPlan(p.slug)}
-            className={`relative rounded-2xl border px-3 py-3 text-left transition-all duration-300 ${plan === p.slug
-              ? "border-upPink bg-upPink/10 shadow-[0_0_20px_rgba(255,83,104,0.2)]"
-              : "border-upBorder bg-upCard/50 hover:border-upPink/40"
-              }`}
-          >
-            {p.featured && (
-              <span className="absolute -top-2 right-2 text-[9px] bg-upPink text-white font-bold uppercase px-2 py-0.5 rounded-full">Top</span>
-            )}
-            <span className="block text-xs font-bold text-white font-display">{p.name}</span>
-            <span className="block text-[11px] text-upGray mt-0.5">{p.price}/mês</span>
-            {plan === p.slug && <Check className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 text-upPink" />}
-          </button>
-        ))}
+        {plansList.map((p) => {
+          const priceDisplay = typeof p.priceMonthly === "number" ? `R$ ${p.priceMonthly}` : p.priceMonthly;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              data-testid={`register-plan-${p.id}`}
+              onClick={() => setPlan(p.id)}
+              className={`relative rounded-2xl border px-3 py-3 text-left transition-all duration-300 ${plan === p.id
+                ? "border-upPink bg-upPink/10 shadow-[0_0_20px_rgba(255,83,104,0.2)]"
+                : "border-upBorder bg-upCard/50 hover:border-upPink/40"
+                }`}
+            >
+              {p.featured && (
+                <span className="absolute -top-2 right-2 text-[9px] bg-upPink text-white font-bold uppercase px-2 py-0.5 rounded-full">Top</span>
+              )}
+              <span className="block text-xs font-bold text-white font-display">{p.name}</span>
+              <span className="block text-[11px] text-upGray mt-0.5">{priceDisplay}/mês</span>
+              {plan === p.id && <Check className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 text-upPink" />}
+            </button>
+          );
+        })}
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-6">

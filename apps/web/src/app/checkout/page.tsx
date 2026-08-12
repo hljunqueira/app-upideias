@@ -2,64 +2,49 @@
 
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { ArrowLeft, Check, ShieldCheck, Lock, CreditCard, QrCode, Barcode } from "lucide-react";
-
-const plansData: Record<string, { name: string; price: string; period: string; features: string[] }> = {
-  start: {
-    name: "UP Start",
-    price: "R$ 97",
-    period: "/mês",
-    features: [
-      "1 conta de Instagram · 1 usuário",
-      "Gerador de conteúdos e roteiros estratégicos",
-      "Métricas essenciais + 30 dias de histórico",
-      "UP Creator: trilha Fundamentos",
-      "Suporte por e-mail",
-    ],
-  },
-  pro: {
-    name: "UP Pro",
-    price: "R$ 197",
-    period: "/mês",
-    features: [
-      "3 contas de Instagram · 3 usuários",
-      "Gerador ilimitado + Diagnóstico estratégico",
-      "Métricas avançadas + 90 dias de histórico",
-      "Calendário editorial completo",
-      "Relatórios semanais no WhatsApp",
-      "UP Creator completo + certificados",
-      "Suporte prioritário",
-    ],
-  },
-  agencia: {
-    name: "UP Agência",
-    price: "R$ 497",
-    period: "/mês",
-    features: [
-      "10 contas de Instagram · 10 usuários",
-      "Gerações de conteúdo ilimitadas",
-      "Até 10 clientes com Área do Cliente",
-      "Fluxo de aprovação de conteúdo",
-      "Relatórios PDF + alertas diários WhatsApp",
-      "UP Creator completo para a equipe",
-      "Onboarding guiado + suporte VIP",
-    ],
-  },
-};
+import { PlanConfig, getStoredPlans, setActiveUserPlan } from "@/lib/plansStore";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planSlug = searchParams.get("plan") || "pro";
-  const plan = plansData[planSlug] || plansData.pro;
 
+  const [storedPlans, setStoredPlans] = useState<PlanConfig[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<"card" | "pix" | "boleto">("card");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setStoredPlans(getStoredPlans());
+  }, []);
+
+  const foundPlan = storedPlans.find(
+    (p) => p.id.toLowerCase() === planSlug.toLowerCase() || p.name.toLowerCase() === planSlug.toLowerCase()
+  ) || storedPlans.find((p) => p.id === "pro") || getStoredPlans()[1];
+
+  const plan = {
+    name: foundPlan ? foundPlan.name : "Pro",
+    price: foundPlan
+      ? (typeof foundPlan.priceMonthly === "number" ? `R$ ${foundPlan.priceMonthly}` : foundPlan.priceMonthly)
+      : "R$ 129",
+    period: foundPlan?.isCustomPrice ? "" : "/mês",
+    features: foundPlan?.featuresList && foundPlan.featuresList.length > 0
+      ? foundPlan.featuresList
+      : [
+          "Acesso à plataforma UP Analytics",
+          "Acompanhamento de métricas e diagnósticos",
+          "Acesso ao módulo UP Creator",
+          "Suporte especializado"
+        ],
+  };
 
   const handleFinish = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (foundPlan) {
+      setActiveUserPlan(foundPlan.name);
+    }
     setTimeout(() => {
       router.push("/app/dashboard");
     }, 800);
