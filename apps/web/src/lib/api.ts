@@ -13,7 +13,9 @@ async function apiFetch(path: string, options: RequestInit = {}) {
     try {
       const data = await res.json();
       detail = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
-    } catch {}
+    } catch {
+      /* ignore json parse error */
+    }
     const err: any = new Error(detail);
     err.status = res.status;
     throw err;
