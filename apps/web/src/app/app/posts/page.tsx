@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   FileText, 
   Search, 
@@ -13,72 +13,38 @@ import {
   Calendar,
   ExternalLink
 } from "lucide-react";
-import { getStatusLabel } from "@up-analytics/lib";
+import { getStatusLabel, getInstagramAccounts, getInstagramPosts } from "@up-analytics/lib";
 import { StatusBadge } from "@up-analytics/ui";
 
 export default function PostsPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const mockPosts = [
-    {
-      id: "post-1",
-      title: "3 Hacks de Social Media que você não conhecia 🚀",
-      caption: "Se você ainda comemora curtidas no Instagram em 2026, você está perdendo dinheiro. A verdade dói: curtida não paga boleto...",
-      type: "Reels",
-      status: "published",
-      reach: 18400,
-      likes: 1200,
-      comments: 320,
-      shares: 410,
-      saves: 520,
-      published_at: "2026-07-04T12:00:00Z"
-    },
-    {
-      id: "post-2",
-      title: "Estratégia vs. Postagem Aleatória: O que funciona?",
-      caption: "O maior erro das marcas é postar por postar. Consistência sem estratégia é apenas ruído. Descubra como planejar...",
-      type: "Carrossel",
-      status: "published",
-      reach: 12100,
-      likes: 980,
-      comments: 142,
-      shares: 98,
-      saves: 320,
-      published_at: "2026-07-03T18:30:00Z"
-    },
-    {
-      id: "post-3",
-      title: "Funil de Conteúdo Inteligente no Instagram",
-      caption: "Aprenda a guiar seu seguidor desde a descoberta até a conversão utilizando formatos corretos de posts.",
-      type: "Reels",
-      status: "pending",
-      reach: 0,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      saves: 0,
-      published_at: "2026-07-06T15:00:00Z"
-    },
-    {
-      id: "post-4",
-      title: "Guia Completo da Evolution API e Automações",
-      caption: "Como disparar relatórios automáticos de métricas do Instagram direto para o celular do cliente no WhatsApp.",
-      type: "Carrossel",
-      status: "draft",
-      reach: 0,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      saves: 0,
-      published_at: null
+  useEffect(() => {
+    async function loadPosts() {
+      setLoading(true);
+      try {
+        const accounts = await getInstagramAccounts();
+        if (accounts && accounts.length > 0) {
+          const data = await getInstagramPosts(accounts[0].id);
+          setPosts(data);
+        } else {
+          setPosts([]);
+        }
+      } catch {
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    loadPosts();
+  }, []);
 
-  const filteredPosts = mockPosts.filter(post => {
+  const filteredPosts = posts.filter(post => {
     const matchesStatus = filterStatus === "all" || post.status === filterStatus;
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          post.caption.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (post.caption || post.title || "").toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 

@@ -27,18 +27,42 @@ interface AccountItem {
   lastSync: string;
 }
 
-const INITIAL_ACCOUNTS: AccountItem[] = [
-  { id: "1", handle: "@carlos.midia", ownerName: "Carlos Silva", ownerEmail: "carlos@midia.com", followers: "14.2k", status: "Conectado", lastSync: "Há 5 mins" },
-  { id: "2", handle: "@modafashion", ownerName: "Mariana Costa", ownerEmail: "mariana@fashion.com", followers: "89.5k", status: "Conectado", lastSync: "Há 12 mins" },
-  { id: "3", handle: "@burgershop", ownerName: "Lucas Rocha", ownerEmail: "lucas@burger.com", followers: "32.1k", status: "Token Expirado", lastSync: "Há 2 dias" },
-  { id: "4", handle: "@fitnesscorp", ownerName: "Ana Beatriz", ownerEmail: "ana@fit.com", followers: "45.8k", status: "Conectado", lastSync: "Há 1 hora" },
-  { id: "5", handle: "@beautyclin", ownerName: "Fernanda Lima", ownerEmail: "nanda@beauty.com", followers: "19.3k", status: "Erro Meta API", lastSync: "Há 3 horas" },
-];
+import { useEffect } from "react";
+import { getInstagramAccounts } from "@up-analytics/lib";
 
 export default function AdminAccountsPage() {
-  const [accounts, setAccounts] = useState<AccountItem[]>(INITIAL_ACCOUNTS);
+  const [accounts, setAccounts] = useState<AccountItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
+
+  useEffect(() => {
+    async function loadAccounts() {
+      setLoading(true);
+      try {
+        const data = await getInstagramAccounts();
+        if (data && data.length > 0) {
+          const mapped: AccountItem[] = data.map((a: any) => ({
+            id: a.id,
+            handle: a.username ? `@${a.username}` : "@upideias",
+            ownerName: a.owner_name || "Criador UP",
+            ownerEmail: a.owner_email || "usuario@upideias.com",
+            followers: a.followers_count ? String(a.followers_count) : "0",
+            status: a.status === "connected" ? "Conectado" : "Token Expirado",
+            lastSync: a.updated_at ? new Date(a.updated_at).toLocaleDateString("pt-BR") : "Recentemente"
+          }));
+          setAccounts(mapped);
+        } else {
+          setAccounts([]);
+        }
+      } catch {
+        setAccounts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadAccounts();
+  }, []);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);

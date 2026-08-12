@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@up-analytics/lib";
 import {
   RefreshCw,
   Search,
@@ -27,51 +28,41 @@ interface SyncLogItem {
   errorMessage?: string;
 }
 
-const INITIAL_SYNC_LOGS: SyncLogItem[] = [
-  {
-    id: "sync_901",
-    accountHandle: "@modafashion",
-    syncType: "Mídias do Instagram",
-    itemsProcessed: 18,
-    status: "Sucesso",
-    executionTime: "1.2s",
-    timestamp: "Há 4 mins",
-  },
-  {
-    id: "sync_902",
-    accountHandle: "@burgershop",
-    syncType: "Métricas & Engajamento",
-    itemsProcessed: 0,
-    status: "Com Erro",
-    executionTime: "0.4s",
-    timestamp: "Há 12 mins",
-    errorMessage: "OAuthException: Meta Token expirado ou revogado pelo usuário (Código 190)",
-  },
-  {
-    id: "sync_903",
-    accountHandle: "@fitnesscorp",
-    syncType: "Mídias do Instagram",
-    itemsProcessed: 32,
-    status: "Sucesso",
-    executionTime: "2.1s",
-    timestamp: "Há 18 mins",
-  },
-  {
-    id: "sync_904",
-    accountHandle: "@beautyclin",
-    syncType: "Fila n8n",
-    itemsProcessed: 5,
-    status: "Em Execução",
-    executionTime: "3.5s",
-    timestamp: "Há 1 min",
-  },
-];
-
 export default function AdminSyncLogsPage() {
-  const [logs, setLogs] = useState<SyncLogItem[]>(INITIAL_SYNC_LOGS);
+  const [logs, setLogs] = useState<SyncLogItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("todos");
+  const [filterStatus, setFilterStatus] = useState("todos");
   const [isSyncingAll, setIsSyncingAll] = useState(false);
+
+  useEffect(() => {
+    async function loadLogs() {
+      setLoading(true);
+      try {
+        const { data } = await supabase.from("sync_logs").select("*").order("created_at", { ascending: false });
+        if (data && data.length > 0) {
+          const mapped: SyncLogItem[] = data.map((l: any) => ({
+            id: l.id,
+            accountHandle: l.account_handle || "@upideias",
+            syncType: l.sync_type || "Métricas do Instagram",
+            itemsProcessed: l.items_processed || 0,
+            status: l.status === "success" ? "Sucesso" : "Com Erro",
+            executionTime: l.execution_time || "1.0s",
+            timestamp: l.finished_at ? new Date(l.finished_at).toLocaleTimeString("pt-BR") : "Recentemente",
+            errorMessage: l.message
+          }));
+          setLogs(mapped);
+        } else {
+          setLogs([]);
+        }
+      } catch {
+        setLogs([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadLogs();
+  }, []);
 
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =

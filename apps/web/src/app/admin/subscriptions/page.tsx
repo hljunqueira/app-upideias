@@ -32,18 +32,45 @@ interface SubscriptionItem {
   nextDueDate: string;
 }
 
-const INITIAL_SUBSCRIPTIONS: SubscriptionItem[] = [
-  { id: "1", subscriptionId: "sub_pay_90123", customerName: "Carlos Silva", customerEmail: "carlos@midia.com", planName: "Pro", amount: "R$ 197,00", cycle: "Mensal", paymentMethod: "Cartão de Crédito", status: "Ativa", nextDueDate: "15/09/2026" },
-  { id: "2", subscriptionId: "sub_pay_90124", customerName: "Mariana Costa", customerEmail: "mariana@fashion.com", planName: "Agência", amount: "R$ 497,00", cycle: "Mensal", paymentMethod: "PIX", status: "Ativa", nextDueDate: "18/09/2026" },
-  { id: "3", subscriptionId: "sub_pay_90125", customerName: "Lucas Rocha", customerEmail: "lucas@burger.com", planName: "Start", amount: "R$ 97,00", cycle: "Mensal", paymentMethod: "Boleto", status: "Inadimplente", nextDueDate: "02/08/2026" },
-  { id: "4", subscriptionId: "sub_pay_90126", customerName: "Ana Beatriz", customerEmail: "ana@fit.com", planName: "Pro", amount: "R$ 197,00", cycle: "Mensal", paymentMethod: "Cartão de Crédito", status: "Ativa", nextDueDate: "22/09/2026" },
-  { id: "5", subscriptionId: "sub_pay_90127", customerName: "Fernanda Lima", customerEmail: "nanda@beauty.com", planName: "Pro", amount: "R$ 197,00", cycle: "Mensal", paymentMethod: "PIX", status: "Pendente", nextDueDate: "12/08/2026" },
-];
+import { useEffect } from "react";
+import { supabase } from "@up-analytics/lib";
 
 export default function AdminSubscriptionsPage() {
-  const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>(INITIAL_SUBSCRIPTIONS);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
+
+  useEffect(() => {
+    async function loadSubscriptions() {
+      setLoading(true);
+      try {
+        const { data } = await supabase.from("subscriptions").select("*");
+        if (data && data.length > 0) {
+          const mapped: SubscriptionItem[] = data.map((s: any) => ({
+            id: s.id,
+            subscriptionId: s.id.substring(0, 12),
+            customerName: s.customer_name || "Cliente UP",
+            customerEmail: s.customer_email || "cliente@upideias.com",
+            planName: s.plan_name || "Pro",
+            amount: s.amount ? `R$ ${s.amount}` : "R$ 129,00",
+            cycle: "Mensal",
+            paymentMethod: "Cartão de Crédito",
+            status: s.status === "active" ? "Ativa" : "Pendente",
+            nextDueDate: s.next_due_date ? new Date(s.next_due_date).toLocaleDateString("pt-BR") : "A definir"
+          }));
+          setSubscriptions(mapped);
+        } else {
+          setSubscriptions([]);
+        }
+      } catch {
+        setSubscriptions([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSubscriptions();
+  }, []);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);

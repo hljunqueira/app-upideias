@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Users, 
   Plus, 
@@ -17,12 +17,19 @@ import {
 } from "lucide-react";
 
 import { PlanGate } from "@/components/common/PlanGate";
+import { getActiveUserPlan } from "@/lib/plansStore";
 
 export default function ClientAreaPage() {
-  // Simulação de plano ativo para teste visual (Pro | Agência | Enterprise)
-  const [userPlan, setUserPlan] = useState<"Pro" | "Agência" | "Enterprise">("Pro");
+  const [userPlan, setUserPlan] = useState<string>("Pro");
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  useEffect(() => {
+    setUserPlan(getActiveUserPlan());
+    const handleUpdate = () => setUserPlan(getActiveUserPlan());
+    window.addEventListener("up_plans_updated", handleUpdate);
+    return () => window.removeEventListener("up_plans_updated", handleUpdate);
+  }, []);
 
   const mockClients = [
     { id: "c1", name: "Padaria da Esquina", handle: "@padaria_corner", followers: "12.4K", status: "Ativo", postsPending: 1 },

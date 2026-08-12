@@ -21,7 +21,7 @@ const INITIAL_APPROVALS: ApprovalItem[] = [
   {
     id: "app-1",
     userId: "u-1",
-    userName: "Henrique Junqueira",
+    userName: "Criador UP",
     title: "Funil de Conteúdo Inteligente no Instagram",
     format: "Reels",
     targetDate: "04/07/2026",
@@ -34,7 +34,7 @@ const INITIAL_APPROVALS: ApprovalItem[] = [
   {
     id: "app-2",
     userId: "u-1",
-    userName: "Henrique Junqueira",
+    userName: "Criador UP",
     title: "3 Erros Graves que Matam o Engajamento no Feed",
     format: "Carrossel",
     targetDate: "08/07/2026",

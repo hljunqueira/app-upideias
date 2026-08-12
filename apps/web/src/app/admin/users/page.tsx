@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Search,
@@ -21,28 +21,51 @@ import {
 
 import { AdminSuggestContentModal } from "@/components/admin/AdminSuggestContentModal";
 
+import { supabase } from "@up-analytics/lib";
+
 interface UserItem {
   id: string;
   name: string;
   email: string;
-  plan: "Iniciante" | "Pro" | "Agência";
+  plan: string;
   status: "Ativo" | "Suspenso" | "Pendente";
   instagramHandle: string;
   createdAt: string;
 }
 
-const INITIAL_USERS: UserItem[] = [
-  { id: "1", name: "Carlos Silva", email: "carlos@midia.com", plan: "Pro", status: "Ativo", instagramHandle: "@carlos.midia", createdAt: "12/05/2026" },
-  { id: "2", name: "Mariana Costa", email: "mariana@fashion.com", plan: "Agência", status: "Ativo", instagramHandle: "@modafashion", createdAt: "04/06/2026" },
-  { id: "3", name: "Lucas Rocha", email: "lucas@burger.com", plan: "Iniciante", status: "Suspenso", instagramHandle: "@burgershop", createdAt: "20/06/2026" },
-  { id: "4", name: "Ana Beatriz", email: "ana@fit.com", plan: "Pro", status: "Ativo", instagramHandle: "@fitnesscorp", createdAt: "01/07/2026" },
-  { id: "5", name: "Fernanda Lima", email: "nanda@beauty.com", plan: "Pro", status: "Pendente", instagramHandle: "@beautyclin", createdAt: "05/08/2026" },
-];
-
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<UserItem[]>(INITIAL_USERS);
+  const [users, setUsers] = useState<UserItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("todos");
+
+  useEffect(() => {
+    async function loadUsers() {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.from("profiles").select("*");
+        if (data && data.length > 0) {
+          const mapped: UserItem[] = data.map((p: any) => ({
+            id: p.id,
+            name: p.name || p.full_name || "Usuário UP",
+            email: p.email || "Sem e-mail",
+            plan: p.plan || "Pro",
+            status: "Ativo",
+            instagramHandle: p.instagram_handle || "@upideias",
+            createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString("pt-BR") : "Hoje"
+          }));
+          setUsers(mapped);
+        } else {
+          setUsers([]);
+        }
+      } catch {
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadUsers();
+  }, []);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,7 +76,7 @@ export default function AdminUsersPage() {
   const [formData, setFormData] = useState<{
     name: string;
     email: string;
-    plan: "Iniciante" | "Pro" | "Agência";
+    plan: string;
     status: "Ativo" | "Suspenso" | "Pendente";
     instagramHandle: string;
   }>({

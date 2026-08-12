@@ -14,7 +14,7 @@ import { CreatePostModal, ScheduledPost } from "@/components/calendar/CreatePost
 import { PlanGate } from "@/components/common/PlanGate";
 
 export default function ContentCalendarPage() {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 6, 1)); // Julho 2026
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [editingPost, setEditingPost] = useState<ScheduledPost | null>(null);
