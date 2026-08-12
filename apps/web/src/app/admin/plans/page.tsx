@@ -149,11 +149,20 @@ export default function AdminPlansPage() {
     e.preventDefault();
     if (!editingPlan) return;
 
+    const rawStr = String(editingPlan.priceMonthly).trim().replace(",", ".");
+    const parsedNum = parseFloat(rawStr);
+    const finalPriceMonthly = (!isNaN(parsedNum) && isFinite(parsedNum)) ? parsedNum : editingPlan.priceMonthly;
+
+    const planToSave: PlanConfig = {
+      ...editingPlan,
+      priceMonthly: finalPriceMonthly
+    };
+
     let updated: PlanConfig[];
     if (isNewPlan) {
-      updated = [...plans, editingPlan];
+      updated = [...plans, planToSave];
     } else {
-      updated = plans.map((p) => (p.id === editingPlan.id ? editingPlan : p));
+      updated = plans.map((p) => (p.id === planToSave.id ? planToSave : p));
     }
 
     savePlansConfig(updated);
@@ -173,6 +182,17 @@ export default function AdminPlansPage() {
     { key: "whatsappAutomations", label: "WhatsApp Notificações" },
     { key: "clientArea", label: "Gestão de Clientes" }
   ];
+
+  const formatPriceDisplay = (price: number | string, isCustomPrice?: boolean) => {
+    if (isCustomPrice || (typeof price === "string" && isNaN(Number(price.replace(",", "."))))) {
+      return String(price);
+    }
+    const num = typeof price === "number" ? price : parseFloat(String(price).replace(",", "."));
+    if (isNaN(num)) return String(price);
+    return num % 1 === 0
+      ? `R$ ${num}`
+      : `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   return (
     <div className="flex flex-col gap-8 animate-fadeIn text-upLightGray">
@@ -219,7 +239,7 @@ export default function AdminPlansPage() {
                 <div>
                   <h3 className="text-xl font-extrabold text-white">{plan.name}</h3>
                   <p className="text-2xl font-black text-upPink mt-1">
-                    {typeof plan.priceMonthly === "number" ? `R$ ${plan.priceMonthly}` : plan.priceMonthly}
+                    {formatPriceDisplay(plan.priceMonthly, plan.isCustomPrice)}
                     {!plan.isCustomPrice && <span className="text-xs text-upGray font-medium"> /mês</span>}
                   </p>
                 </div>
@@ -352,16 +372,15 @@ export default function AdminPlansPage() {
                   </label>
                   <input
                     type="text"
+                    placeholder="Ex: 79,90"
                     value={editingPlan.priceMonthly}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      const num = parseFloat(val);
                       setEditingPlan({
                         ...editingPlan,
-                        priceMonthly: isNaN(num) ? val : num
+                        priceMonthly: e.target.value
                       });
                     }}
-                    className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition"
+                    className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition font-mono font-bold"
                   />
                 </div>
 
