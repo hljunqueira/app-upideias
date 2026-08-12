@@ -57,7 +57,20 @@ export function getStoredTeam(): TeamMember[] {
     if (!raw) {
       return INITIAL_TEAM;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      // Filtrar membros fictícios antigos de teste
+      const cleaned = parsed.filter(
+        (m: TeamMember) => 
+          !["tm-1", "tm-2", "tm-3", "tm-4"].includes(m.id) &&
+          !["Gabriel Santos", "Juliana Mendes", "Lucas Ferreira", "Beatriz Lima"].includes(m.name)
+      );
+      if (cleaned.length !== parsed.length) {
+        localStorage.setItem(STORAGE_KEY_TEAM, JSON.stringify(cleaned));
+      }
+      return cleaned;
+    }
+    return INITIAL_TEAM;
   } catch {
     return INITIAL_TEAM;
   }

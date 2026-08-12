@@ -57,24 +57,27 @@ export default function AdminTeamPage() {
     try {
       const { data } = await supabase
         .from("profiles")
-        .select("*")
-        .in("role", ["admin", "vendas", "suporte", "cs", "criacao"]);
+        .select("*");
       
+      const stored = getStoredTeam();
       if (data && data.length > 0) {
-        const mapped: TeamMember[] = data.map((p: any) => ({
+        const teamProfiles = data.filter((p: any) => p.role && p.role !== "user");
+        const mapped: TeamMember[] = teamProfiles.map((p: any) => ({
           id: p.id,
           name: p.name || p.full_name || "Membro da Equipe",
           email: p.email || "equipe@upideias.com",
-          role: (p.role as TeamRole) || "vendas",
-          roleTitle: p.role_title || `Especialista em ${p.role || "Vendas"}`,
+          role: (["vendas", "suporte", "cs", "criacao"].includes(p.role) ? p.role : "vendas") as TeamRole,
+          roleTitle: p.role_title || (p.role === "admin" ? "Administrador Master" : `Especialista em ${p.role}`),
           status: "ativo",
           assignedAccountsCount: 0,
           permissions: DEFAULT_PERMISSIONS,
           createdAt: p.created_at || new Date().toISOString()
         }));
-        setTeam(mapped);
+        
+        const combined = [...mapped, ...stored.filter(s => !mapped.some(m => m.id === s.id))];
+        setTeam(combined);
       } else {
-        setTeam(getStoredTeam());
+        setTeam(stored);
       }
     } catch {
       setTeam(getStoredTeam());
