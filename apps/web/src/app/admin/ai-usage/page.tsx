@@ -114,52 +114,7 @@ const INITIAL_SOCIAL_API: SocialApiConfig = {
   status: "Ativo",
 };
 
-const INITIAL_AI_USAGE: AiUsageItem[] = [
-  {
-    id: "ai_1",
-    userName: "Carlos Silva",
-    userEmail: "carlos@midia.com",
-    model: "Groq / llama3-70b-8192",
-    tokensUsed: "420.4k tokens",
-    estimatedCost: "R$ 4,20",
-    requestsCount: 640,
-    lastUsage: "Há 4 mins",
-    provider: "Groq",
-  },
-  {
-    id: "ai_2",
-    userName: "Mariana Costa",
-    userEmail: "mariana@fashion.com",
-    model: "Gemini / gemini-1.5-pro",
-    tokensUsed: "842.1k tokens",
-    estimatedCost: "R$ 28,50",
-    requestsCount: 1250,
-    lastUsage: "Há 18 mins",
-    provider: "Gemini",
-  },
-  {
-    id: "ai_3",
-    userName: "Lucas Rocha",
-    userEmail: "lucas@burger.com",
-    model: "Phyllo / Connect API",
-    tokensUsed: "12.5k chamadas",
-    estimatedCost: "R$ 12,80",
-    requestsCount: 310,
-    lastUsage: "Há 42 mins",
-    provider: "Phyllo",
-  },
-  {
-    id: "ai_4",
-    userName: "Ana Beatriz",
-    userEmail: "ana@fit.com",
-    model: "OpenAI / gpt-4o",
-    tokensUsed: "185.8k tokens",
-    estimatedCost: "R$ 39,10",
-    requestsCount: 380,
-    lastUsage: "Há 35 mins",
-    provider: "OpenAI",
-  },
-];
+const INITIAL_AI_USAGE: AiUsageItem[] = [];
 
 export default function AdminAiUsagePage() {
   const [providers, setProviders] = useState<AiProviderConfig[]>(INITIAL_PROVIDERS);

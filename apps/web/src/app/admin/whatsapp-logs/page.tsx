@@ -28,48 +28,7 @@ interface WhatsappLogItem {
   instanceName: string;
 }
 
-const INITIAL_LOGS: WhatsappLogItem[] = [
-  {
-    id: "log_101",
-    phone: "+55 (11) 98765-4321",
-    recipientName: "Carlos Silva",
-    messageType: "Notificação de Post",
-    content: "🚀 Olá Carlos! Seu post '@carlos.midia' agendado para às 18h foi publicado com sucesso no Instagram.",
-    status: "Entregue",
-    sentAt: "Há 10 mins",
-    instanceName: "Evolution_Bot_01",
-  },
-  {
-    id: "log_102",
-    phone: "+55 (21) 99888-7766",
-    recipientName: "Lucas Rocha",
-    messageType: "Alerta de Token",
-    content: "⚠️ ATENÇÃO: Seu token do Meta Graph no perfil @burgershop expirou. Acesse o painel para reconectar.",
-    status: "Falha no Envio",
-    sentAt: "Há 42 mins",
-    instanceName: "Evolution_Bot_01",
-  },
-  {
-    id: "log_103",
-    phone: "+55 (31) 97777-6655",
-    recipientName: "Mariana Costa",
-    messageType: "Relatório Semanal",
-    content: "📊 Seu relatório semanal de métricas do @modafashion já está disponível! Alcance subiu +24%.",
-    status: "Entregue",
-    sentAt: "Há 2 horas",
-    instanceName: "Evolution_Bot_02",
-  },
-  {
-    id: "log_104",
-    phone: "+55 (41) 99111-2233",
-    recipientName: "Ana Beatriz",
-    messageType: "Lembrete de Cobrança",
-    content: "💳 Lembrete UP Ideias: Sua assinatura do Plano Pro vence em 3 dias. Acesse a fatura no painel.",
-    status: "Enviado",
-    sentAt: "Há 4 horas",
-    instanceName: "Evolution_Bot_01",
-  },
-];
+const INITIAL_LOGS: WhatsappLogItem[] = [];
 
 export default function AdminWhatsappLogsPage() {
   const [logs, setLogs] = useState<WhatsappLogItem[]>(INITIAL_LOGS);

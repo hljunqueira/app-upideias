@@ -236,48 +236,7 @@ export const INITIAL_COURSES: Course[] = [
   }
 ];
 
-export const INITIAL_STUDENT_LOGS: StudentWatchLog[] = [
-  {
-    id: "log-1",
-    studentName: "Juliana Mendes",
-    studentEmail: "juliana.mendes@gmail.com",
-    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop",
-    courseTitle: "Estratégia de Conteúdo do Zero",
-    lessonTitle: "Aula 4 - Pilares do Conteúdo de Valor",
-    progressPercent: 100,
-    watchedAt: "Há 12 minutos"
-  },
-  {
-    id: "log-2",
-    studentName: "Lucas Alencar",
-    studentEmail: "lucas.alencar@hotmail.com",
-    avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop",
-    courseTitle: "Reels que Convertem",
-    lessonTitle: "Aula 2 - Edição Dinâmica & Transições",
-    progressPercent: 85,
-    watchedAt: "Há 45 minutos"
-  },
-  {
-    id: "log-3",
-    studentName: "Carla Silveira",
-    studentEmail: "carla.sm@outlook.com",
-    avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=150&auto=format&fit=crop",
-    courseTitle: "Copywriting Magnético",
-    lessonTitle: "Aula 8 - Oferta Irresistível nos Stories",
-    progressPercent: 60,
-    watchedAt: "Há 2 horas"
-  },
-  {
-    id: "log-4",
-    studentName: "Mateus Rocha",
-    studentEmail: "mateus.rocha@dev.br",
-    avatarUrl: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=150&auto=format&fit=crop",
-    courseTitle: "Funil de Vendas no Instagram",
-    lessonTitle: "Aula 1 - Mapeamento da Jornada do Seguidor",
-    progressPercent: 100,
-    watchedAt: "Há 3 horas"
-  }
-];
+export const INITIAL_STUDENT_LOGS: StudentWatchLog[] = [];
 
 // --- HELPER DE CURSOS ---
 export function getStoredCourses(): Course[] {
