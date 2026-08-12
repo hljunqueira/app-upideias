@@ -75,20 +75,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     processedRef.current = true;
 
     const checkAuth = async () => {
-      const hash = window.location.hash;
-      if (hash && hash.includes("session_id=")) {
-        const sessionId = hash.split("session_id=")[1].split("&")[0];
-        try {
-          const u = await exchangeGoogleSession(sessionId);
-          window.history.replaceState(null, "", window.location.pathname);
-          setUser(u);
-          setAuthChecked(true);
-          return;
-        } catch {
-          router.replace("/login");
-          return;
-        }
-      }
       try {
         const u = await getMe();
         setUser(u);

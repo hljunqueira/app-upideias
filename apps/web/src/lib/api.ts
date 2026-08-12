@@ -1,4 +1,6 @@
-// API client — conecta o frontend ao backend FastAPI
+import { createClient } from '@/lib/supabase/client';
+
+// API client — conecta o frontend ao Supabase Auth e backend
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
 
@@ -26,135 +28,140 @@ async function apiFetch(path: string, options: RequestInit = {}) {
 // ------------------- AUTH -------------------
 
 export async function apiRegister(name: string, email: string, password: string) {
-  return apiFetch('/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: name, name },
+    },
+  });
+  if (error) throw error;
+  return data;
 }
 
 export async function apiLogin(email: string, password: string) {
-  return apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data;
 }
 
 export async function apiLogout() {
-  return apiFetch('/auth/logout', { method: 'POST' });
+  const supabase = createClient();
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 }
 
 export async function getMe() {
-  return apiFetch('/auth/me');
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) throw new Error('Não autenticado');
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: profile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário UP',
+    role: profile?.role || 'user',
+    user_metadata: user.user_metadata,
+  };
 }
 
-export function loginWithGoogle() {
-  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-  const redirectUrl = window.location.origin + '/app/dashboard';
-  window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+export async function loginWithGoogle() {
+  const supabase = createClient();
+  const redirectTo = `${window.location.origin}/auth/callback?next=/app/dashboard`;
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo,
+      queryParams: {
+        prompt: 'select_account',
+      },
+    },
+  });
+  if (error) throw error;
+  return data;
 }
 
 export async function exchangeGoogleSession(sessionId: string) {
-  return apiFetch('/auth/session', { method: 'POST', headers: { 'X-Session-ID': sessionId } });
+  // Função legado preservada para compatibilidade temporária
+  return getMe();
 }
 
 export async function updateProfile(data: any) {
   return apiFetch('/profile', { method: 'PUT', body: JSON.stringify(data) });
 }
 
-// ------------------- INSTAGRAM -------------------
+// ------------------- INSTAGRAM / SOCIAL -------------------
 
 export async function getInstagramAccounts() {
   return apiFetch('/instagram/accounts');
 }
 
-export async function getDashboardMetrics(accountId: string) {
-  return apiFetch(`/instagram/accounts/${accountId}/metrics`);
+export async function getInstagramMetrics(accountId: string, periodDays = 30) {
+  return apiFetch(`/instagram/metrics?account_id=${accountId}&days=${periodDays}`);
 }
 
-export async function getInstagramPosts(accountId: string) {
-  return apiFetch(`/instagram/accounts/${accountId}/posts`);
+export async function getInstagramMedia(accountId: string) {
+  return apiFetch(`/instagram/media?account_id=${accountId}`);
 }
 
-export async function mockSyncInstagramMetrics(accountId: string): Promise<boolean> {
-  try {
-    await apiFetch(`/instagram/accounts/${accountId}/sync`, { method: 'POST' });
-    return true;
-  } catch {
-    return false;
-  }
+export async function syncInstagram(accountId: string) {
+  return apiFetch('/instagram/sync', { method: 'POST', body: JSON.stringify({ account_id: accountId }) });
 }
 
-// ------------------- IA (GEMINI) -------------------
+// ------------------- UP CREATOR -------------------
 
-export async function generateAiInsight(accountId: string) {
-  return apiFetch('/ai/insight', { method: 'POST', body: JSON.stringify({ account_id: accountId }) });
+export async function getCourses() {
+  return apiFetch('/creator/courses');
 }
 
-export async function generateContentIdeas(niche: string, objective: string, tone: string = 'Profissional') {
-  return apiFetch('/ai/ideas', { method: 'POST', body: JSON.stringify({ niche, objective, tone, count: 3 }) });
+export async function getCourse(id: string) {
+  return apiFetch(`/creator/courses/${id}`);
 }
 
-export async function generateCaption(theme: string, tone: string) {
-  const data = await apiFetch('/ai/caption', { method: 'POST', body: JSON.stringify({ theme, tone }) });
-  return data.caption;
+export async function getLessons(courseId: string) {
+  return apiFetch(`/creator/courses/${courseId}/lessons`);
 }
 
-export async function getAiUsage() {
-  return apiFetch('/ai/usage');
+export async function markLessonComplete(lessonId: string) {
+  return apiFetch('/creator/progress', { method: 'POST', body: JSON.stringify({ lesson_id: lessonId }) });
 }
 
-// ------------------- CONTEÚDO -------------------
-
-export async function getContentIdeas() {
-  return apiFetch('/content/ideas');
+export async function updateWatchTime(lessonId: string, watchedSeconds: number) {
+  return apiFetch('/creator/progress/watch-time', { method: 'PUT', body: JSON.stringify({ lesson_id: lessonId, watched_seconds: watchedSeconds }) });
 }
 
-// ------------------- AUTOMAÇÕES (WHATSAPP SIMULADO) -------------------
+// ------------------- CONTENT GENERATOR -------------------
 
-export async function sendWhatsAppMessage(phone: string, text: string): Promise<boolean> {
-  try {
-    await apiFetch('/automations/whatsapp/send', { method: 'POST', body: JSON.stringify({ phone, message: text }) });
-    return true;
-  } catch {
-    return false;
-  }
+export async function generateContent(prompt: string, platform: string, style: string) {
+  return apiFetch('/ai/generate-content', { method: 'POST', body: JSON.stringify({ prompt, platform, style }) });
 }
 
-export async function getWhatsAppMessages() {
-  return apiFetch('/automations/messages');
+export async function generateStrategy(niche: string, goals: string[]) {
+  return apiFetch('/ai/strategy', { method: 'POST', body: JSON.stringify({ niche, goals }) });
 }
 
-// ------------------- PLANOS / BILLING -------------------
+// ------------------- BILLING -------------------
 
-export async function getActivePlans() {
-  return apiFetch('/plans');
+export async function getPlans() {
+  return apiFetch('/billing/plans');
+}
+
+export async function createCheckoutSession(planId: string, billingCycle: 'monthly' | 'annual') {
+  return apiFetch('/billing/checkout', { method: 'POST', body: JSON.stringify({ plan_id: planId, billing_cycle: billingCycle }) });
 }
 
 export async function getSubscription() {
   return apiFetch('/billing/subscription');
-}
-
-// ------------------- HELPERS / FORMATTERS -------------------
-
-export function formatCentsToReais(cents: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
-}
-
-export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-export function formatTime(timeString: string): string {
-  return timeString.substring(0, 5);
-}
-
-export function getStatusLabel(status: string): string {
-  const mapping: Record<string, string> = {
-    draft: 'Rascunho',
-    pending: 'Pendente',
-    approved: 'Aprovado',
-    rejected: 'Reprovado',
-    changes_requested: 'Alterações Solicitadas',
-    published: 'Publicado',
-    active: 'Ativo',
-    inactive: 'Inativo',
-    canceled: 'Cancelado',
-    sent: 'Enviado',
-    failed: 'Falhou',
-  };
-  return mapping[status.toLowerCase()] || status;
 }
