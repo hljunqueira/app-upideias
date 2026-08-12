@@ -8,46 +8,42 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.upideias.com',
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '',
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.upideias.com';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
-
-  // Validação segura do usuário no servidor
-  // Tenta utilizar getClaims() se disponível, com fallback para getUser() para verificação autoritativa
-  let isAuthenticated = false;
-  let user = null;
-
-  if (typeof (supabase.auth as any).getClaims === 'function') {
-    const claims = await (supabase.auth as any).getClaims();
-    isAuthenticated = !!claims;
-  } else {
-    const { data } = await supabase.auth.getUser();
-    user = data.user;
-    isAuthenticated = !!user;
-  }
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
+        response = NextResponse.next({
+          request,
+        });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options)
+        );
+      },
+    },
+  });
 
   const pathname = request.nextUrl.pathname;
 
-  // Proteção de rotas privadas (/app/*)
+  // Executa validação de usuário no servidor Supabase Auth (Fail-Closed)
+  let isAuthenticated = false;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (!error && data?.user) {
+      isAuthenticated = true;
+    }
+  } catch {
+    isAuthenticated = false;
+  }
+
+  // Proteção estrita de rotas privadas (/app/*)
   if (pathname.startsWith('/app')) {
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', request.url);
