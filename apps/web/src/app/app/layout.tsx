@@ -26,10 +26,7 @@ import {
   Instagram
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
-
-const getMe = async () => ({ id: "1", name: "Usuário UP", email: "user@upideias.com", role: "user" });
-const apiLogout = async () => {};
-const exchangeGoogleSession = async (id: string) => ({ id: "1", name: "Usuário UP", email: "user@upideias.com", role: "user" });
+import { getMe, apiLogout } from "@/lib/api";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

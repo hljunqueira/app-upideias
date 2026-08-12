@@ -44,10 +44,42 @@ export function getStatusLabel(status: string): string {
   return mapping[status?.toLowerCase() || ''] || status;
 }
 
+import { supabase } from './supabase';
+
 // Aliases para compatibilidade de build da web
-export async function apiRegister(name: string, email: string, pass: string) { return { id: "1", name, email }; }
-export async function apiLogin(email: string, pass: string) { return { id: "1", email, role: "user" }; }
-export async function apiLogout() {}
-export async function getMe() { return { id: "1", name: "Usuário UP", email: "user@upideias.com", role: "user" }; }
-export function loginWithGoogle() {}
-export async function exchangeGoogleSession(id: string) { return { id: "1", name: "Usuário UP", email: "user@upideias.com", role: "user" }; }
+export async function apiRegister(name: string, email: string, pass: string) {
+  const { data, error } = await supabase.auth.signUp({ email, password: pass, options: { data: { full_name: name, name } } });
+  if (error) throw error;
+  return data;
+}
+
+export async function apiLogin(email: string, pass: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+  if (error) throw error;
+  return data;
+}
+
+export async function apiLogout() {
+  await supabase.auth.signOut();
+}
+
+export async function getMe() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Não autenticado');
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  return {
+    id: user.id,
+    email: user.email,
+    name: profile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário UP',
+    role: profile?.role || 'user',
+  };
+}
+
+export function loginWithGoogle() {
+  const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/app/dashboard` : undefined;
+  return supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo, queryParams: { prompt: 'select_account' } } });
+}
+
+export async function exchangeGoogleSession(id: string) {
+  return getMe();
+}

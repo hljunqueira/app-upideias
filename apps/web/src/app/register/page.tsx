@@ -1,23 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowRight, Check, AlertCircle } from "lucide-react";
 import AuthShell from "@/components/auth/AuthShell";
 import { apiRegister, loginWithGoogle } from "@/lib/api";
 import { PlanConfig, getStoredPlans } from "@/lib/plansStore";
 
-export default function Register() {
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const paramPlan = searchParams.get("plan");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [plan, setPlan] = useState("pro");
+  const [plan, setPlan] = useState(paramPlan || "pro");
   const [plansList, setPlansList] = useState<PlanConfig[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    if (paramPlan) setPlan(paramPlan);
+  }, [paramPlan]);
 
   useEffect(() => {
     const list = getStoredPlans();
@@ -75,13 +82,14 @@ export default function Register() {
       <div className="grid grid-cols-3 gap-2.5 mt-7">
         {plansList.map((p) => {
           const priceDisplay = typeof p.priceMonthly === "number" ? `R$ ${p.priceMonthly}` : p.priceMonthly;
+          const isSelected = plan.toLowerCase() === p.id.toLowerCase() || plan.toLowerCase() === p.name.toLowerCase();
           return (
             <button
               key={p.id}
               type="button"
               data-testid={`register-plan-${p.id}`}
               onClick={() => setPlan(p.id)}
-              className={`relative rounded-2xl border px-3 py-3 text-left transition-all duration-300 ${plan === p.id
+              className={`relative rounded-2xl border px-3 py-3 text-left transition-all duration-300 ${isSelected
                 ? "border-upPink bg-upPink/10 shadow-[0_0_20px_rgba(255,83,104,0.2)]"
                 : "border-upBorder bg-upCard/50 hover:border-upPink/40"
                 }`}
@@ -91,7 +99,7 @@ export default function Register() {
               )}
               <span className="block text-xs font-bold text-white font-display">{p.name}</span>
               <span className="block text-[11px] text-upGray mt-0.5">{priceDisplay}/mês</span>
-              {plan === p.id && <Check className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 text-upPink" />}
+              {isSelected && <Check className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 text-upPink" />}
             </button>
           );
         })}
@@ -181,5 +189,13 @@ export default function Register() {
         </Link>
       </div>
     </AuthShell>
+  );
+}
+
+export default function Register() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-upBlack flex items-center justify-center text-upPink">Carregando Cadastro...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }

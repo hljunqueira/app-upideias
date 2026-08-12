@@ -147,7 +147,7 @@ function SpotlightCard({ p, i, annual }: { p: PlanConfig; i: number; annual: boo
 
         {/* Botão de Ação */}
         <Link
-          href={isEnterprise ? "https://wa.me/5511999999999?text=Ol%C3%A1,%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20o%20Plano%20Enterprise" : "/register"}
+          href={isEnterprise ? "https://wa.me/5511999999999?text=Ol%C3%A1,%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20o%20Plano%20Enterprise" : `/register?plan=${p.id}`}
           data-testid={`pricing-${p.id}-cta`}
           className={`relative mt-8 text-center font-extrabold text-xs px-5 py-3.5 rounded-full transition-all duration-300 cursor-pointer ${
             isProFeatured
