@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Course, Lesson, Module, fetchCoursesFromDb, fetchModulesFromDb } from "@/lib/coursesStore";
 import { CertificateModal } from "@/components/creator/CertificateModal";
+import { ProtectedVideoPlayer } from "@/components/creator/ProtectedVideoPlayer";
 
 export default function StudentCoursePlayerPage() {
   const params = useParams();
@@ -118,7 +119,7 @@ export default function StudentCoursePlayerPage() {
               className="p-1.5 text-upGray hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition flex items-center gap-1 text-xs"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Voltar para o Roadmap</span>
+              <span className="hidden sm:inline">Voltar para Trilha</span>
             </Link>
 
             <div className="h-4 w-px bg-upBorder/60 hidden sm:block" />
@@ -152,30 +153,13 @@ export default function StudentCoursePlayerPage() {
         {/* COLUNA ESQUERDA/CENTRO (Player de Vídeo & Abas de Estudo) */}
         <div className="lg:col-span-8 space-y-6">
           
-          {/* PLAYER DE VÍDEO COM PROTEÇÃO ANTI-DOWNLOAD */}
-          <div className="relative aspect-video w-full bg-black rounded-3xl overflow-hidden border border-upBorder/60 shadow-2xl group">
-            {activeLesson?.videoUrl ? (
-              <iframe
-                src={`${activeLesson.videoUrl}?autoplay=0&rel=0&modestbranding=1`}
-                title={activeLesson.title}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                onContextMenu={(e) => e.preventDefault()}
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
-                <Video className="w-12 h-12 text-upPink mb-3 opacity-80" />
-                <p className="text-sm font-bold text-white">Carregando Streaming de Aula...</p>
-              </div>
-            )}
-
-            {/* Overlay de Proteção Anti-Download */}
-            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full text-[9px] font-semibold text-emerald-400 flex items-center gap-1 pointer-events-none">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-              <span>Transmissão Segura Anti-Download HLS</span>
-            </div>
-          </div>
+          {/* PLAYER DE VÍDEO PROTEGIDO */}
+          <ProtectedVideoPlayer
+            videoUrl={activeLesson?.videoUrl || ""}
+            title={activeLesson?.title || course.title}
+            videoProvider={activeLesson?.videoProvider || "youtube"}
+            playbackSpeed={playbackSpeed}
+          />
 
           {/* BARRA DE AÇÕES DA AULA (Concluir Aula, XP, Controles de Velocidade) */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0e0e14] border border-upBorder/60 p-4 rounded-2xl">

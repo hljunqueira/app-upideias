@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Play, X, Video, Sparkles, CheckCircle2 } from "lucide-react";
-import { Course, fetchCoursesFromDb, getStoredCourses } from "@/lib/coursesStore";
+import { Course, getStoredCourses } from "@/lib/coursesStore";
 
 const tracks = ["Todos", "Fundamentos", "Criadores de Conteúdo", "Social Media Pro", "Agências & Gestores"];
 
@@ -105,15 +105,10 @@ export default function CreatorShowcase() {
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
-    async function loadFeaturedCourses() {
-      const fetched = await fetchCoursesFromDb();
-      setCourses(fetched.filter((c) => c.isLandingPageFeatured));
-    }
-    loadFeaturedCourses();
+    setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
 
-    const handleUpdate = async () => {
-      const fetched = await fetchCoursesFromDb();
-      setCourses(fetched.filter((c) => c.isLandingPageFeatured));
+    const handleUpdate = () => {
+      setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
     };
 
     window.addEventListener("up_courses_updated", handleUpdate);
@@ -188,11 +183,10 @@ export default function CreatorShowcase() {
               key={t}
               onClick={() => setActiveTrack(t)}
               data-testid={`creator-track-${i}`}
-              className={`text-sm px-6 py-2.5 rounded-full border font-medium transition-all duration-300 cursor-pointer ${
-                activeTrack === t
+              className={`text-sm px-6 py-2.5 rounded-full border font-medium transition-all duration-300 cursor-pointer ${activeTrack === t
                   ? "bg-upPink text-white border-upPink shadow-[0_0_25px_rgba(255,83,104,0.5)] scale-105"
                   : "border-upBorder text-upGray hover:text-white hover:border-upPink/60 bg-upCard/60 hover:bg-upCard"
-              }`}
+                }`}
             >
               {t}
             </button>
@@ -205,13 +199,13 @@ export default function CreatorShowcase() {
       </div>
 
       {/* Course Cards Shelf */}
-      <div 
+      <div
         ref={shelfRef}
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
-        className={`overflow-x-auto no-scrollbar snap-x snap-mandatory select-none ${isMouseDown ? "cursor-grabbing" : "cursor-grab"}`} 
+        className={`overflow-x-auto no-scrollbar snap-x snap-mandatory select-none ${isMouseDown ? "cursor-grabbing" : "cursor-grab"}`}
         data-testid="creator-shelf"
       >
         <div className="flex gap-6 px-6 lg:px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] pt-4 pb-20 w-max">
