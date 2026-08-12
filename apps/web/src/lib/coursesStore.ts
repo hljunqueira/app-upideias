@@ -83,17 +83,14 @@ export const INITIAL_STUDENT_LOGS: StudentWatchLog[] = [];
 
 // --- HELPER DE CURSOS ---
 export function getStoredCourses(): Course[] {
-  if (typeof window === "undefined") return INITIAL_COURSES;
+  if (typeof window === "undefined") return [];
   try {
     const data = localStorage.getItem(COURSES_STORAGE_KEY);
-    if (!data) {
-      localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify(INITIAL_COURSES));
-      return INITIAL_COURSES;
-    }
+    if (!data) return [];
     return JSON.parse(data);
   } catch (e) {
     console.error("Erro ao carregar cursos do localStorage", e);
-    return INITIAL_COURSES;
+    return [];
   }
 }
 
@@ -109,17 +106,14 @@ export function saveStoredCourses(courses: Course[]) {
 
 // --- HELPER DE TRILHAS ---
 export function getStoredTrails(): Trail[] {
-  if (typeof window === "undefined") return INITIAL_TRAILS;
+  if (typeof window === "undefined") return [];
   try {
     const data = localStorage.getItem(TRAILS_STORAGE_KEY);
-    if (!data) {
-      localStorage.setItem(TRAILS_STORAGE_KEY, JSON.stringify(INITIAL_TRAILS));
-      return INITIAL_TRAILS;
-    }
+    if (!data) return [];
     return JSON.parse(data);
   } catch (e) {
     console.error("Erro ao carregar trilhas do localStorage", e);
-    return INITIAL_TRAILS;
+    return [];
   }
 }
 
@@ -183,11 +177,11 @@ export async function fetchTrailsFromDb(): Promise<Trail[]> {
       .select("*")
       .order("recommended_order", { ascending: true });
 
-    if (error || !data || data.length === 0) {
+    if (error || !data) {
       return getStoredTrails();
     }
 
-    return data.map((t: any) => ({
+    const mapped: Trail[] = data.map((t: any) => ({
       id: t.id,
       name: t.name,
       description: t.description || "",
@@ -196,6 +190,9 @@ export async function fetchTrailsFromDb(): Promise<Trail[]> {
       recommendedOrder: t.recommended_order || 1,
       videoIntroUrl: t.video_intro_url || undefined
     }));
+
+    saveStoredTrails(mapped);
+    return mapped;
   } catch {
     return getStoredTrails();
   }
