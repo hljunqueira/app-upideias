@@ -23,24 +23,24 @@ export class MockSocialProvider implements SocialProvider {
       user_id: "user_demo",
       client_id: null,
       platform,
-      instagram_user_id: "17841400000000000",
+      externalAccountId: "17841400000000000",
       username: "upideias.oficial",
       name: "UP Ideias",
       profile_picture_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150",
       account_type: "BUSINESS",
       followers_count: 14200,
       media_count: 184,
-      access_token: "mock_token",
-      token_expires_at: null,
       connected_at: new Date().toISOString(),
       disconnected_at: null,
       status: "connected",
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      // Compatibilidade legada
+      instagram_user_id: "17841400000000000"
     };
   }
 
-  async getAccount(accountId: string): Promise<SocialAccount> {
+  async getAccount(_accountId: string): Promise<SocialAccount> {
     return this.connectAccount("instagram");
   }
 
@@ -52,7 +52,8 @@ export class MockSocialProvider implements SocialProvider {
       d.setDate(d.getDate() - i);
       metrics.push({
         id: `metric_${i}`,
-        instagram_account_id: accountId,
+        accountId,
+        platform: "instagram",
         metric_date: d.toISOString().split('T')[0],
         followers_count: 14000 + i * 10,
         reach: Math.floor(1200 + Math.random() * 800),
@@ -61,7 +62,9 @@ export class MockSocialProvider implements SocialProvider {
         website_clicks: Math.floor(45 + Math.random() * 25),
         interactions: Math.floor(320 + Math.random() * 180),
         engagement_rate: Number((3.5 + Math.random() * 1.5).toFixed(2)),
-        created_at: d.toISOString()
+        created_at: d.toISOString(),
+        // Compatibilidade legada
+        instagram_account_id: accountId
       });
     }
     return metrics;
@@ -71,8 +74,9 @@ export class MockSocialProvider implements SocialProvider {
     return [
       {
         id: "content_1",
-        instagram_account_id: accountId,
-        instagram_media_id: "media_101",
+        accountId,
+        externalContentId: "media_101",
+        platform: "instagram",
         media_type: "VIDEO",
         media_product_type: "REELS",
         caption: "5 Estratégias de Conteúdo para 2026 #MarketingDigital #SocialMedia",
@@ -85,7 +89,10 @@ export class MockSocialProvider implements SocialProvider {
         like_count: 482,
         comments_count: 38,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        // Compatibilidade legada
+        instagram_account_id: accountId,
+        instagram_media_id: "media_101"
       }
     ];
   }
@@ -94,7 +101,7 @@ export class MockSocialProvider implements SocialProvider {
     return [
       {
         id: `cm_${contentId}`,
-        instagram_media_id: contentId,
+        contentId,
         metric_date: new Date().toISOString().split('T')[0],
         reach: 4800,
         views: 8200,
@@ -104,7 +111,9 @@ export class MockSocialProvider implements SocialProvider {
         saves: 112,
         total_interactions: 696,
         engagement_rate: 4.8,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        // Compatibilidade legada
+        instagram_media_id: contentId
       }
     ];
   }

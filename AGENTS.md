@@ -31,9 +31,9 @@ docs/                      # Especificações técnicas e documentações do pro
 ```
 
 ### Diretórios Históricos e Transição:
-- **`frontend/` (LEGADO):** Cópia histórica standalone do Next.js. **NÃO** criar novas funcionalidades neste diretório. Ele será removido após a consolidação completa em `apps/web`.
-- **`apps/mobile/` (DESCONTINUADO):** Protótipo Expo/React Native descontinuado. **NÃO** criar novas funcionalidades nele.
-- **`backend/` (REFERÊNCIA):** Servidor Python (FastAPI + MongoDB). É um protótipo de referência para consultar regras de IA, prompts e endpoints. **NÃO** implementar novas funcionalidades nele e **NÃO** remover até que toda a lógica útil seja documentada e migrada.
+- **`frontend/` (REMOVIDO NO P1):** Protótipo legado standalone. Removido na consolidação P1. **NÃO** recriar.
+- **`apps/mobile/` (REMOVIDO NO P1):** Protótipo Expo/React Native descontinuado. Removido na consolidação P1. **NÃO** recriar.
+- **`backend/` (REFERÊNCIA TEMPORÁRIA):** Servidor Python (FastAPI + MongoDB). É um protótipo de referência para consultar regras de IA, prompts e endpoints. **NÃO** implementar novas funcionalidades nele e **NÃO** remover até que toda a lógica útil seja documentada e migrada.
 
 ---
 
