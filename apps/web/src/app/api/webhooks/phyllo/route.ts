@@ -43,11 +43,11 @@ export function verifyPhylloSignature(rawBody: string, signatureHeader: string |
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. FAIL CLOSED: Validate PHYLLO_WEBHOOK_SECRET server configuration
-    const webhookSecret = process.env.PHYLLO_WEBHOOK_SECRET;
+    // 1. FAIL CLOSED: Validate PHYLLO_WEBHOOK_SECRET or PHYLLO_CLIENT_SECRET server configuration
+    const webhookSecret = process.env.PHYLLO_WEBHOOK_SECRET || process.env.PHYLLO_CLIENT_SECRET;
 
     if (!webhookSecret || webhookSecret.trim() === '') {
-      console.error('[PhylloWebhook] Fail Closed: PHYLLO_WEBHOOK_SECRET não está configurado no servidor.');
+      console.error('[PhylloWebhook] Fail Closed: PHYLLO_WEBHOOK_SECRET ou PHYLLO_CLIENT_SECRET não está configurado no servidor.');
       return NextResponse.json(
         { error: 'Erro de configuração no servidor para recepção de webhook.' },
         { status: 500 }
