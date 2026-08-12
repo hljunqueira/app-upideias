@@ -229,7 +229,17 @@ export default function AdminSubscriptionsPage() {
         <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
           <div>
             <p className="text-xs text-upGray font-bold uppercase tracking-wider">MRR Recorrente Estimado</p>
-            <p className="text-2xl font-black text-white mt-1">R$ 18.420,00</p>
+            <p className="text-2xl font-black text-white mt-1">
+              {loading
+                ? "..."
+                : `R$ ${subscriptions
+                    .filter((s) => s.status === "Ativa")
+                    .reduce((sum, s) => {
+                      const num = parseFloat(s.amount.replace(/[^0-9,.-]/g, "").replace(",", "."));
+                      return sum + (isNaN(num) ? 0 : num);
+                    }, 0)
+                    .toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-upPink/10 text-upPink flex items-center justify-center border border-upPink/20">
             <DollarSign className="w-5 h-5" />
