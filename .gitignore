@@ -88,3 +88,5 @@ credentials.json
 .credentials
 .vercel
 .env*
+
+*.tsbuildinfo
