@@ -42,13 +42,43 @@ export async function middleware(request: NextRequest) {
 
   // Executa validação de usuário no servidor Supabase Auth (Fail-Closed)
   let isAuthenticated = false;
+  let currentUser: any = null;
   try {
     const { data, error } = await supabase.auth.getUser();
     if (!error && data?.user) {
       isAuthenticated = true;
+      currentUser = data.user;
     }
   } catch {
     isAuthenticated = false;
+  }
+
+  // Proteção estrita de rotas administrativas (/admin/*)
+  if (pathname.startsWith('/admin')) {
+    if (!isAuthenticated || !currentUser) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('next', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    // Verificar papel (role) do usuário no perfil do banco
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', currentUser.id)
+        .single();
+
+      const userRole = profile?.role || currentUser?.user_metadata?.role;
+      const isAdminEmail = currentUser.email?.trim().toLowerCase() === 'admin@upideias.com';
+      if (userRole !== 'admin' && !isAdminEmail) {
+        return NextResponse.redirect(new URL('/app/dashboard', request.url));
+      }
+    } catch {
+      // Em caso de falha de consulta do perfil, se não for admin@upideias.com redireciona
+      if (currentUser.email?.trim().toLowerCase() !== 'admin@upideias.com') {
+        return NextResponse.redirect(new URL('/app/dashboard', request.url));
+      }
+    }
   }
 
   // Proteção estrita de rotas privadas (/app/*)

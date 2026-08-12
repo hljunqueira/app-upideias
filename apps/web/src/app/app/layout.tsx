@@ -23,6 +23,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Shield,
   Instagram
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
@@ -334,6 +335,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <p className="text-xs font-bold text-white">{user?.name || "Usuário UP"}</p>
                     <p className="text-[10px] text-upGray truncate">{user?.email}</p>
                   </div>
+                  {(user?.role === "admin" || user?.email?.trim().toLowerCase() === "admin@upideias.com") && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-amber-400 hover:text-amber-300 hover:bg-upCard/60 transition-all border-b border-upBorder/40 pb-2"
+                    >
+                      <Shield className="w-4 h-4 text-amber-400" />
+                      Painel Admin
+                    </Link>
+                  )}
                   <Link
                     href="/app/settings"
                     onClick={() => setUserDropdownOpen(false)}

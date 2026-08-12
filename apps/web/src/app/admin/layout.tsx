@@ -36,12 +36,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     getMe().then((u) => {
-      if (u) {
-        if (u.name) setAdminName(u.name);
-        if (u.email) setAdminEmail(u.email);
+      if (!u) {
+        router.push("/login");
+        return;
       }
-    }).catch(() => {});
-  }, []);
+      const isRoleAdmin = u.role === "admin";
+      const isAdminEmail = u.email?.trim().toLowerCase() === "admin@upideias.com";
+      if (!isRoleAdmin && !isAdminEmail) {
+        router.push("/app/dashboard");
+        return;
+      }
+      if (u.name) setAdminName(u.name);
+      if (u.email) setAdminEmail(u.email);
+    }).catch(() => {
+      router.push("/login");
+    });
+  }, [router]);
 
   // Listener para Ctrl+K / Cmd+K
   useEffect(() => {

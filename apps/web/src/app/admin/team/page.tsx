@@ -28,8 +28,11 @@ import {
   deleteTeamMember 
 } from "@/lib/teamStore";
 
+import { supabase } from "@up-analytics/lib";
+
 export default function AdminTeamPage() {
   const [team, setTeam] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<"all" | TeamRole>("all");
   
@@ -49,8 +52,35 @@ export default function AdminTeamPage() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<TeamRole>("vendas");
 
-  const loadTeam = () => {
-    setTeam(getStoredTeam());
+  const loadTeam = async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .in("role", ["admin", "vendas", "suporte", "cs", "criacao"]);
+      
+      if (data && data.length > 0) {
+        const mapped: TeamMember[] = data.map((p: any) => ({
+          id: p.id,
+          name: p.name || p.full_name || "Membro da Equipe",
+          email: p.email || "equipe@upideias.com",
+          role: (p.role as TeamRole) || "vendas",
+          roleTitle: p.role_title || `Especialista em ${p.role || "Vendas"}`,
+          status: "ativo",
+          assignedAccountsCount: 0,
+          permissions: DEFAULT_PERMISSIONS,
+          createdAt: p.created_at || new Date().toISOString()
+        }));
+        setTeam(mapped);
+      } else {
+        setTeam(getStoredTeam());
+      }
+    } catch {
+      setTeam(getStoredTeam());
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
