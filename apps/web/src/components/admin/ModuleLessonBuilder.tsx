@@ -5,20 +5,16 @@ import { Course, Module, Lesson } from "@/lib/coursesStore";
 import { ChevronDown, ChevronRight, Plus, Video, Edit, Trash2, Clock, Award, FileText } from "lucide-react";
 import { LessonModal } from "./LessonModal";
 import { ModuleModal } from "./ModuleModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
-interface ModuleLessonBuilderProps {
-  courses: Course[];
-}
+export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(courses[0]?.id || "c-1");
 
-export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
-  const [selectedCourseId, setSelectedCourseId] = useState<string>(courses[0]?.id || "");
-  const [expandedModuleId, setExpandedModuleId] = useState<string>("m-1");
-
-  // State de Módulos e Aulas
+  // Estado dos Módulos simulados por curso
   const [modules, setModules] = useState<Module[]>([
     {
       id: "m-1",
-      courseId: selectedCourseId,
+      courseId: "c-1",
       title: "Módulo 1: Fundamentos da Estratégia de Conteúdo",
       description: "Visão geral e planejamento inicial de autoridade.",
       order: 1,
@@ -27,40 +23,21 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
           id: "l-1",
           moduleId: "m-1",
           title: "Aula 1: Introdução ao Método UP Creator",
+          description: "Entenda os pilares da metodologia.",
           videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
           videoProvider: "youtube",
           durationMinutes: 12,
           isFreePreview: true,
-          xpPoints: 50,
-          attachments: [{ id: "att-1", title: "Guia de Boas-Vindas.pdf", url: "#", type: "pdf" }]
+          xpPoints: 50
         },
         {
           id: "l-2",
           moduleId: "m-1",
           title: "Aula 2: Definindo sua Persona & Linha Editorial",
+          description: "Mapeamento prático do público-alvo.",
           videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
           videoProvider: "youtube",
           durationMinutes: 18,
-          isFreePreview: false,
-          xpPoints: 50,
-          attachments: [{ id: "att-2", title: "Prompt de IA - Gerador de Persona.txt", url: "#", type: "prompt" }]
-        }
-      ]
-    },
-    {
-      id: "m-2",
-      courseId: selectedCourseId,
-      title: "Módulo 2: Roteirização & Hooks Virais",
-      description: "Aprenda as estruturas que retêm a atenção imediatamente.",
-      order: 2,
-      lessons: [
-        {
-          id: "l-3",
-          moduleId: "m-2",
-          title: "Aula 1: A Física dos Primeiros 3 Segundos do Vídeo",
-          videoUrl: "https://vimeo.com/76979871",
-          videoProvider: "vimeo",
-          durationMinutes: 15,
           isFreePreview: false,
           xpPoints: 50
         }
@@ -68,16 +45,21 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
     }
   ]);
 
-  // Modal de Módulos
+  const [expandedModuleId, setExpandedModuleId] = useState<string | null>("m-1");
+
+  // State dos Modais
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [editingModule, setEditingModule] = useState<Module | null>(null);
 
-  // Modal de Aulas
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
-  const [activeModuleIdForLesson, setActiveModuleIdForLesson] = useState<string>("");
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [activeModuleIdForLesson, setActiveModuleIdForLesson] = useState<string>("");
 
-  const selectedCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
+  // State do Modal de Confirmação de Exclusão
+  const [deleteTarget, setDeleteTarget] = useState<{ type: "module" | "lesson"; moduleId: string; lessonId?: string } | null>(null);
+
+  const currentCourse = courses.find((c) => c.id === selectedCourseId) || courses[0];
+  const courseModules = modules.filter((m) => m.courseId === selectedCourseId);
 
   // --- CRUD DE MÓDULOS ---
   const handleOpenAddModule = () => {
@@ -109,9 +91,29 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
     }
   };
 
-  const handleDeleteModule = (moduleId: string) => {
-    if (!confirm("Tem certeza que deseja excluir este módulo e todas as suas aulas?")) return;
-    setModules(modules.filter((m) => m.id !== moduleId));
+  const onRequestDeleteModule = (moduleId: string) => {
+    setDeleteTarget({ type: "module", moduleId });
+  };
+
+  const onRequestDeleteLesson = (moduleId: string, lessonId: string) => {
+    setDeleteTarget({ type: "lesson", moduleId, lessonId });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === "module") {
+      setModules(modules.filter((m) => m.id !== deleteTarget.moduleId));
+    } else if (deleteTarget.type === "lesson" && deleteTarget.lessonId) {
+      setModules(
+        modules.map((m) => {
+          if (m.id === deleteTarget.moduleId) {
+            return { ...m, lessons: m.lessons.filter((l) => l.id !== deleteTarget.lessonId) };
+          }
+          return m;
+        })
+      );
+    }
+    setDeleteTarget(null);
   };
 
   // --- CRUD DE AULAS ---
@@ -145,18 +147,6 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
     );
   };
 
-  const handleDeleteLesson = (moduleId: string, lessonId: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta aula?")) return;
-    setModules(
-      modules.map((m) => {
-        if (m.id === moduleId) {
-          return { ...m, lessons: m.lessons.filter((l) => l.id !== lessonId) };
-        }
-        return m;
-      })
-    );
-  };
-
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Seletor de Curso */}
@@ -183,9 +173,9 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
       <div className="flex items-center justify-between">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-upPink bg-upPink/10 px-2.5 py-1 rounded-full border border-upPink/20">
-            {selectedCourse?.track}
+            {currentCourse?.track}
           </span>
-          <h2 className="text-lg font-bold text-white mt-1">{selectedCourse?.title}</h2>
+          <h2 className="text-lg font-bold text-white mt-1">{currentCourse?.title}</h2>
         </div>
 
         <button
@@ -245,7 +235,7 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteModule(mod.id);
+                      onRequestDeleteModule(mod.id);
                     }}
                     className="p-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition"
                     title="Excluir Módulo"
@@ -334,7 +324,7 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
-                              onClick={() => handleDeleteLesson(mod.id, lesson.id)}
+                              onClick={() => onRequestDeleteLesson(mod.id, lesson.id)}
                               className="p-1.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition"
                               title="Excluir Aula"
                             >
@@ -368,6 +358,21 @@ export function ModuleLessonBuilder({ courses }: ModuleLessonBuilderProps) {
         onSave={handleSaveLesson}
         initialLesson={editingLesson}
         moduleId={activeModuleIdForLesson}
+      />
+
+      {/* Modal Customizado de Confirmação de Exclusão */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title={deleteTarget?.type === "module" ? "Excluir Módulo" : "Excluir Aula"}
+        description={
+          deleteTarget?.type === "module"
+            ? "Tem certeza que deseja excluir este módulo e todas as suas aulas? Esta ação não pode ser desfeita."
+            : "Tem certeza que deseja excluir esta aula? Esta ação não pode ser desfeita."
+        }
+        confirmText="Sim, Excluir"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteTarget(null)}
       />
     </div>
   );

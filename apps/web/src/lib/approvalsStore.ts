@@ -17,34 +17,7 @@ export interface ApprovalItem {
 
 const STORAGE_KEY = "up_approvals_items";
 
-const INITIAL_APPROVALS: ApprovalItem[] = [
-  {
-    id: "app-1",
-    userId: "u-1",
-    userName: "Criador UP",
-    title: "Funil de Conteúdo Inteligente no Instagram",
-    format: "Reels",
-    targetDate: "04/07/2026",
-    caption: "Aprenda a guiar seu seguidor desde a descoberta até a conversão utilizando formatos corretos de posts.",
-    visualIdea: "Fundo com paleta escura, realces em coral (#FF5368), textos explicativos simples nos primeiros 3 segundos.",
-    imageUrl: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop",
-    status: "pending",
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "app-2",
-    userId: "u-1",
-    userName: "Criador UP",
-    title: "3 Erros Graves que Matam o Engajamento no Feed",
-    format: "Carrossel",
-    targetDate: "08/07/2026",
-    caption: "Se o seu perfil estagnou, você pode estar cometendo um desses 3 erros nas suas capas.",
-    visualIdea: "Carrossel de 5 slides com fundo escuro pré-estilizado, contraste alto e ícone de seta indicando arrastar.",
-    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
-    status: "pending",
-    createdAt: new Date().toISOString()
-  }
-];
+const INITIAL_APPROVALS: ApprovalItem[] = [];
 
 export function getStoredApprovals(): ApprovalItem[] {
   if (typeof window === "undefined") return INITIAL_APPROVALS;

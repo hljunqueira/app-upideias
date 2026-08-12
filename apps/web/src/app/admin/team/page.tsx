@@ -27,6 +27,7 @@ import {
   saveTeamMember, 
   deleteTeamMember 
 } from "@/lib/teamStore";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 import { supabase } from "@up-analytics/lib";
 
@@ -194,9 +195,16 @@ export default function AdminTeamPage() {
     setIsInviteModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja remover este membro da equipe interna?")) {
-      deleteTeamMember(id);
+  const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
+
+  const onRequestDelete = (id: string) => {
+    setDeletingMemberId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingMemberId) {
+      deleteTeamMember(deletingMemberId);
+      setDeletingMemberId(null);
     }
   };
 
@@ -362,7 +370,7 @@ export default function AdminTeamPage() {
               </div>
 
               <button
-                onClick={() => handleDelete(member.id)}
+                onClick={() => onRequestDelete(member.id)}
                 className="p-2 text-upGray hover:text-rose-400 bg-upDark hover:bg-rose-500/10 border border-upBorder/60 rounded-xl transition shrink-0 cursor-pointer"
                 title="Remover da Equipe"
               >
@@ -672,6 +680,17 @@ export default function AdminTeamPage() {
           </div>
         </div>
       )}
+
+      {/* MODAL CUSTOMIZADO DE CONFIRMAÇÃO DE EXCLUSÃO */}
+      <ConfirmModal
+        isOpen={!!deletingMemberId}
+        title="Remover Membro da Equipe"
+        description="Tem certeza que deseja remover este membro da equipe interna? Ele perderá o acesso aos painéis administrativos."
+        confirmText="Sim, Remover Membro"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingMemberId(null)}
+      />
     </div>
   );
 }

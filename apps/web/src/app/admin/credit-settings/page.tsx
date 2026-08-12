@@ -21,13 +21,7 @@ interface CreditRateItem {
   description: string;
 }
 
-const INITIAL_RATES: CreditRateItem[] = [
-  { id: "rate_1", actionName: "Geração de Legenda / Post Simples", category: "Geração de IA", creditCost: 2, description: "Criação de texto com hashtagas otimizadas via Groq/Gemini" },
-  { id: "rate_2", actionName: "Geração de Carrossel Completo (5-10 slides)", category: "Geração de IA", creditCost: 5, description: "Roteiro e texto de múltiplos slides para o carrossel" },
-  { id: "rate_3", actionName: "Diagnóstico Semanal de Perfil", category: "Estratégia & Análise", creditCost: 10, description: "Análise estratégica com IA sobre público e engajamento" },
-  { id: "rate_4", actionName: "Consulta de Métricas / Sync de Perfil", category: "API Social (Phyllo/Meta)", creditCost: 1, description: "Busca de alcance, impresões e contagem de seguidores" },
-  { id: "rate_5", actionName: "Geração de Arte de Capa / Imagem por IA", category: "Imagem & Mídia", creditCost: 4, description: "Criação visual para posts ou Reels" },
-];
+const INITIAL_RATES: CreditRateItem[] = [];
 
 export default function AdminCreditSettingsPage() {
   const [rates, setRates] = useState<CreditRateItem[]>(INITIAL_RATES);

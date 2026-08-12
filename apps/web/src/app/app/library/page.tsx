@@ -32,31 +32,7 @@ export interface LibraryItem {
   externalUrl?: string;
 }
 
-const INITIAL_LIBRARY_ITEMS: LibraryItem[] = [
-  {
-    id: "lib-1",
-    title: "Identidade Visual - UP Analytics",
-    type: "image",
-    description: "Logo oficial, paleta de cores hexadecimais (#FF5368, #0B0B0F) e fontes da plataforma.",
-    fileUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop",
-    updated_at: new Date(2026, 6, 4).toISOString()
-  },
-  {
-    id: "lib-2",
-    title: "Roteiro Padrão Reels",
-    type: "document",
-    description: "Modelo estrutural de 3 segundos de gancho + 10 segundos de valor + 2 segundos CTA.",
-    updated_at: new Date(2026, 6, 3).toISOString()
-  },
-  {
-    id: "lib-3",
-    title: "Vídeo de Introdução da UpIdeias",
-    type: "video",
-    description: "Vídeo explicativo institucional para usar de fundo nos Reels.",
-    fileUrl: "https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=800&auto=format&fit=crop",
-    updated_at: new Date(2026, 5, 30).toISOString()
-  }
-];
+const INITIAL_LIBRARY_ITEMS: LibraryItem[] = [];
 
 const STORAGE_KEY = "up_library_items";
 

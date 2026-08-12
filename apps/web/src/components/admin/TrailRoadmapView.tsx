@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trail, Course, getStoredTrails, saveStoredTrails } from "@/lib/coursesStore";
 import { CheckCircle2, Play, ArrowRight, Video, Sparkles, Plus, Award, Edit, Trash2, MapPin } from "lucide-react";
 import { TrailModal } from "./TrailModal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 interface TrailRoadmapViewProps {
   trails: Trail[];
@@ -12,16 +13,32 @@ interface TrailRoadmapViewProps {
   onTrailsChange: (trails: Trail[]) => void;
 }
 
-export function TrailRoadmapView({ trails, courses, onCourseClick, onTrailsChange }: TrailRoadmapViewProps) {
-  const [selectedTrailId, setSelectedTrailId] = useState<string>(trails[0]?.id || "trail-1");
+export function TrailRoadmapView({
+  trails,
+  courses,
+  onCourseClick,
+  onTrailsChange
+}: TrailRoadmapViewProps) {
+  const [selectedTrailId, setSelectedTrailId] = useState<string>(trails[0]?.id || "");
   const [isTrailModalOpen, setIsTrailModalOpen] = useState(false);
   const [editingTrail, setEditingTrail] = useState<Trail | null>(null);
+  const [deletingTrailId, setDeletingTrailId] = useState<string | null>(null);
 
   const currentTrail = trails.find((t) => t.id === selectedTrailId) || trails[0];
 
+  const handleOpenAddTrail = () => {
+    setEditingTrail(null);
+    setIsTrailModalOpen(true);
+  };
+
+  const handleOpenEditTrail = (trail: Trail) => {
+    setEditingTrail(trail);
+    setIsTrailModalOpen(true);
+  };
+
   const handleSaveTrail = (savedTrail: Trail) => {
-    let updated: Trail[];
     const exists = trails.some((t) => t.id === savedTrail.id);
+    let updated: Trail[];
     if (exists) {
       updated = trails.map((t) => (t.id === savedTrail.id ? savedTrail : t));
     } else {
@@ -32,16 +49,21 @@ export function TrailRoadmapView({ trails, courses, onCourseClick, onTrailsChang
     setSelectedTrailId(savedTrail.id);
   };
 
-  const handleDeleteTrail = (id: string) => {
+  const onRequestDeleteTrail = (id: string) => {
     if (trails.length <= 1) {
       alert("Você precisa manter pelo menos uma trilha ativa.");
       return;
     }
-    if (!confirm("Tem certeza que deseja excluir esta trilha?")) return;
-    const updated = trails.filter((t) => t.id !== id);
+    setDeletingTrailId(id);
+  };
+
+  const handleConfirmDeleteTrail = () => {
+    if (!deletingTrailId) return;
+    const updated = trails.filter((t) => t.id !== deletingTrailId);
     saveStoredTrails(updated);
     onTrailsChange(updated);
     setSelectedTrailId(updated[0]?.id || "");
+    setDeletingTrailId(null);
   };
 
   // Cursos ordenados sequencialmente
@@ -121,9 +143,8 @@ export function TrailRoadmapView({ trails, courses, onCourseClick, onTrailsChang
                 <Edit className="w-3.5 h-3.5 text-upPink" />
                 <span>Editar Trilha</span>
               </button>
-
               <button
-                onClick={() => handleDeleteTrail(currentTrail.id)}
+                onClick={() => onRequestDeleteTrail(currentTrail.id)}
                 className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition"
                 title="Excluir Trilha"
               >
@@ -137,66 +158,59 @@ export function TrailRoadmapView({ trails, courses, onCourseClick, onTrailsChang
       {/* Visualização de Roadmap Conectado */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-upPink" />
-            <span>Roadmap Sequencial de Estudos ("Por Onde Começar")</span>
-          </h3>
-          <span className="text-xs text-upGray">Ordene a jornada ideal para os alunos</span>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-upGray flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-upPink" /> Ordem Recomendada de Estudos da Trilha
+          </h4>
+          <span className="text-[11px] text-upGray">
+            {trailCourses.length} {trailCourses.length === 1 ? "curso associado" : "cursos associados"}
+          </span>
         </div>
 
         {trailCourses.length === 0 ? (
-          <div className="p-8 text-center bg-upDark/40 border border-upBorder/40 rounded-3xl">
-            <p className="text-xs text-upGray mb-2">Nenhum curso cadastrado nesta trilha ainda.</p>
-            <p className="text-[11px] text-upPink font-semibold">
-              Clique em "+ Criar Novo Curso" e selecione a trilha "{currentTrail?.name}".
+          <div className="bg-[#0e0e14] border border-upBorder/60 rounded-3xl p-8 text-center text-upGray">
+            <p className="text-xs">Nenhum curso associado a esta trilha ainda.</p>
+            <p className="text-[11px] text-upGray/70 mt-1">
+              Edite um curso e selecione a trilha &quot;{currentTrail?.name}&quot; para associá-lo.
             </p>
           </div>
         ) : (
-          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-4 before:bottom-4 before:w-0.5 before:bg-gradient-to-b before:from-upPink before:via-upPink/50 before:to-transparent">
+          <div className="space-y-3">
             {trailCourses.map((course, index) => {
               const isFirst = index === 0;
               return (
-                <div key={course.id} className="relative group">
-                  {/* Nó de Conexão na Linha */}
-                  <div
-                    className={`absolute -left-6 top-6 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shadow-md ${
-                      isFirst
-                        ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.5)] ring-4 ring-emerald-500/20"
-                        : "bg-upDark text-white border border-upPink/60"
-                    }`}
-                  >
-                    {index + 1}
-                  </div>
-
-                  {/* Card do Passo da Trilha */}
-                  <div
-                    onClick={() => onCourseClick(course)}
-                    className="bg-[#0e0e14] border border-upBorder/60 hover:border-upPink/60 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] group"
-                  >
+                <div
+                  key={course.id}
+                  onClick={() => onCourseClick(course)}
+                  className="bg-[#0e0e14] border border-upBorder/60 hover:border-upPink/50 rounded-2xl p-4 transition-all cursor-pointer group"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <img
-                        src={course.thumbnailUrl}
-                        alt={course.title}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0 group-hover:scale-105 transition duration-300"
-                      />
+                      {/* Número do Passo */}
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                          isFirst
+                            ? "bg-upPink text-white shadow-[0_0_15px_rgba(255,83,104,0.4)]"
+                            : "bg-white/5 text-upGray border border-white/10 group-hover:border-upPink/40 group-hover:text-white"
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+
+                      {/* Informações do Curso */}
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h4 className="text-sm font-bold text-white group-hover:text-upPink transition">
+                            {course.title}
+                          </h4>
                           {isFirst && (
-                            <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black border border-emerald-400 px-2 py-0.5 rounded-md flex items-center gap-1">
-                              🟢 Passo 1 • Começar por Aqui
+                            <span className="text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
+                              Começar por Aqui
                             </span>
                           )}
-                          <span className="text-[9px] font-extrabold uppercase bg-upPink/20 text-upPink px-2 py-0.5 rounded-md">
-                            {course.tag}
-                          </span>
-                          <span className="text-[10px] text-upGray">{course.accessTier}</span>
                         </div>
-                        <h4 className="text-sm font-bold text-white group-hover:text-upPink transition">
-                          {course.title}
-                        </h4>
-                        <p className="text-xs text-upGray line-clamp-1 mt-0.5">{course.description}</p>
-                        
-                        <div className="flex items-center gap-3 mt-2 text-[11px] text-upGray">
+                        <p className="text-xs text-upGray line-clamp-1">{course.description}</p>
+
+                        <div className="flex items-center gap-3 mt-2 text-[10px] text-upGray">
                           <span>{course.modulesCount} Módulos</span>
                           <span>•</span>
                           <span>{course.lessonsCount} Aulas</span>
@@ -204,12 +218,6 @@ export function TrailRoadmapView({ trails, courses, onCourseClick, onTrailsChang
                           <span className="text-amber-400 font-semibold">+{course.xpReward} XP</span>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="shrink-0 flex items-center gap-2 self-end sm:self-center">
-                      <span className="text-xs text-upPink font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-                        Editar Curso <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -225,6 +233,17 @@ export function TrailRoadmapView({ trails, courses, onCourseClick, onTrailsChang
         onClose={() => setIsTrailModalOpen(false)}
         onSave={handleSaveTrail}
         initialTrail={editingTrail}
+      />
+
+      {/* Modal Customizado de Confirmação de Exclusão */}
+      <ConfirmModal
+        isOpen={!!deletingTrailId}
+        title="Excluir Trilha Guiada"
+        description="Tem certeza que deseja excluir esta trilha? Os cursos associados serão preservados."
+        confirmText="Sim, Excluir Trilha"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDeleteTrail}
+        onClose={() => setDeletingTrailId(null)}
       />
     </div>
   );
