@@ -52,6 +52,7 @@ function RegisterContent() {
     setGoogleLoading(true);
     setError("");
     try {
+      document.cookie = `up_pending_checkout=/checkout?plan=${plan}; path=/; max-age=600; SameSite=Lax`;
       await loginWithGoogle(`/checkout?plan=${plan}`);
     } catch (err: any) {
       setError(err.message || "Erro ao conectar com Google Auth.");

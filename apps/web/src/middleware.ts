@@ -88,6 +88,15 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('next', pathname);
       return NextResponse.redirect(loginUrl);
     }
+
+    // Se houver um cookie de intenção de checkout pendente, redirecionar para o checkout
+    const pendingCheckout = request.cookies.get('up_pending_checkout')?.value;
+    if (pendingCheckout && pendingCheckout.startsWith('/checkout')) {
+      const checkoutUrl = new URL(pendingCheckout, request.url);
+      const res = NextResponse.redirect(checkoutUrl);
+      res.cookies.delete('up_pending_checkout');
+      return res;
+    }
   }
 
   // Redirecionamento de usuários já autenticados na página de login
