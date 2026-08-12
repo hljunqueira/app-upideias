@@ -169,24 +169,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
 
                   <Link
-                    href="/admin/team"
-                    onClick={() => setUserDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upCard/60 transition-all"
-                  >
-                    <Users className="w-4 h-4 text-upPink" />
-                    <span>Gestão da Equipe Interna</span>
-                  </Link>
-
-                  <Link
-                    href="/admin/settings"
-                    onClick={() => setUserDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upCard/60 transition-all"
-                  >
-                    <Layout className="w-4 h-4 text-upPink" />
-                    <span>Editor da Página Inicial</span>
-                  </Link>
-
-                  <Link
                     href="/admin/settings"
                     onClick={() => setUserDropdownOpen(false)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upCard/60 transition-all"
