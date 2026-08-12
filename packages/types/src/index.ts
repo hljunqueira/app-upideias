@@ -71,32 +71,53 @@ export interface Subscription {
 
 export type SocialPlatform = 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'x';
 
+/**
+ * Modelo de domínio público seguro para UI e Frontend.
+ * NÃO contém tokens ou segredos de acesso ao provedor.
+ */
 export interface SocialAccount {
   id: string;
   user_id: string;
   client_id: string | null;
-  platform?: SocialPlatform;
-  instagram_user_id: string;
+  platform: SocialPlatform;
+  externalAccountId: string;
   username: string;
   name: string | null;
   profile_picture_url: string | null;
   account_type: string;
   followers_count: number;
   media_count: number;
-  access_token: string;
-  token_expires_at: string | null;
   connected_at: string;
   disconnected_at: string | null;
   status: string;
   created_at: string;
   updated_at: string;
+
+  // Campos de identificação legados para compatibilidade (deprecados)
+  instagram_user_id?: string;
+}
+
+/**
+ * Credenciais secretas gerenciadas EXCLUSIVAMENTE pelo backend/worker seguro.
+ * RESTRIÇÃO DE SEGURANÇA:
+ * - NÃO utilizar em componentes React UI;
+ * - NÃO serializar para o browser ou respostas de API pública;
+ * - NÃO armazenar em stores do frontend (Zustand/Redux/Context).
+ */
+export interface SocialConnectionCredentials {
+  accountId: string;
+  platform: SocialPlatform;
+  accessToken: string;
+  refreshToken?: string | null;
+  tokenExpiresAt?: string | null;
 }
 
 export type InstagramAccount = SocialAccount;
 
 export interface SocialAccountMetrics {
   id: string;
-  instagram_account_id: string;
+  accountId: string;
+  platform: SocialPlatform;
   metric_date: string;
   followers_count: number;
   reach: number;
@@ -106,14 +127,18 @@ export interface SocialAccountMetrics {
   interactions: number;
   engagement_rate: number;
   created_at: string;
+
+  // Campo de compatibilidade legada
+  instagram_account_id?: string;
 }
 
 export type InstagramDailyMetrics = SocialAccountMetrics;
 
 export interface SocialContent {
   id: string;
-  instagram_account_id: string;
-  instagram_media_id: string;
+  accountId: string;
+  externalContentId: string;
+  platform: SocialPlatform;
   media_type: string;
   media_product_type: string;
   caption: string | null;
@@ -127,13 +152,17 @@ export interface SocialContent {
   comments_count: number;
   created_at: string;
   updated_at: string;
+
+  // Campos de compatibilidade legada
+  instagram_account_id?: string;
+  instagram_media_id?: string;
 }
 
 export type InstagramMedia = SocialContent;
 
 export interface SocialContentMetrics {
   id: string;
-  instagram_media_id: string;
+  contentId: string;
   metric_date: string;
   reach: number;
   views: number;
@@ -144,6 +173,9 @@ export interface SocialContentMetrics {
   total_interactions: number;
   engagement_rate: number;
   created_at: string;
+
+  // Campo de compatibilidade legada
+  instagram_media_id?: string;
 }
 
 export type InstagramMediaMetrics = SocialContentMetrics;

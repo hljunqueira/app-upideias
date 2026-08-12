@@ -2,14 +2,13 @@
   "name": "up-analytics-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "UP Analytics by UpIdeias - Plataforma SaaS de estratégia e métricas para Instagram",
+  "description": "UP Analytics & UP Creator by UpIdeias - Plataforma SaaS de estratégia, métricas e educação",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "dev:web": "npm run dev --workspace=apps/web",
-    "dev:mobile": "npm run start --workspace=apps/mobile",
     "build:web": "npm run build --workspace=apps/web",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
