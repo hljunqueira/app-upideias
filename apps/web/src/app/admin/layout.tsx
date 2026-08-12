@@ -23,6 +23,7 @@ import {
   Layout
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
+import { getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,6 +34,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [adminName, setAdminName] = useState("Administrador Master");
   const [adminEmail, setAdminEmail] = useState("");
+  
+  const [adminNotifications, setAdminNotifications] = useState<NotificationItem[]>([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  useEffect(() => {
+    setAdminNotifications(getNotifications("admin"));
+    const handleUpdate = () => setAdminNotifications(getNotifications("admin"));
+    window.addEventListener("up_notifications_updated", handleUpdate);
+    return () => window.removeEventListener("up_notifications_updated", handleUpdate);
+  }, []);
+
+  const adminUnreadCount = adminNotifications.filter((n) => n.unread).length;
 
   useEffect(() => {
     getMe().then((u) => {
@@ -134,11 +147,73 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <kbd className="text-[9px] bg-upBlack px-1 py-0.5 rounded border border-upBorder/60 text-upGray font-mono">Ctrl+K</kbd>
             </button>
 
-            {/* Notifications */}
-            <button className="relative p-2 rounded-xl bg-upCard/60 border border-upBorder hover:border-upPink/40 text-upGray hover:text-white transition-all shrink-0">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-upPink animate-pulse" />
-            </button>
+            {/* Notifications Popover Admin */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setNotificationsOpen((prev) => !prev)}
+                className="relative p-2 rounded-xl bg-upCard/60 border border-upBorder hover:border-upPink/40 text-upGray hover:text-white transition-all shrink-0 cursor-pointer"
+              >
+                <Bell className="w-4 h-4 text-upPink" />
+                {adminUnreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-upPink animate-pulse" />
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <div
+                  onMouseLeave={() => setNotificationsOpen(false)}
+                  className="absolute top-full mt-2 right-0 w-80 bg-upDark border border-upBorder/80 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl z-50 animate-fadeIn space-y-3"
+                >
+                  <div className="flex items-center justify-between border-b border-upBorder/40 pb-2">
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-upPink" />
+                      <h4 className="text-xs font-bold text-white">Alertas do Sistema Admin</h4>
+                      {adminUnreadCount > 0 && (
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-upPink text-white">
+                          {adminUnreadCount} novos
+                        </span>
+                      )}
+                    </div>
+                    {adminUnreadCount > 0 && (
+                      <button
+                        onClick={() => {
+                          const updated = markAllNotificationsAsRead("admin");
+                          setAdminNotifications(updated);
+                        }}
+                        className="text-[10px] text-upPink font-semibold hover:underline"
+                      >
+                        Marcar lidas
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 max-h-72 overflow-y-auto">
+                    {adminNotifications.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          if (item.link) {
+                            router.push(item.link);
+                            setNotificationsOpen(false);
+                          }
+                        }}
+                        className={`p-2.5 rounded-xl border text-xs transition cursor-pointer ${
+                          item.unread
+                            ? "bg-upPink/10 border-upPink/30 text-white"
+                            : "bg-upDark/40 border-upBorder/20 text-upGray"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="font-bold text-white text-[11px]">{item.title}</span>
+                          <span className="text-[9px] text-upGray">{item.time}</span>
+                        </div>
+                        <p className="text-[11px] leading-tight text-upGray">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Admin Profile Popover */}
             <div className="relative shrink-0">

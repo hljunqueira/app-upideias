@@ -1,8 +1,30 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Search, LayoutDashboard, FileText, BrainCircuit, PenTool, Calendar, CheckSquare, Library, MessageSquare, GraduationCap, Users, Settings, CreditCard, X } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  Search,
+  LayoutDashboard,
+  FileText,
+  BrainCircuit,
+  PenTool,
+  Calendar,
+  CheckSquare,
+  Library,
+  MessageSquare,
+  GraduationCap,
+  Users,
+  Settings,
+  CreditCard,
+  X,
+  Shield,
+  UserCheck,
+  Zap,
+  RefreshCw,
+  Activity,
+  Layers,
+  Sparkles
+} from "lucide-react";
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -11,25 +33,47 @@ interface CommandPaletteProps {
 
 export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
 
-  const items = [
-    { label: "Visão Geral", href: "/app/dashboard", category: "Navegação", icon: LayoutDashboard },
-    { label: "Publicações & Mídia", href: "/app/posts", category: "Navegação", icon: FileText },
-    { label: "Estratégias", href: "/app/ai-strategy", category: "Navegação", icon: BrainCircuit },
-    { label: "Gerador de Conteúdo", href: "/app/content-generator", category: "Navegação", icon: PenTool },
-    { label: "Calendário de Postagens", href: "/app/content-calendar", category: "Navegação", icon: Calendar },
-    { label: "Aprovações", href: "/app/approvals", category: "Ferramentas", icon: CheckSquare },
-    { label: "Biblioteca", href: "/app/library", category: "Ferramentas", icon: Library },
-    { label: "Mensagens Automáticas", href: "/app/automations", category: "Ferramentas", icon: MessageSquare },
-    { label: "UP Creator", href: "/app/up-creator", category: "Ferramentas", icon: GraduationCap },
-    { label: "Área do Cliente", href: "/app/client-area", category: "Ferramentas", icon: Users },
+  const isAdminArea = pathname?.startsWith("/admin");
+
+  const appItems = [
+    { label: "Visão Geral (Dashboard)", href: "/app/dashboard", category: "App", icon: LayoutDashboard },
+    { label: "Publicações & Mídia", href: "/app/posts", category: "App", icon: FileText },
+    { label: "Estratégias de Conteúdo IA", href: "/app/ai-strategy", category: "App", icon: BrainCircuit },
+    { label: "Gerador de Roteiros & Posts", href: "/app/content-generator", category: "App", icon: PenTool },
+    { label: "Calendário Editorial", href: "/app/content-calendar", category: "App", icon: Calendar },
+    { label: "Aprovações Pendentes", href: "/app/approvals", category: "Ferramentas", icon: CheckSquare },
+    { label: "Biblioteca de Assets", href: "/app/library", category: "Ferramentas", icon: Library },
+    { label: "Mensagens & Notificações WhatsApp", href: "/app/automations", category: "Ferramentas", icon: MessageSquare },
+    { label: "UP Creator (Cursos & Trilhas)", href: "/app/up-creator", category: "Ferramentas", icon: GraduationCap },
+    { label: "Gestão de Clientes", href: "/app/client-area", category: "Ferramentas", icon: Users },
     { label: "Configurações da Conta", href: "/app/settings", category: "Conta", icon: Settings },
-    { label: "Faturamento & Planos", href: "/app/billing", category: "Conta", icon: CreditCard },
+    { label: "Faturamento & Assinatura", href: "/app/billing", category: "Conta", icon: CreditCard },
   ];
 
-  const filtered = items.filter(
-    (i) => i.label.toLowerCase().includes(query.toLowerCase()) || i.category.toLowerCase().includes(query.toLowerCase())
+  const adminItems = [
+    { label: "Painel Admin (Visão Geral)", href: "/admin", category: "Admin", icon: Shield },
+    { label: "Clientes Assinantes", href: "/admin/users", category: "Admin", icon: UserCheck },
+    { label: "Equipe Interna & Admins", href: "/admin/team", category: "Admin", icon: Users },
+    { label: "Assinaturas & Faturamento", href: "/admin/subscriptions", category: "Admin", icon: CreditCard },
+    { label: "Configurador de Planos", href: "/admin/plans", category: "Admin", icon: Layers },
+    { label: "Contas Sociais (APIs)", href: "/admin/accounts", category: "Admin", icon: RefreshCw },
+    { label: "Gestão UP Creator (Cursos)", href: "/admin/up-creator", category: "Admin", icon: GraduationCap },
+    { label: "Logs de Sincronização", href: "/admin/sync-logs", category: "Admin", icon: Activity },
+    { label: "Uso de Créditos IA", href: "/admin/ai-usage", category: "Admin", icon: Sparkles },
+    { label: "Logs do WhatsApp", href: "/admin/whatsapp-logs", category: "Admin", icon: MessageSquare },
+    { label: "Configurações Master", href: "/admin/settings", category: "Admin", icon: Settings },
+  ];
+
+  // Prioriza itens de acordo com o contexto atual
+  const allItems = isAdminArea ? [...adminItems, ...appItems] : [...appItems, ...adminItems];
+
+  const filtered = allItems.filter(
+    (i) =>
+      i.label.toLowerCase().includes(query.toLowerCase()) ||
+      i.category.toLowerCase().includes(query.toLowerCase())
   );
 
   useEffect(() => {
@@ -52,7 +96,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           <Search className="w-5 h-5 text-upPink shrink-0" />
           <input
             type="text"
-            placeholder="Digite um comando ou busque uma funcionalidade... (Esc para fechar)"
+            placeholder={
+              isAdminArea
+                ? "Buscar páginas de administração, clientes, planos ou relatórios... (Esc para fechar)"
+                : "Digite um comando ou busque uma funcionalidade... (Esc para fechar)"
+            }
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -70,6 +118,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           ) : (
             filtered.map((item) => {
               const Icon = item.icon;
+              const isItemAdmin = item.category === "Admin";
               return (
                 <button
                   key={item.href + item.label}
@@ -80,10 +129,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                   className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upPink/10 hover:border-upPink/30 border border-transparent transition-all group"
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 text-upPink group-hover:scale-110 transition-transform" />
+                    <Icon className={`w-4 h-4 ${isItemAdmin ? "text-amber-400" : "text-upPink"} group-hover:scale-110 transition-transform`} />
                     <span>{item.label}</span>
                   </div>
-                  <span className="text-[10px] text-upGray uppercase tracking-wider bg-upCard px-2 py-0.5 rounded-md border border-upBorder/40">
+                  <span
+                    className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                      isItemAdmin
+                        ? "bg-amber-500/10 text-amber-400 border-amber-500/30 font-bold"
+                        : "bg-upCard text-upGray border-upBorder/40"
+                    }`}
+                  >
                     {item.category}
                   </span>
                 </button>
@@ -94,7 +149,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
         {/* Footer info */}
         <div className="px-4 py-2.5 bg-upBlack/50 border-t border-upBorder/40 flex justify-between items-center text-[10px] text-upGray">
-          <span>Dica: Use as setas para navegar</span>
+          <span>Dica: Pressione as setas para navegar e ENTER para selecionar</span>
           <span className="bg-upCard px-1.5 py-0.5 rounded border border-upBorder/40">ESC</span>
         </div>
       </div>

@@ -30,6 +30,7 @@ import { CommandPalette } from "@/components/ui/CommandPalette";
 import { getMe, apiLogout } from "@/lib/api";
 import { getInstagramAccounts } from "@up-analytics/lib";
 import { PhylloConnectModal } from "@/components/common/PhylloConnectModal";
+import { getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -43,33 +44,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
-  const [notifications, setNotifications] = useState([
-    {
-      id: "1",
-      title: "🎉 +50 XP Adicionado!",
-      description: "Você concluiu a aula de Estratégia de Conteúdo no UP Creator.",
-      time: "Há 10 min",
-      type: "xp",
-      unread: true
-    },
-    {
-      id: "2",
-      title: "🔥 Mantendo a Ofensiva!",
-      description: "Você completou 7 dias seguidos de estudos na plataforma.",
-      time: "Há 1 hora",
-      type: "streak",
-      unread: true
-    },
-    {
-      id: "3",
-      title: "🎓 Novo Módulo Liberado",
-      description: "O Módulo de Roteirização e Hooks Virais já está disponível.",
-      time: "Há 3 horas",
-      type: "course",
-      unread: true
-    }
-  ]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  useEffect(() => {
+    setNotifications(getNotifications("user"));
+    const handleUpdate = () => setNotifications(getNotifications("user"));
+    window.addEventListener("up_notifications_updated", handleUpdate);
+    return () => window.removeEventListener("up_notifications_updated", handleUpdate);
+  }, []);
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
   const processedRef = useRef(false);
 
   useEffect(() => {
@@ -284,10 +268,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     {unreadCount > 0 && (
                       <button
                         onClick={() => {
-                          setUnreadCount(0);
-                          setNotifications(notifications.map((n) => ({ ...n, unread: false })));
+                          const updated = markAllNotificationsAsRead("user");
+                          setNotifications(updated);
                         }}
-                        className="text-[10px] text-upPink font-semibold hover:underline"
+                        className="text-[10px] text-upPink font-semibold hover:underline cursor-pointer"
                       >
                         Marcar lidas
                       </button>
