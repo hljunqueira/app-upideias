@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trail, Course, getStoredTrails, saveStoredTrails } from "@/lib/coursesStore";
+import { Trail, Course, saveTrailToDb, deleteTrailFromDb } from "@/lib/coursesStore";
 import { CheckCircle2, Play, ArrowRight, Video, Sparkles, Plus, Award, Edit, Trash2, MapPin } from "lucide-react";
 import { TrailModal } from "./TrailModal";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -36,7 +36,8 @@ export function TrailRoadmapView({
     setIsTrailModalOpen(true);
   };
 
-  const handleSaveTrail = (savedTrail: Trail) => {
+  const handleSaveTrail = async (savedTrail: Trail) => {
+    await saveTrailToDb(savedTrail);
     const exists = trails.some((t) => t.id === savedTrail.id);
     let updated: Trail[];
     if (exists) {
@@ -44,23 +45,18 @@ export function TrailRoadmapView({
     } else {
       updated = [...trails, savedTrail];
     }
-    saveStoredTrails(updated);
     onTrailsChange(updated);
     setSelectedTrailId(savedTrail.id);
   };
 
   const onRequestDeleteTrail = (id: string) => {
-    if (trails.length <= 1) {
-      alert("Você precisa manter pelo menos uma trilha ativa.");
-      return;
-    }
     setDeletingTrailId(id);
   };
 
-  const handleConfirmDeleteTrail = () => {
+  const handleConfirmDeleteTrail = async () => {
     if (!deletingTrailId) return;
+    await deleteTrailFromDb(deletingTrailId);
     const updated = trails.filter((t) => t.id !== deletingTrailId);
-    saveStoredTrails(updated);
     onTrailsChange(updated);
     setSelectedTrailId(updated[0]?.id || "");
     setDeletingTrailId(null);

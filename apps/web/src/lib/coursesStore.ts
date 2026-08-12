@@ -250,3 +250,37 @@ export async function toggleLandingFeaturedInDb(id: string, currentFeatured: boo
     console.error("Erro ao alternar destaque do curso no Supabase", e);
   }
 }
+
+export async function saveTrailToDb(trail: Trail): Promise<void> {
+  const current = getStoredTrails();
+  const exists = current.some(t => t.id === trail.id);
+  const updated = exists ? current.map(t => t.id === trail.id ? trail : t) : [...current, trail];
+  saveStoredTrails(updated);
+  try {
+    await supabase.from("learning_trails").upsert({
+      id: trail.id,
+      name: trail.name,
+      description: trail.description,
+      color: trail.color,
+      badge: trail.badge,
+      recommended_order: trail.recommendedOrder,
+      video_intro_url: trail.videoIntroUrl
+    });
+  } catch (e) {
+    console.error("Erro ao salvar trilha no Supabase", e);
+  }
+}
+
+export async function deleteTrailFromDb(id: string): Promise<void> {
+  const current = getStoredTrails();
+  const filtered = current.filter((t) => t.id !== id);
+  saveStoredTrails(filtered);
+  try {
+    const { error } = await supabase.from("learning_trails").delete().eq("id", id);
+    if (error) {
+      console.error("Erro Supabase ao remover trilha:", error);
+    }
+  } catch (e) {
+    console.error("Erro ao remover trilha do Supabase:", e);
+  }
+}
