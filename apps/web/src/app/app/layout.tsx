@@ -29,6 +29,7 @@ import {
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { getMe, apiLogout } from "@/lib/api";
 import { getInstagramAccounts } from "@up-analytics/lib";
+import { PhylloConnectModal } from "@/components/common/PhylloConnectModal";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -36,6 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [instagramHandle, setInstagramHandle] = useState<string | null>(null);
+  const [isPhylloModalOpen, setIsPhylloModalOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -160,12 +162,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </span>
             </Link>
 
-            {/* Status Chip Instagram */}
-            <Link href="/admin/accounts" className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upCard/60 border border-upBorder text-xs text-upLightGray hover:border-upPink/50 shrink-0 transition-all">
+            {/* Status Chip Instagram com Phyllo Connect SDK */}
+            <button
+              onClick={() => setIsPhylloModalOpen(true)}
+              className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upCard/60 border border-upBorder text-xs text-upLightGray hover:border-upPink/50 shrink-0 transition-all cursor-pointer"
+            >
               <span className={`w-2 h-2 rounded-full ${instagramHandle ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
               <Instagram className="w-3.5 h-3.5 text-upPink" />
               <span className="font-medium text-[11px]">{instagramHandle || "Conectar Instagram"}</span>
-            </Link>
+            </button>
           </div>
 
           {/* Center Navigation Links (Desktop Despoluído) */}
@@ -433,6 +438,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Modal Command Palette (Ctrl+K) */}
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+
+      {/* Modal de Conexão de Redes Sociais via Phyllo Connect SDK */}
+      <PhylloConnectModal isOpen={isPhylloModalOpen} onClose={() => setIsPhylloModalOpen(false)} />
     </div>
   );
 }
