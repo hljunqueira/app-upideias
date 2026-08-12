@@ -3,9 +3,14 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { Play, X, Video, Sparkles, CheckCircle2 } from "lucide-react";
-import { Course, getStoredCourses } from "@/lib/coursesStore";
-
-const tracks = ["Todos", "Fundamentos", "Criadores de Conteúdo", "Social Media Pro", "Agências & Gestores"];
+import {
+  Course,
+  Trail,
+  getStoredCourses,
+  getStoredTrails,
+  fetchCoursesFromDb,
+  fetchTrailsFromDb
+} from "@/lib/coursesStore";
 
 function CourseCard({
   c,
@@ -96,6 +101,7 @@ function CourseCard({
 
 export default function CreatorShowcase() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [trails, setTrails] = useState<Trail[]>([]);
   const [activeTrack, setActiveTrack] = useState("Todos");
   const [selectedTeaserCourse, setSelectedTeaserCourse] = useState<Course | null>(null);
 
@@ -105,15 +111,51 @@ export default function CreatorShowcase() {
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
-    setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
+    // Carregar cache inicial do localStorage para UX instantânea
+    const initialCourses = getStoredCourses();
+    const initialTrails = getStoredTrails();
+    if (initialCourses.length > 0) {
+      setCourses(initialCourses.filter((c) => c.isLandingPageFeatured));
+    }
+    if (initialTrails.length > 0) {
+      setTrails(initialTrails);
+    }
 
-    const handleUpdate = () => {
-      setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
+    // Buscar dados do Supabase
+    const loadFromDb = async () => {
+      const [dbCourses, dbTrails] = await Promise.all([
+        fetchCoursesFromDb(),
+        fetchTrailsFromDb()
+      ]);
+      setCourses(dbCourses.filter((c) => c.isLandingPageFeatured));
+      setTrails(dbTrails);
     };
 
-    window.addEventListener("up_courses_updated", handleUpdate);
-    return () => window.removeEventListener("up_courses_updated", handleUpdate);
+    loadFromDb();
+
+    const handleCoursesUpdate = () => {
+      setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
+    };
+    const handleTrailsUpdate = () => {
+      setTrails(getStoredTrails());
+    };
+
+    window.addEventListener("up_courses_updated", handleCoursesUpdate);
+    window.addEventListener("up_trails_updated", handleTrailsUpdate);
+    return () => {
+      window.removeEventListener("up_courses_updated", handleCoursesUpdate);
+      window.removeEventListener("up_trails_updated", handleTrailsUpdate);
+    };
   }, []);
+
+  // Calcular abas/trilhas dinamicamente unindo as trilhas cadastradas com a categoria dos cursos
+  const dynamicTracks = Array.from(
+    new Set([
+      "Todos",
+      ...trails.map((t) => t.name),
+      ...courses.map((c) => c.track)
+    ].filter(Boolean))
+  );
 
   const filteredCourses = courses.filter(
     (c) => activeTrack === "Todos" || c.track === activeTrack
@@ -178,7 +220,7 @@ export default function CreatorShowcase() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-wrap gap-3 mt-10"
         >
-          {tracks.map((t, i) => (
+          {dynamicTracks.map((t, i) => (
             <button
               key={t}
               onClick={() => setActiveTrack(t)}
