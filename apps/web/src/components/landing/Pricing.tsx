@@ -6,43 +6,6 @@ import { Check } from "lucide-react";
 import { PlanConfig, getStoredPlans } from "@/lib/plansStore";
 import { getSupportWhatsAppUrl } from "@/lib/config";
 
-const DEFAULT_BENEFITS_MAP: Record<string, string[]> = {
-  iniciante: [
-    "1 conta de Instagram · 1 usuário",
-    "Gerador de conteúdos e roteiros estratégicos",
-    "Métricas essenciais + 30 dias de histórico",
-    "UP Creator: trilha Fundamentos",
-    "Suporte por e-mail"
-  ],
-  pro: [
-    "3 contas de Instagram · 3 usuários",
-    "Gerador ilimitado + Diagnóstico estratégico",
-    "Métricas avançadas + 90 dias de histórico",
-    "Calendário editorial completo",
-    "Relatórios semanais no WhatsApp",
-    "UP Creator completo + certificados",
-    "Suporte prioritário"
-  ],
-  agencia: [
-    "10 contas de Instagram · 10 usuários",
-    "Gerações de conteúdo ilimitadas",
-    "Até 5 marcas com Área do Cliente exclusiva",
-    "Fluxo de aprovação de conteúdo",
-    "Relatórios PDF + alertas diários WhatsApp",
-    "UP Creator completo para a equipe",
-    "Onboarding guiado + suporte VIP"
-  ],
-  enterprise: [
-    "Contas de Instagram e usuários ILIMITADOS",
-    "Créditos de IA totalmente ILIMITADOS",
-    "Marcas e clientes ILIMITADOS",
-    "Infraestrutura dedicada & SLA garantido",
-    "Gerente de conta exclusivo 24/7",
-    "Treinamentos ao vivo para a equipe",
-    "Desenvolvimento de recursos sob medida"
-  ]
-};
-
 function SpotlightCard({ p, i, annual }: { p: PlanConfig; i: number; annual: boolean }) {
   const [pos, setPos] = useState({ x: -300, y: -300 });
   const isProFeatured = p.featured || p.id === "pro" || p.name.toLowerCase() === "pro";
@@ -51,9 +14,7 @@ function SpotlightCard({ p, i, annual }: { p: PlanConfig; i: number; annual: boo
   const priceMonthlyNum = typeof p.priceMonthly === "number" ? p.priceMonthly : 0;
   const priceAnnualCalc = p.priceAnnual || priceMonthlyNum * 10;
 
-  const benefits = (p.featuresList && p.featuresList.length > 0)
-    ? p.featuresList
-    : (DEFAULT_BENEFITS_MAP[p.id] || DEFAULT_BENEFITS_MAP.pro);
+  const benefits = p.featuresList || [];
 
   return (
     <motion.div

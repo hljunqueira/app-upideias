@@ -1,29 +1,7 @@
 "use client";
 
-export interface PlanConfig {
-  id: string;
-  name: string;
-  priceMonthly: number | string;
-  priceAnnual?: number;
-  description?: string;
-  featured?: boolean;
-  isCustomPrice?: boolean;
-  aiCreditsMonthly: number;
-  clientSlotsLimit: number; // 0, 5, -1 (ilimitado)
-  featuresList?: string[];
-  allowedFeatures: {
-    dashboard: boolean;
-    posts: boolean;
-    contentGenerator: boolean;
-    aiStrategy: boolean;
-    contentCalendar: boolean;
-    approvals: boolean;
-    library: boolean;
-    whatsappAutomations: boolean;
-    upCreator: boolean;
-    clientArea: boolean;
-  };
-}
+import { PlanConfig } from "@up-analytics/types";
+export type { PlanConfig };
 
 export const INITIAL_PLANS: PlanConfig[] = [
   {

@@ -72,18 +72,18 @@ export function PlanGate({
         <p className="text-[11px] font-bold text-white uppercase tracking-wider">
           Simular Outro Plano para Testar esta Tela:
         </p>
-        <div className="flex items-center justify-center gap-2">
-          {(["Iniciante", "Pro", "Agência", "Enterprise"] as const).map((p) => (
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {plans.map((p) => (
             <button
-              key={p}
-              onClick={() => setActiveUserPlan(p)}
+              key={p.id}
+              onClick={() => setActiveUserPlan(p.name)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                activePlan === p
+                activePlan === p.name
                   ? "bg-upPink text-white shadow-md"
                   : "bg-upDark text-upGray hover:text-white border border-upBorder/40"
               }`}
             >
-              {p}
+              {p.name}
             </button>
           ))}
         </div>

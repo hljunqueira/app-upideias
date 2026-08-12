@@ -75,8 +75,8 @@ export async function getMe() {
   };
 }
 
-export function loginWithGoogle() {
-  const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/app/dashboard` : undefined;
+export function loginWithGoogle(redirectToPath: string = '/app/dashboard') {
+  const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectToPath)}` : undefined;
   return supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo, queryParams: { prompt: 'select_account' } } });
 }
 

@@ -113,9 +113,9 @@ export async function getMe() {
   };
 }
 
-export async function loginWithGoogle() {
+export async function loginWithGoogle(redirectToPath: string = '/app/dashboard') {
   const supabase = createClient();
-  const redirectTo = `${window.location.origin}/auth/callback?next=/app/dashboard`;
+  const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectToPath)}`;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {

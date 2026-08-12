@@ -23,6 +23,7 @@ import { AdminSuggestContentModal } from "@/components/admin/AdminSuggestContent
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 import { supabase } from "@up-analytics/lib";
+import { getStoredPlans, PlanConfig } from "@/lib/plansStore";
 
 interface UserItem {
   id: string;
@@ -36,9 +37,14 @@ interface UserItem {
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<PlanConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("todos");
+
+  useEffect(() => {
+    setAvailablePlans(getStoredPlans());
+  }, []);
 
   useEffect(() => {
     async function loadUsers() {
@@ -422,9 +428,11 @@ export default function AdminUsersPage() {
                     onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
                     className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
-                    <option value="Start">Start</option>
-                    <option value="Pro">Pro</option>
-                    <option value="Agência">Agência</option>
+                    {availablePlans.map((p) => (
+                      <option key={p.id} value={p.name}>
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

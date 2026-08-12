@@ -7,6 +7,8 @@ import { ArrowLeft, Check, ShieldCheck, Lock, CreditCard, QrCode, Barcode } from
 import { PlanConfig, getStoredPlans, setActiveUserPlan } from "@/lib/plansStore";
 import { getSupportWhatsAppUrl } from "@/lib/config";
 
+import { supabase } from "@up-analytics/lib";
+
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -40,15 +42,34 @@ function CheckoutContent() {
         ],
   };
 
-  const handleFinish = (e: React.FormEvent) => {
+  const handleFinish = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     if (foundPlan) {
       setActiveUserPlan(foundPlan.name);
     }
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && foundPlan) {
+        await supabase.from("profiles").update({ plan: foundPlan.name }).eq("id", user.id);
+        await supabase.from("subscriptions").insert({
+          user_id: user.id,
+          plan_name: foundPlan.name,
+          amount: typeof foundPlan.priceMonthly === "number" ? foundPlan.priceMonthly : 0,
+          status: "active",
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
+          payment_provider: paymentMethod,
+          payment_provider_customer_id: user.id,
+          payment_provider_subscription_id: `SUB-${Date.now()}`
+        });
+      }
+    } catch {
+      // Continuar silenciosamente se supabase não estiver conectado
+    }
     setTimeout(() => {
       router.push("/app/dashboard");
-    }, 800);
+    }, 600);
   };
 
   const isEnterprise = planSlug.toLowerCase() === "enterprise" || foundPlan?.isCustomPrice || foundPlan?.id === "enterprise";

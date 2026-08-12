@@ -28,6 +28,31 @@ export interface Plan {
   updated_at: string;
 }
 
+export interface PlanConfig {
+  id: string;
+  name: string;
+  priceMonthly: number | string;
+  priceAnnual?: number;
+  description?: string;
+  featured?: boolean;
+  isCustomPrice?: boolean;
+  aiCreditsMonthly: number;
+  clientSlotsLimit: number;
+  featuresList?: string[];
+  allowedFeatures: {
+    dashboard: boolean;
+    posts: boolean;
+    contentGenerator: boolean;
+    aiStrategy: boolean;
+    contentCalendar: boolean;
+    approvals: boolean;
+    library: boolean;
+    whatsappAutomations: boolean;
+    upCreator: boolean;
+    clientArea: boolean;
+  };
+}
+
 export interface PlanLimits {
   id: string;
   plan_id: string;

@@ -22,6 +22,7 @@ import { PlanConfig, getStoredPlans, savePlansConfig } from "@/lib/plansStore";
 export default function AdminPlansPage() {
   const [plans, setPlans] = useState<PlanConfig[]>([]);
   const [editingPlan, setEditingPlan] = useState<PlanConfig | null>(null);
+  const [newBenefitText, setNewBenefitText] = useState("");
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const loadPlans = () => {
@@ -51,6 +52,34 @@ export default function AdminPlansPage() {
     savePlansConfig(updated);
   };
 
+  const handleAddBenefit = () => {
+    if (!editingPlan || !newBenefitText.trim()) return;
+    const currentList = editingPlan.featuresList || [];
+    setEditingPlan({
+      ...editingPlan,
+      featuresList: [...currentList, newBenefitText.trim()]
+    });
+    setNewBenefitText("");
+  };
+
+  const handleRemoveBenefit = (indexToRemove: number) => {
+    if (!editingPlan || !editingPlan.featuresList) return;
+    setEditingPlan({
+      ...editingPlan,
+      featuresList: editingPlan.featuresList.filter((_, idx) => idx !== indexToRemove)
+    });
+  };
+
+  const handleUpdateBenefitItem = (indexToUpdate: number, newText: string) => {
+    if (!editingPlan || !editingPlan.featuresList) return;
+    const updatedList = [...editingPlan.featuresList];
+    updatedList[indexToUpdate] = newText;
+    setEditingPlan({
+      ...editingPlan,
+      featuresList: updatedList
+    });
+  };
+
   const handleSavePlanModal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPlan) return;
@@ -61,7 +90,7 @@ export default function AdminPlansPage() {
     setTimeout(() => {
       setSavedSuccess(false);
       setEditingPlan(null);
-    }, 1200);
+    }, 800);
   };
 
   return (
@@ -74,23 +103,23 @@ export default function AdminPlansPage() {
             Configurador de Planos & Benefícios
           </h1>
           <p className="text-sm text-upGray mt-1">
-            Defina preços, cotas de créditos IA e vincule quais páginas e recursos cada plano pode acessar.
+            Defina preços, cotas de créditos IA, lista de benefícios e vincule quais páginas e recursos cada plano pode acessar.
           </p>
         </div>
       </div>
 
-      {/* Grid dos 4 Planos com Toggles Dinâmicos */}
+      {/* Grid dos Planos com Toggles Dinâmicos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {plans.map((plan) => (
           <div
             key={plan.id}
             className={`bg-[#0e0e14] border rounded-3xl p-6 flex flex-col justify-between gap-6 shadow-xl relative transition-all ${
-              plan.name === "Pro"
+              plan.featured || plan.name === "Pro"
                 ? "border-upPink/60 shadow-[0_0_30px_rgba(255,83,104,0.15)]"
                 : "border-upBorder/60"
             }`}
           >
-            {plan.name === "Pro" && (
+            {(plan.featured || plan.name === "Pro") && (
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-upPink text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-full shadow-md">
                 Mais Vendido
               </span>
@@ -100,8 +129,8 @@ export default function AdminPlansPage() {
               <div>
                 <h3 className="text-xl font-extrabold text-white">{plan.name}</h3>
                 <p className="text-2xl font-black text-upPink mt-1">
-                  R$ {plan.priceMonthly}
-                  <span className="text-xs text-upGray font-medium"> /mês</span>
+                  {typeof plan.priceMonthly === "number" ? `R$ ${plan.priceMonthly}` : plan.priceMonthly}
+                  {!plan.isCustomPrice && <span className="text-xs text-upGray font-medium"> /mês</span>}
                 </p>
               </div>
 
@@ -162,20 +191,20 @@ export default function AdminPlansPage() {
               className="w-full py-2.5 bg-upDark hover:bg-upPink/20 text-upWhite hover:text-upPink border border-upBorder/80 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              <span>Editar Valores & Créditos</span>
+              <span>Editar Valores, Benefícios & Créditos</span>
             </button>
           </div>
         ))}
       </div>
 
-      {/* Modal de Edição de Créditos e Valores */}
+      {/* Modal de Edição de Créditos, Benefícios e Valores */}
       {editingPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#0b0b0f] border border-upBorder/60 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative text-upLightGray">
-            <div className="px-6 py-4 border-b border-upBorder/40 flex items-center justify-between bg-upDark/60">
+          <div className="bg-[#0b0b0f] border border-upBorder/60 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative text-upLightGray max-h-[90vh] flex flex-col">
+            <div className="px-6 py-4 border-b border-upBorder/40 flex items-center justify-between bg-upDark/60 shrink-0">
               <div className="flex items-center gap-2">
                 <Sliders className="w-5 h-5 text-upPink" />
-                <h3 className="text-sm font-bold text-white">Editar {editingPlan.name}</h3>
+                <h3 className="text-sm font-bold text-white">Editar Plano: {editingPlan.name}</h3>
               </div>
               <button
                 onClick={() => setEditingPlan(null)}
@@ -185,17 +214,43 @@ export default function AdminPlansPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSavePlanModal} className="p-6 space-y-4">
-              <div>
-                <label className="text-[11px] font-bold uppercase tracking-wider text-upGray mb-1.5 block">
-                  Preço Mensal (R$)
-                </label>
-                <input
-                  type="number"
-                  value={editingPlan.priceMonthly}
-                  onChange={(e) => setEditingPlan({ ...editingPlan, priceMonthly: parseFloat(e.target.value) || 0 })}
-                  className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition"
-                />
+            <form onSubmit={handleSavePlanModal} className="p-6 space-y-4 overflow-y-auto flex-grow">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-upGray mb-1.5 block">
+                    Preço Mensal (R$)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPlan.priceMonthly}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const num = parseFloat(val);
+                      setEditingPlan({
+                        ...editingPlan,
+                        priceMonthly: isNaN(num) ? val : num
+                      });
+                    }}
+                    className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-upGray mb-1.5 block">
+                    Destaque (Mais Vendido)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setEditingPlan({ ...editingPlan, featured: !editingPlan.featured })}
+                    className={`w-full py-2.5 rounded-xl text-xs font-bold border transition ${
+                      editingPlan.featured
+                        ? "bg-upPink/20 border-upPink text-upPink"
+                        : "bg-upDark border-upBorder/80 text-upGray"
+                    }`}
+                  >
+                    {editingPlan.featured ? "⭐ Em Destaque" : "Normal"}
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -222,7 +277,59 @@ export default function AdminPlansPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-upBorder/40">
+              {/* Editor Dinâmico de Benefícios Textuais */}
+              <div className="pt-3 border-t border-upBorder/40 space-y-3">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-upPink block">
+                  Benefícios Textuais (Exibidos na Landing Page & Checkout)
+                </label>
+
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  {(editingPlan.featuresList || []).map((benefit, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={benefit}
+                        onChange={(e) => handleUpdateBenefitItem(idx, e.target.value)}
+                        className="flex-grow bg-upDark border border-upBorder/60 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-upPink transition"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveBenefit(idx)}
+                        className="p-1.5 text-upGray hover:text-rose-400 bg-rose-500/10 rounded-lg border border-rose-500/20 transition shrink-0"
+                        title="Remover Benefício"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <input
+                    type="text"
+                    placeholder="Adicionar novo benefício (ex: 3 contas de Instagram)..."
+                    value={newBenefitText}
+                    onChange={(e) => setNewBenefitText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddBenefit();
+                      }
+                    }}
+                    className="flex-grow bg-upDark border border-upBorder/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-upGray focus:outline-none focus:border-upPink transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddBenefit}
+                    className="px-3.5 py-2 bg-upPink hover:bg-upPink/90 text-white rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-upBorder/40">
                 <button
                   type="button"
                   onClick={() => setEditingPlan(null)}

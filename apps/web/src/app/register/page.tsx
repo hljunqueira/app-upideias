@@ -52,7 +52,7 @@ function RegisterContent() {
     setGoogleLoading(true);
     setError("");
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(`/checkout?plan=${plan}`);
     } catch (err: any) {
       setError(err.message || "Erro ao conectar com Google Auth.");
       setGoogleLoading(false);

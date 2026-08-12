@@ -24,7 +24,7 @@ interface SubscriptionItem {
   subscriptionId: string; // ID da assinatura do gateway de pagamento
   customerName: string;
   customerEmail: string;
-  planName: "Start" | "Pro" | "Agência";
+  planName: string;
   amount: string;
   cycle: "Mensal" | "Anual";
   paymentMethod: "Cartão de Crédito" | "PIX" | "Boleto";
@@ -35,13 +35,19 @@ interface SubscriptionItem {
 import { useEffect } from "react";
 import { supabase } from "@up-analytics/lib";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { getStoredPlans, PlanConfig } from "@/lib/plansStore";
 
 export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<PlanConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
   const [deletingSubId, setDeletingSubId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setAvailablePlans(getStoredPlans());
+  }, []);
 
   useEffect(() => {
     async function loadSubscriptions() {
@@ -83,7 +89,7 @@ export default function AdminSubscriptionsPage() {
     subscriptionId: string;
     customerName: string;
     customerEmail: string;
-    planName: "Start" | "Pro" | "Agência";
+    planName: string;
     amount: string;
     cycle: "Mensal" | "Anual";
     paymentMethod: "Cartão de Crédito" | "PIX" | "Boleto";
@@ -443,9 +449,11 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) => setFormData({ ...formData, planName: e.target.value as any })}
                     className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
-                    <option value="Start">Start</option>
-                    <option value="Pro">Pro</option>
-                    <option value="Agência">Agência</option>
+                    {availablePlans.map((p) => (
+                      <option key={p.id} value={p.name}>
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
