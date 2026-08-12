@@ -60,8 +60,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Redirecionamento de usuários já autenticados nas páginas de login/registro
-  if ((pathname === '/login' || pathname === '/register') && isAuthenticated) {
+  // Redirecionamento de usuários já autenticados na página de login
+  if (pathname === '/login' && isAuthenticated) {
     return NextResponse.redirect(new URL('/app/dashboard', request.url));
   }
 

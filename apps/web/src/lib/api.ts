@@ -37,6 +37,21 @@ export async function apiRegister(name: string, email: string, password: string)
     },
   });
   if (error) throw error;
+
+  if (data?.user) {
+    try {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        name: name,
+        email: email,
+        role: 'user',
+        updated_at: new Date().toISOString(),
+      });
+    } catch {
+      // Ignora erro de RLS se a trigger ja inseriu o perfil
+    }
+  }
+
   return data;
 }
 
@@ -68,10 +83,18 @@ export async function getMe() {
     .eq('id', user.id)
     .single();
 
+  const resolvedName =
+    (profile?.name && profile.name !== 'Usuário UP' ? profile.name : null) ||
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    profile?.name ||
+    user.email?.split('@')[0] ||
+    'Usuário UP';
+
   return {
     id: user.id,
     email: user.email,
-    name: profile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário UP',
+    name: resolvedName,
     role: profile?.role || 'user',
     user_metadata: user.user_metadata,
   };
