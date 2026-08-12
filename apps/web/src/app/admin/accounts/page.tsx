@@ -122,10 +122,10 @@ export default function AdminAccountsPage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
             <Instagram className="w-8 h-8 text-upPink" />
-            Contas de Redes Sociais (Phyllo API)
+            Contas de Redes Sociais
           </h1>
           <p className="text-sm text-upGray mt-1">
-            Monitore a saúde dos tokens sociais, force sincronizações e audite perfis conectados pelos clientes.
+            Monitore a saúde das conexões sociais, force sincronizações de métricas e audite perfis vinculados.
           </p>
         </div>
 
@@ -135,21 +135,21 @@ export default function AdminAccountsPage() {
           className="flex items-center gap-2 px-5 py-3 rounded-xl bg-upPink hover:bg-upPinkDark text-white font-bold text-sm transition-all shadow-[0_0_25px_rgba(255,83,104,0.3)] hover:scale-[1.02] shrink-0 disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${syncingAll ? "animate-spin" : ""}`} />
-          {syncingAll ? "Sincronizando..." : "Sincronizar Todas (Phyllo)"}
+          {syncingAll ? "Sincronizando..." : "Sincronizar Todas as Contas"}
         </button>
       </div>
 
-      {/* Banner Informativo Phyllo SDK */}
+      {/* Banner Informativo de Conexão Autêntica */}
       <div className="bg-upCard/40 border border-upBorder/60 rounded-2xl p-5 flex items-start gap-4 shadow-lg">
         <div className="p-3 rounded-xl bg-upPink/10 text-upPink border border-upPink/20 shrink-0">
           <Info className="w-6 h-6" />
         </div>
         <div className="space-y-1">
           <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            Integração Autêntica via Phyllo Connect SDK
+            Integração Autêntica de Redes Sociais
           </h4>
           <p className="text-xs text-upGray leading-relaxed max-w-3xl">
-            As contas de redes sociais são vinculadas diretamente pelos próprios <strong>clientes assinantes</strong> no painel do aplicativo (<code className="text-upPink font-mono">/app</code>) através da autenticação oficial do Instagram/Meta. O painel Admin é responsável pelo monitoramento dos tokens e disparos de sincronização.
+            As contas de redes sociais são vinculadas diretamente pelos próprios <strong>clientes assinantes</strong> no painel do aplicativo (<code className="text-upPink font-mono">/app</code>) através da conexão oficial da API social. O painel Admin é responsável pelo monitoramento das conexões e disparos de sincronização.
           </p>
         </div>
       </div>

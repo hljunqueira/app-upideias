@@ -43,12 +43,15 @@ import { cn } from "../../../utils/cn";
 import { ExportButton } from "../../../components/ui/ExportButton";
 import { DashboardSkeleton } from "../../../components/ui/SkeletonLoader";
 
+import { OnboardingConnectModal } from "../../../components/common/OnboardingConnectModal";
+
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [period, setPeriod] = useState("30D");
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [postImages, setPostImages] = useState<Record<string, string>>({});
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Real data state
   const [accounts, setAccounts] = useState<any[]>([]);
@@ -71,6 +74,10 @@ export default function Dashboard() {
         setPosts(fetchedPosts);
         if (fetchedPosts.length > 0) {
           setSelectedPost(fetchedPosts[0]);
+        }
+      } else {
+        if (typeof window !== "undefined" && !localStorage.getItem("up_onboarding_completed")) {
+          setShowOnboarding(true);
         }
       }
     } catch (error) {
@@ -381,6 +388,13 @@ export default function Dashboard() {
           />
         </div>
       </div>
+
+      {/* Modal de Onboarding de Boas-Vindas e Conexão de Primeiro Acesso */}
+      <OnboardingConnectModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onSuccess={loadDashboardData}
+      />
     </div>
   );
 }
