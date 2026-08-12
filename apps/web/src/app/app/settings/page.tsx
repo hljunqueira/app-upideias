@@ -19,14 +19,15 @@ import {
   EyeOff
 } from "lucide-react";
 import { getActiveUserPlan, getUserCredits, setActiveUserPlan } from "@/lib/plansStore";
+import { getMe } from "@/lib/api";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "preferences" | "plan">("profile");
 
   // User Profile State
-  const [userName, setUserName] = useState("Henrique Creator");
-  const [userEmail, setUserEmail] = useState("creator@upideias.com");
-  const [instagramHandle, setInstagramHandle] = useState("@henrique.creator");
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [instagramHandle, setInstagramHandle] = useState("@upideias");
   const [userBio, setUserBio] = useState("Especialista em Marketing de Conteúdo & Estratégias de Engajamento no Instagram.");
   const [avatarUrl, setAvatarUrl] = useState("https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop");
   
@@ -50,6 +51,13 @@ export default function SettingsPage() {
   useEffect(() => {
     setActivePlan(getActiveUserPlan());
     setUserCredits(getUserCredits());
+
+    getMe().then((u) => {
+      if (u) {
+        if (u.name) setUserName(u.name);
+        if (u.email) setUserEmail(u.email);
+      }
+    }).catch(() => {});
 
     const handleUpdate = () => {
       setActivePlan(getActiveUserPlan());

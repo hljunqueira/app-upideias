@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { ArrowLeft, Check, ShieldCheck, Lock, CreditCard, QrCode, Barcode } from "lucide-react";
 import { PlanConfig, getStoredPlans, setActiveUserPlan } from "@/lib/plansStore";
+import { getSupportWhatsAppUrl } from "@/lib/config";
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -50,6 +51,8 @@ function CheckoutContent() {
     }, 800);
   };
 
+  const isEnterprise = planSlug.toLowerCase() === "enterprise" || foundPlan?.isCustomPrice || foundPlan?.id === "enterprise";
+
   return (
     <div className="min-h-screen bg-upBlack text-white py-12 px-6">
       <div className="max-w-5xl mx-auto">
@@ -72,8 +75,33 @@ function CheckoutContent() {
         <div className="grid lg:grid-cols-12 gap-10">
           {/* Form Checkout */}
           <div className="lg:col-span-7 bg-upCard/60 border border-upBorder rounded-3xl p-6 sm:p-8 backdrop-blur-xl">
-            <h1 className="font-display text-2xl font-bold mb-1">Finalizar Assinatura</h1>
-            <p className="text-xs text-upGray mb-8">Preencha seus dados de pagamento para ativar o acesso imediato</p>
+            <h1 className="font-display text-2xl font-bold mb-1">
+              {isEnterprise ? "Atendimento Enterprise" : "Finalizar Assinatura"}
+            </h1>
+            <p className="text-xs text-upGray mb-8">
+              {isEnterprise
+                ? "Plano corporativo personalizado com atendimento consultivo 24/7"
+                : "Preencha seus dados de pagamento para ativar o acesso imediato"}
+            </p>
+
+            {isEnterprise ? (
+              <div className="space-y-6 text-center py-4">
+                <div className="p-6 rounded-2xl bg-upPink/10 border border-upPink/30">
+                  <h2 className="text-xl font-bold text-white mb-2">Projeto Personalizado Enterprise</h2>
+                  <p className="text-xs text-upLightGray leading-relaxed mb-6">
+                    O Plano Enterprise inclui contas ilimitadas, créditos de IA sem restrições, SLA garantido e gerente de conta dedicado. Nosso time técnico está pronto para configurar seu ambiente.
+                  </p>
+                  <a
+                    href={getSupportWhatsAppUrl("Olá, gostaria de solicitar uma proposta comercial para o Plano Enterprise do UP Ideias.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-upPink hover:bg-upPinkDark text-white font-bold text-sm rounded-full shadow-[0_0_30px_rgba(255,83,104,0.5)] transition-all hover:scale-105"
+                  >
+                    Falar com Consultor no WhatsApp
+                  </a>
+                </div>
+              </div>
+            ) : (
 
             <form onSubmit={handleFinish} className="space-y-6">
               {/* Payment Methods */}
@@ -193,6 +221,7 @@ function CheckoutContent() {
                 Garantia incondicional de 7 dias para reembolso (Código do Consumidor)
               </div>
             </form>
+            )}
           </div>
 
           {/* Plan Summary Sidebar */}

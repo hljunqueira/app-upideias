@@ -27,12 +27,14 @@ import {
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { getMe, apiLogout } from "@/lib/api";
+import { getInstagramAccounts } from "@up-analytics/lib";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [instagramHandle, setInstagramHandle] = useState<string | null>(null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -76,6 +78,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         const u = await getMe();
         setUser(u);
         setAuthChecked(true);
+        getInstagramAccounts()
+          .then((accs) => {
+            if (accs && accs.length > 0) {
+              setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "@upideias");
+            }
+          })
+          .catch(() => {});
       } catch {
         router.replace("/login");
       }
@@ -151,11 +160,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
 
             {/* Status Chip Instagram */}
-            <div className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upCard/60 border border-upBorder text-xs text-upLightGray shrink-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <Link href="/admin/accounts" className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upCard/60 border border-upBorder text-xs text-upLightGray hover:border-upPink/50 shrink-0 transition-all">
+              <span className={`w-2 h-2 rounded-full ${instagramHandle ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
               <Instagram className="w-3.5 h-3.5 text-upPink" />
-              <span className="font-medium text-[11px]">@upideias</span>
-            </div>
+              <span className="font-medium text-[11px]">{instagramHandle || "Conectar Instagram"}</span>
+            </Link>
           </div>
 
           {/* Center Navigation Links (Desktop Despoluído) */}

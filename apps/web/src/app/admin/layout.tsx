@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { apiLogout } from "@/lib/api";
+import { apiLogout, getMe } from "@/lib/api";
 import {
   LayoutDashboard,
   Users,
@@ -31,6 +31,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [adminName, setAdminName] = useState("Administrador Master");
+  const [adminEmail, setAdminEmail] = useState("");
+
+  useEffect(() => {
+    getMe().then((u) => {
+      if (u) {
+        if (u.name) setAdminName(u.name);
+        if (u.email) setAdminEmail(u.email);
+      }
+    }).catch(() => {});
+  }, []);
 
   // Listener para Ctrl+K / Cmd+K
   useEffect(() => {
@@ -143,8 +154,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   className="absolute top-full mt-2 right-0 w-64 bg-upDark border border-upBorder/80 rounded-2xl p-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl z-50 animate-fade-in space-y-1 text-xs"
                 >
                   <div className="px-3 py-2 border-b border-upBorder/40">
-                    <p className="text-xs font-bold text-white">Administrador Master</p>
-                    <p className="text-[10px] text-upGray truncate">admin@upideias.com</p>
+                    <p className="text-xs font-bold text-white">{adminName}</p>
+                    <p className="text-[10px] text-upGray truncate">{adminEmail || "Admin"}</p>
                   </div>
 
                   <Link
