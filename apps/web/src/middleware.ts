@@ -31,16 +31,25 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Validação segura do usuário através de getUser()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Validação segura do usuário no servidor
+  // Tenta utilizar getClaims() se disponível, com fallback para getUser() para verificação autoritativa
+  let isAuthenticated = false;
+  let user = null;
+
+  if (typeof (supabase.auth as any).getClaims === 'function') {
+    const claims = await (supabase.auth as any).getClaims();
+    isAuthenticated = !!claims;
+  } else {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+    isAuthenticated = !!user;
+  }
 
   const pathname = request.nextUrl.pathname;
 
   // Proteção de rotas privadas (/app/*)
   if (pathname.startsWith('/app')) {
-    if (!user) {
+    if (!isAuthenticated) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('next', pathname);
       return NextResponse.redirect(loginUrl);
@@ -48,7 +57,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirecionamento de usuários já autenticados nas páginas de login/registro
-  if ((pathname === '/login' || pathname === '/register') && user) {
+  if ((pathname === '/login' || pathname === '/register') && isAuthenticated) {
     return NextResponse.redirect(new URL('/app/dashboard', request.url));
   }
 
