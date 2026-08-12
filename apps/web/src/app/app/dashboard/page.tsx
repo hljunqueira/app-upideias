@@ -200,18 +200,18 @@ export default function Dashboard() {
         {/* Instagram KPIs */}
         <MetricCardPremium
           name="Seguidores Orgânicos"
-          value={Math.round((accounts[0]?.followers_count || 0) * (period === "7D" ? 0.96 : period === "15D" ? 0.98 : 1)).toLocaleString("pt-BR")}
-          change={period === "7D" ? "+0,8%" : period === "15D" ? "+1,5%" : "+2,6%"}
+          value={(accounts[0]?.followers_count || 0).toLocaleString("pt-BR")}
+          change={accounts[0]?.follower_growth_rate ? `${accounts[0].follower_growth_rate >= 0 ? "+" : ""}${accounts[0].follower_growth_rate.toFixed(1)}%` : "+0,0%"}
           icon={Users}
-          status="up"
+          status={(accounts[0]?.followers_count || 0) > 0 ? "up" : "neutral"}
           type="instagram"
         />
         <MetricCardPremium
           name="Alcance do Perfil"
-          value={Math.round((filteredMetrics[filteredMetrics.length - 1]?.reach || 0) * (period === "7D" ? 0.4 : period === "15D" ? 0.7 : 1)).toLocaleString("pt-BR")}
-          change={period === "7D" ? "+4.2%" : period === "15D" ? "+8.1%" : "+12,4%"}
+          value={(filteredMetrics[filteredMetrics.length - 1]?.reach || 0).toLocaleString("pt-BR")}
+          change={accounts[0]?.reach_growth_rate ? `${accounts[0].reach_growth_rate >= 0 ? "+" : ""}${accounts[0].reach_growth_rate.toFixed(1)}%` : "+0,0%"}
           icon={Eye}
-          status="up"
+          status={(filteredMetrics[filteredMetrics.length - 1]?.reach || 0) > 0 ? "up" : "neutral"}
           type="instagram"
         />
 
@@ -229,7 +229,7 @@ export default function Dashboard() {
           value={`${(accounts[0]?.roas || 0).toFixed(2)}x`}
           change="+0,0%"
           icon={TrendingUp}
-          status="up"
+          status={(accounts[0]?.roas || 0) > 0 ? "up" : "neutral"}
           type="facebook"
         />
       </div>
