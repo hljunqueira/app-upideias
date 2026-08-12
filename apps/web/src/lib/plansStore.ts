@@ -141,19 +141,10 @@ export function getStoredPlans(): PlanConfig[] {
       return INITIAL_PLANS;
     }
     const parsed: PlanConfig[] = JSON.parse(raw);
-    
-    return parsed.map((p) => {
-      const initial = INITIAL_PLANS.find((i) => i.id === p.id || i.name.toLowerCase() === p.name.toLowerCase());
-      const isEnterprise = p.id === "enterprise" || p.name.toLowerCase() === "enterprise";
-      return {
-        ...initial,
-        ...p,
-        priceMonthly: isEnterprise ? "Sob consulta" : p.priceMonthly,
-        isCustomPrice: isEnterprise || Boolean(p.isCustomPrice),
-        featured: p.id === "pro" || p.name.toLowerCase() === "pro" || Boolean(p.featured),
-        featuresList: (p.featuresList && p.featuresList.length > 0) ? p.featuresList : (initial?.featuresList || [])
-      };
-    });
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return INITIAL_PLANS;
+    }
+    return parsed;
   } catch {
     return INITIAL_PLANS;
   }
