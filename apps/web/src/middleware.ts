@@ -8,6 +8,16 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  const pathname = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.searchParams;
+
+  // Failsafe: Redireciona qualquer callback com '?code=' que tenha caído fora de '/auth/callback'
+  if (pathname !== '/auth/callback' && searchParams.has('code')) {
+    const callbackUrl = new URL('/auth/callback', request.url);
+    callbackUrl.search = searchParams.toString();
+    return NextResponse.redirect(callbackUrl);
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.upideias.com';
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
 
@@ -29,8 +39,6 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-
-  const pathname = request.nextUrl.pathname;
 
   // Executa validação de usuário no servidor Supabase Auth (Fail-Closed)
   let isAuthenticated = false;
