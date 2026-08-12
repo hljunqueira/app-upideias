@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { apiLogout } from "@/lib/api";
 import {
   LayoutDashboard,
   Users,
@@ -51,8 +52,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "UP Creator", href: "/admin/up-creator", icon: GraduationCap },
   ];
 
-  const handleLogout = () => {
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await apiLogout();
+    } catch {
+      /* ignore */
+    }
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   };
 
   return (

@@ -120,7 +120,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     } catch {
       /* ignore logout error */
     }
-    router.push("/");
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   };
 
   if (!authChecked) {

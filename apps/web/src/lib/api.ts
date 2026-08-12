@@ -64,8 +64,21 @@ export async function apiLogin(email: string, password: string) {
 
 export async function apiLogout() {
   const supabase = createClient();
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    /* ignore */
+  }
+  if (typeof window !== 'undefined') {
+    document.cookie.split(';').forEach((c) => {
+      const eqPos = c.indexOf('=');
+      const name = eqPos > -1 ? c.substring(0, eqPos).trim() : c.trim();
+      if (name.startsWith('sb-') || name.includes('auth-token')) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+      }
+    });
+  }
 }
 
 export async function getMe() {
