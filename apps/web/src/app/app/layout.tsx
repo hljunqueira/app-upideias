@@ -30,7 +30,7 @@ import { CommandPalette } from "@/components/ui/CommandPalette";
 import { getMe, apiLogout } from "@/lib/api";
 import { getInstagramAccounts } from "@up-analytics/lib";
 import { PhylloConnectModal } from "@/components/common/PhylloConnectModal";
-import { getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
+import { fetchNotificationsFromDatabase, getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -47,7 +47,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
-    setNotifications(getNotifications("user"));
+    fetchNotificationsFromDatabase("user").then((notifs) => {
+      setNotifications(notifs);
+    });
     const handleUpdate = () => setNotifications(getNotifications("user"));
     window.addEventListener("up_notifications_updated", handleUpdate);
     return () => window.removeEventListener("up_notifications_updated", handleUpdate);
@@ -267,8 +269,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                     {unreadCount > 0 && (
                       <button
-                        onClick={() => {
-                          const updated = markAllNotificationsAsRead("user");
+                        onClick={async () => {
+                          const updated = await markAllNotificationsAsRead("user");
                           setNotifications(updated);
                         }}
                         className="text-[10px] text-upPink font-semibold hover:underline cursor-pointer"

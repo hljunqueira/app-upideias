@@ -23,7 +23,7 @@ import {
   Layout
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
-import { getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
+import { fetchNotificationsFromDatabase, getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -39,7 +39,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
-    setAdminNotifications(getNotifications("admin"));
+    fetchNotificationsFromDatabase("admin").then((notifs) => {
+      setAdminNotifications(notifs);
+    });
     const handleUpdate = () => setAdminNotifications(getNotifications("admin"));
     window.addEventListener("up_notifications_updated", handleUpdate);
     return () => window.removeEventListener("up_notifications_updated", handleUpdate);
@@ -176,8 +178,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </div>
                     {adminUnreadCount > 0 && (
                       <button
-                        onClick={() => {
-                          const updated = markAllNotificationsAsRead("admin");
+                        onClick={async () => {
+                          const updated = await markAllNotificationsAsRead("admin");
                           setAdminNotifications(updated);
                         }}
                         className="text-[10px] text-upPink font-semibold hover:underline"
