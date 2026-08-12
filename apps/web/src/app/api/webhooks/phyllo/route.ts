@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     // 3. Validate Signature (HMAC SHA-256 on RAW Body)
     const isValid = verifyPhylloSignature(rawBody, signatureHeader, webhookSecret);
     if (!isValid) {
-      console.warn('[PhylloWebhook] Fail Closed: Assinatura de webhook inválida.');
+      console.warn(`[PhylloWebhook] Fail Closed: Assinatura de webhook inválida. Header: "${signatureHeader}", BodyLength: ${rawBody.length}`);
       return NextResponse.json(
         { error: 'Assinatura de webhook inválida.' },
         { status: 401 }
