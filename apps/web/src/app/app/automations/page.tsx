@@ -12,12 +12,13 @@ import {
   ShieldCheck,
   Zap
 } from "lucide-react";
-import { sendWhatsAppMessage } from "@up-analytics/lib";
+import { sendWhatsAppMessage, supabase, getNotificationPreferences, updateNotificationPreferences } from "@up-analytics/lib";
+import { useEffect } from "react";
 
 import { PlanGate } from "@/components/common/PlanGate";
 
 export default function AutomationsPage() {
-  const [phoneNumber, setPhoneNumber] = useState("5511999999999");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [messageSent, setMessageSent] = useState<boolean | null>(null);
   const [savedSettings, setSavedSettings] = useState(false);
@@ -30,9 +31,38 @@ export default function AutomationsPage() {
     newCourses: true
   });
 
-  const handleToggle = (key: keyof typeof notifications) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    async function loadPreferences() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const prefs = await getNotificationPreferences(user.id);
+        if (prefs) {
+          setNotifications({
+            weeklyReport: prefs.weekly_report,
+            reachAlerts: prefs.performance_alerts,
+            approvalsReminder: prefs.post_reminders,
+            newCourses: prefs.daily_tips
+          });
+        }
+      }
+    }
+    loadPreferences();
+  }, []);
+
+  const handleToggle = async (key: keyof typeof notifications) => {
+    const nextState = { ...notifications, [key]: !notifications[key] };
+    setNotifications(nextState);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await updateNotificationPreferences(user.id, {
+        weekly_report: nextState.weeklyReport,
+        performance_alerts: nextState.reachAlerts,
+        post_reminders: nextState.approvalsReminder,
+        daily_tips: nextState.newCourses
+      });
+    }
   };
+
 
   const handleSendTest = async (e: React.FormEvent) => {
     e.preventDefault();

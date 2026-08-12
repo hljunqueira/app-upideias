@@ -13,19 +13,42 @@ import { CreatePostModal, ScheduledPost } from "@/components/calendar/CreatePost
 
 import { PlanGate } from "@/components/common/PlanGate";
 
+import { useEffect } from "react";
+import { supabase } from "@up-analytics/lib";
+
 export default function ContentCalendarPage() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [editingPost, setEditingPost] = useState<ScheduledPost | null>(null);
 
-  // Posts agendados do calendário
-  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([
-    { id: "p1", title: "Estratégia vs Postagem", type: "Carrossel", status: "published", time: "18:30", day: 3, monthYear: "Julho 2026", caption: "Comparativo entre estratégia e postagem aleatória." },
-    { id: "p2", title: "3 Hacks de Social Media", type: "Reels", status: "published", time: "12:00", day: 4, monthYear: "Julho 2026", caption: "Hacks rápidos de retenção." },
-    { id: "p3", title: "Funil de Conteúdo", type: "Reels", status: "pending", time: "15:00", day: 6, monthYear: "Julho 2026", caption: "Como criar um funil de atração no Reels." },
-    { id: "p4", title: "Legendas que Convertem", type: "Imagem", status: "draft", time: "09:00", day: 10, monthYear: "Julho 2026", caption: "Modelos de CTA para direct." }
-  ]);
+  // Posts agendados do calendário (Buscados do Supabase)
+  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
+
+  useEffect(() => {
+    async function loadCalendar() {
+      const { data } = await supabase
+        .from("content_calendar")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (data && data.length > 0) {
+        const mapped: ScheduledPost[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title || "Post Agendado",
+          type: item.type || "Reels",
+          status: item.status || "pending",
+          time: item.time || "12:00",
+          day: item.day || 1,
+          monthYear: item.month_year || `${monthNames[new Date().getMonth()]} ${new Date().getFullYear()}`,
+          caption: item.caption || ""
+        }));
+        setScheduledPosts(mapped);
+      }
+    }
+    loadCalendar();
+  }, []);
+
 
   const monthNames = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",

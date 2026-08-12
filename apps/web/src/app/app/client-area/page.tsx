@@ -18,11 +18,15 @@ import {
 
 import { PlanGate } from "@/components/common/PlanGate";
 import { getActiveUserPlan } from "@/lib/plansStore";
+import { supabase } from "@up-analytics/lib";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function ClientAreaPage() {
   const [userPlan, setUserPlan] = useState<string>("Pro");
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isLimitWarningOpen, setIsLimitWarningOpen] = useState(false);
+
 
   useEffect(() => {
     setUserPlan(getActiveUserPlan());
@@ -31,16 +35,33 @@ export default function ClientAreaPage() {
     return () => window.removeEventListener("up_plans_updated", handleUpdate);
   }, []);
 
-  const mockClients = [
-    { id: "c1", name: "Padaria da Esquina", handle: "@padaria_corner", followers: "12.4K", status: "Ativo", postsPending: 1 },
-    { id: "c2", name: "Academia Fit Corp", handle: "@academia_fit", followers: "24.8K", status: "Ativo", postsPending: 2 },
-    { id: "c3", name: "Boutique Moda Elegance", handle: "@moda.elegance", followers: "8.1K", status: "Ativo", postsPending: 0 },
-    { id: "c4", name: "Clínica Odonto Riso", handle: "@odontoriso", followers: "15.3K", status: "Ativo", postsPending: 0 },
-    { id: "c5", name: "Restaurante Sabor & Arte", handle: "@saborearte", followers: "19.5K", status: "Ativo", postsPending: 1 }
-  ];
+  const [clients, setClients] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadClients() {
+      const { data } = await supabase
+        .from("instagram_accounts")
+        .select("*")
+        .eq("status", "connected");
+
+      if (data) {
+        const mapped = data.map((acc: any) => ({
+          id: acc.id,
+          name: acc.account_name || acc.username || "Marca Cliente",
+          handle: `@${acc.username || "cliente"}`,
+          followers: (acc.followers_count || 0).toLocaleString("pt-BR"),
+          status: "Ativo",
+          postsPending: 0
+        }));
+        setClients(mapped);
+      }
+    }
+    loadClients();
+  }, []);
 
   const maxClientsForAgency = 5;
-  const isAgencyLocked = userPlan === "Agência" && mockClients.length >= maxClientsForAgency;
+  const isAgencyLocked = userPlan === "Agência" && clients.length >= maxClientsForAgency;
+
 
   return (
     <PlanGate featureKey="clientArea" featureTitle="Gestão de Clientes">
@@ -158,7 +179,7 @@ export default function ClientAreaPage() {
             <button
               onClick={() => {
                 if (isAgencyLocked) {
-                  alert("Limite de 5 clientes atingido no Plano Agência! Faça upgrade para o Enterprise para cadastrar clientes ilimitados.");
+                  setIsLimitWarningOpen(true);
                 } else {
                   setIsAddModalOpen(true);
                 }
@@ -174,9 +195,20 @@ export default function ClientAreaPage() {
             </button>
           </div>
 
+          <ConfirmModal
+            isOpen={isLimitWarningOpen}
+            title="Limite de Clientes Atingido"
+            description="Você atingiu o limite máximo de 5 clientes do Plano Agência. Desbloqueie o Plano Enterprise para cadastrar clientes e marcas ilimitados."
+            confirmText="Entendido"
+            cancelText="Fechar"
+            variant="warning"
+            onConfirm={() => setIsLimitWarningOpen(false)}
+            onClose={() => setIsLimitWarningOpen(false)}
+          />
+
           {/* Grid de Clientes Cadastrados */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockClients
+            {clients
               .filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.handle.toLowerCase().includes(searchTerm.toLowerCase()))
               .map((client) => (
                 <div

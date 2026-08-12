@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Clock, Sparkles, Image as ImageIcon, Copy, Check, MessageSquare, X, Send } from "lucide-react";
-import { ApprovalItem, getStoredApprovals, updateApprovalStatus } from "@/lib/approvalsStore";
+import { ApprovalItem, fetchApprovalsFromDb, updateApprovalStatus } from "@/lib/approvalsStore";
 
 import { PlanGate } from "@/components/common/PlanGate";
 
@@ -14,9 +14,11 @@ export default function ApprovalsPage() {
   const [rejectingItem, setRejectingItem] = useState<ApprovalItem | null>(null);
   const [feedbackNote, setFeedbackNote] = useState("");
 
-  const loadApprovals = () => {
-    setApprovals(getStoredApprovals());
+  const loadApprovals = async () => {
+    const data = await fetchApprovalsFromDb();
+    setApprovals(data);
   };
+
 
   useEffect(() => {
     loadApprovals();

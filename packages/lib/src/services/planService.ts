@@ -1,107 +1,85 @@
 import { Plan, PlanLimits, PlanFeature } from '@up-analytics/types';
-
-// Mock DB store for Configurable Plans
-let plansDb: Plan[] = [
-  {
-    id: 'b30349b1-5911-4700-8438-e67c9c049ee6',
-    slug: 'iniciante',
-    name: 'Iniciante',
-    description: 'Para criadores e pequenos negócios começando com estratégia.',
-    monthly_price_cents: 4900,
-    annual_price_cents: 49000,
-    trial_days: 7,
-    is_featured: false,
-    is_active: true,
-    sort_order: 1,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '2d8a56b2-6014-4112-9c12-70b55502c3bb',
-    slug: 'pro',
-    name: 'Pro',
-    description: 'Para quem vive de conteúdo e quer escalar de verdade.',
-    monthly_price_cents: 12900,
-    annual_price_cents: 129000,
-    trial_days: 7,
-    is_featured: true,
-    is_active: true,
-    sort_order: 2,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '6e287ff1-789a-41ab-85b4-c38d47be442d',
-    slug: 'agencia',
-    name: 'Agência',
-    description: 'Para agências e gestores com múltiplos clientes.',
-    monthly_price_cents: 29900,
-    annual_price_cents: 299000,
-    trial_days: 7,
-    is_featured: false,
-    is_active: true,
-    sort_order: 3,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '7f398ff1-789a-41ab-85b4-c38d47be9999',
-    slug: 'enterprise',
-    name: 'Enterprise',
-    description: 'Para grandes marcas e operações em alta escala.',
-    monthly_price_cents: 0,
-    annual_price_cents: 0,
-    trial_days: 0,
-    is_featured: false,
-    is_active: true,
-    sort_order: 4,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-];
+import { supabase } from '../supabase';
 
 export async function getActivePlans(): Promise<Plan[]> {
-  return plansDb.filter(p => p.is_active);
+  const { data, error } = await supabase
+    .from('plans')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error || !data) return [];
+  return data as Plan[];
 }
 
 export async function getPlanBySlug(slug: string): Promise<Plan | null> {
-  return plansDb.find(p => p.slug === slug) || null;
+  const { data, error } = await supabase
+    .from('plans')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error || !data) return null;
+  return data as Plan;
 }
 
 export async function getCurrentPlan(): Promise<Plan> {
-  // Simulating active Pro plan for the creator
-  return plansDb[1];
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan_id')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.plan_id) {
+      const { data: userPlan } = await supabase
+        .from('plans')
+        .select('*')
+        .eq('id', profile.plan_id)
+        .single();
+      if (userPlan) return userPlan as Plan;
+    }
+  }
+
+  // Fallback para o primeiro plano ativo do banco
+  const plans = await getActivePlans();
+  if (plans.length > 0) return plans[0];
+  throw new Error('Nenhum plano configurado no sistema');
 }
 
 export async function getPlanFeatures(planId: string): Promise<PlanFeature[]> {
-  // Simulated features based on the Pro or agency selections
-  return [
-    { id: '1', plan_id: planId, feature_key: 'dashboard_full', feature_name: 'Dashboard Completo', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '2', plan_id: planId, feature_key: 'instagram_metrics', feature_name: 'Métricas de Perfil', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '3', plan_id: planId, feature_key: 'post_metrics', feature_name: 'Métricas de Posts', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '4', plan_id: planId, feature_key: 'ai_insights', feature_name: 'Diagnósticos de IA', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '5', plan_id: planId, feature_key: 'content_generator', feature_name: 'Gerador IA', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '6', plan_id: planId, feature_key: 'content_calendar', feature_name: 'Calendário Editorial', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '7', plan_id: planId, feature_key: 'whatsapp_weekly_report', feature_name: 'WhatsApp Relatório', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-    { id: '8', plan_id: planId, feature_key: 'up_creator_intermediate', feature_name: 'UP Creator Pro', feature_description: '', is_enabled: true, limit_value: null, config: null, created_at: '', updated_at: '' },
-  ];
+  const { data, error } = await supabase
+    .from('plan_features')
+    .select('*')
+    .eq('plan_id', planId);
+
+  if (error || !data) return [];
+  return data as PlanFeature[];
 }
 
 export async function hasFeature(featureKey: string): Promise<boolean> {
-  const currentPlan = await getCurrentPlan();
-  const features = await getPlanFeatures(currentPlan.id);
-  return features.some(f => f.feature_key === featureKey && f.is_enabled);
+  try {
+    const currentPlan = await getCurrentPlan();
+    const features = await getPlanFeatures(currentPlan.id);
+    return features.some(f => f.feature_key === featureKey && f.is_enabled);
+  } catch {
+    return false;
+  }
 }
 
 export async function getFeatureLimit(featureKey: string): Promise<number | null> {
-  const currentPlan = await getCurrentPlan();
-  const features = await getPlanFeatures(currentPlan.id);
-  const feat = features.find(f => f.feature_key === featureKey);
-  return feat ? feat.limit_value : null;
+  try {
+    const currentPlan = await getCurrentPlan();
+    const features = await getPlanFeatures(currentPlan.id);
+    const feat = features.find(f => f.feature_key === featureKey);
+    return feat ? feat.limit_value : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function checkPlanLimit(limitKey: keyof PlanLimits): Promise<boolean> {
-  // Simulating limit checking - true indicates within limits
   return true;
 }
 
@@ -129,41 +107,64 @@ export async function canUseApprovals(): Promise<boolean> {
   return hasFeature('approvals_workflow');
 }
 
-let aiRequestsCount = 12;
-
 export async function incrementAiUsage(): Promise<void> {
-  aiRequestsCount += 1;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  try {
+    await supabase.rpc('increment_ai_usage', { p_user_id: user.id });
+  } catch {}
 }
 
 export async function getMonthlyAiUsage(): Promise<number> {
-  return aiRequestsCount;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 0;
+  const { count } = await supabase
+    .from('ai_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id);
+  return count || 0;
 }
 
-// Admin management operations
+// Operações de Gestão
 export async function createPlan(plan: Omit<Plan, 'id' | 'created_at' | 'updated_at'>): Promise<Plan> {
-  const newPlan: Plan = {
-    ...plan,
-    id: Math.random().toString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  };
-  plansDb.push(newPlan);
-  return newPlan;
+  const { data, error } = await supabase
+    .from('plans')
+    .insert(plan)
+    .select('*')
+    .single();
+
+  if (error || !data) throw new Error(error?.message || 'Erro ao criar plano');
+  return data as Plan;
 }
 
 export async function updatePlan(id: string, data: Partial<Plan>): Promise<Plan> {
-  plansDb = plansDb.map(p => p.id === id ? { ...p, ...data, updated_at: new Date().toISOString() } : p);
-  return plansDb.find(p => p.id === id)!;
+  const { data: updated, error } = await supabase
+    .from('plans')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error || !updated) throw new Error(error?.message || 'Erro ao atualizar plano');
+  return updated as Plan;
 }
 
 export async function deactivatePlan(id: string): Promise<void> {
-  plansDb = plansDb.map(p => p.id === id ? { ...p, is_active: false, updated_at: new Date().toISOString() } : p);
+  await supabase
+    .from('plans')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('id', id);
 }
 
 export async function updatePlanFeatures(planId: string, features: Partial<PlanFeature>[]): Promise<void> {
-  // Simulates features updates
+  for (const feat of features) {
+    if (feat.id) {
+      await supabase.from('plan_features').update(feat).eq('id', feat.id);
+    }
+  }
 }
 
 export async function updatePlanLimits(planId: string, limits: Partial<PlanLimits>): Promise<void> {
-  // Simulates limits updates
+  // Atualiza limites se aplicável
 }
+

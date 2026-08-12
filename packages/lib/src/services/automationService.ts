@@ -1,49 +1,81 @@
 import { NotificationPreferences, WhatsAppMessage, AutomationEvent } from '@up-analytics/types';
+import { supabase } from '../supabase';
 
 const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL;
 const WHATSAPP_API_KEY = process.env.WHATSAPP_API_KEY;
 const WHATSAPP_SENDER_ID = process.env.WHATSAPP_SENDER_ID;
 
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
-  return {
-    id: 'pref-123',
-    user_id: userId,
-    weekly_report: true,
-    daily_tips: false,
-    performance_alerts: true,
-    billing_alerts: true,
-    token_alerts: true,
-    post_reminders: true,
-    preferred_time: '09:00:00',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
+  const { data, error } = await supabase
+    .from('notification_preferences')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) {
+    return {
+      id: '',
+      user_id: userId,
+      weekly_report: true,
+      daily_tips: false,
+      performance_alerts: true,
+      billing_alerts: true,
+      token_alerts: true,
+      post_reminders: true,
+      preferred_time: '09:00:00',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  return data as NotificationPreferences;
 }
 
 export async function updateNotificationPreferences(userId: string, data: Partial<NotificationPreferences>): Promise<void> {
-  // Simulates preferences updates
+  await supabase
+    .from('notification_preferences')
+    .upsert({
+      user_id: userId,
+      ...data,
+      updated_at: new Date().toISOString(),
+    });
 }
 
 export async function createAutomationEvent(event: Omit<AutomationEvent, 'id' | 'created_at' | 'processed_at'>): Promise<AutomationEvent> {
-  return {
-    ...event,
-    id: Math.random().toString(),
-    processed_at: null,
-    created_at: new Date().toISOString()
-  };
+  const { data, error } = await supabase
+    .from('automation_events')
+    .insert({
+      ...event,
+      created_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single();
+
+  if (error || !data) throw new Error(error?.message || 'Erro ao criar evento de automação');
+  return data as AutomationEvent;
 }
 
 export async function processAutomationEvent(eventId: string): Promise<void> {
-  // Simulates background event handler processing (e.g. n8n trigger)
+  await supabase
+    .from('automation_events')
+    .update({ processed_at: new Date().toISOString() })
+    .eq('id', eventId);
 }
 
 export async function createWhatsAppMessageLog(log: Omit<WhatsAppMessage, 'id' | 'created_at'>): Promise<WhatsAppMessage> {
-  return {
-    ...log,
-    id: Math.random().toString(),
-    created_at: new Date().toISOString()
-  };
+  const { data, error } = await supabase
+    .from('whatsapp_messages')
+    .insert({
+      ...log,
+      created_at: new Date().toISOString(),
+    })
+    .select('*')
+    .single();
+
+  if (error || !data) throw new Error(error?.message || 'Erro ao registrar log de WhatsApp');
+  return data as WhatsAppMessage;
 }
+
 
 export async function sendWhatsAppMessage(phone: string, text: string): Promise<boolean> {
   if (!WHATSAPP_API_URL || !WHATSAPP_API_KEY) {

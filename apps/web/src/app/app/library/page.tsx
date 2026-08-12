@@ -35,7 +35,7 @@ export interface LibraryItem {
 
 const INITIAL_LIBRARY_ITEMS: LibraryItem[] = [];
 
-const STORAGE_KEY = "up_library_items";
+import { supabase, saveToContentLibrary } from "@up-analytics/lib";
 
 export default function LibraryPage() {
   const [items, setItems] = useState<LibraryItem[]>([]);
@@ -54,41 +54,50 @@ export default function LibraryPage() {
   const [newDescription, setNewDescription] = useState("");
   const [newFileUrl, setNewFileUrl] = useState("");
 
-  useEffect(() => {
+  const loadLibraryItems = async () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        setItems(JSON.parse(raw));
-      } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_LIBRARY_ITEMS));
-        setItems(INITIAL_LIBRARY_ITEMS);
-      }
-    } catch {
-      setItems(INITIAL_LIBRARY_ITEMS);
-    }
-  }, []);
+      const { data, error } = await supabase
+        .from("content_library")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  const saveItemsToStorage = (newItems: LibraryItem[]) => {
-    setItems(newItems);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
+      if (data && !error) {
+        const mapped: LibraryItem[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          type: item.media_type || "image",
+          description: item.description || "",
+          updated_at: item.created_at || new Date().toISOString(),
+          fileUrl: item.file_url || undefined,
+          externalUrl: item.external_url || undefined
+        }));
+        setItems(mapped);
+      }
+    } catch (e) {
+      console.error("Erro ao carregar mídias da biblioteca no Supabase:", e);
     }
   };
 
-  const handleAddItem = (e: React.FormEvent) => {
+  useEffect(() => {
+    loadLibraryItems();
+  }, []);
+
+  const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
-    const newItem: LibraryItem = {
-      id: `lib-${Date.now()}`,
-      title: newTitle.trim(),
-      type: newType,
-      description: newDescription.trim() || "Sem descrição informada.",
-      fileUrl: newFileUrl || (newType === "image" ? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" : undefined),
-      updated_at: new Date().toISOString()
-    };
+    try {
+      await saveToContentLibrary({
+        title: newTitle.trim(),
+        media_type: newType,
+        description: newDescription.trim() || "Sem descrição informada.",
+        file_url: newFileUrl || (newType === "image" ? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" : null)
+      } as any);
+      await loadLibraryItems();
+    } catch (e) {
+      console.error("Erro ao salvar item na biblioteca:", e);
+    }
 
-    saveItemsToStorage([newItem, ...items]);
     setIsUploadOpen(false);
     setNewTitle("");
     setNewDescription("");
@@ -100,15 +109,20 @@ export default function LibraryPage() {
     setDeletingLibraryItemId(id);
   };
 
-  const handleConfirmDeleteItem = () => {
+  const handleConfirmDeleteItem = async () => {
     if (!deletingLibraryItemId) return;
-    const filtered = items.filter((i) => i.id !== deletingLibraryItemId);
-    saveItemsToStorage(filtered);
+    try {
+      await supabase.from("content_library").delete().eq("id", deletingLibraryItemId);
+      await loadLibraryItems();
+    } catch (e) {
+      console.error("Erro ao remover item da biblioteca no Supabase:", e);
+    }
     if (previewItem?.id === deletingLibraryItemId) {
       setPreviewItem(null);
     }
     setDeletingLibraryItemId(null);
   };
+
 
   const handleCopyLink = (url: string) => {
     navigator.clipboard.writeText(url);

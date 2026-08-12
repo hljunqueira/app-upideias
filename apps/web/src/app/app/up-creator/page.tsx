@@ -71,12 +71,41 @@ export default function UpCreatorPage() {
     streakDays: streakDays
   };
 
-  const leaderboard = [
-    { rank: 1, name: "Juliana Mendes", xp: 3200, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop" },
-    { rank: 2, name: "Henrique Junqueira", xp: 1450, avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop", isMe: true },
-    { rank: 3, name: "Lucas Alencar", xp: 1280, avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=150&auto=format&fit=crop" },
-    { rank: 4, name: "Carla Silveira", xp: 950, avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=150&auto=format&fit=crop" }
-  ];
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadLeaderboard() {
+      const u = await getMe().catch(() => null);
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, name, avatar_url")
+        .limit(5);
+
+      if (data && data.length > 0) {
+        const board = await Promise.all(
+          data.map(async (prof: any, idx: number) => {
+            const { count } = await supabase
+              .from("user_lesson_progress")
+              .select("*", { count: "exact", head: true })
+              .eq("user_id", prof.id);
+            const xp = (count || 0) * 50;
+            return {
+              rank: idx + 1,
+              name: prof.name || "Aluno UP",
+              xp: xp,
+              avatar: prof.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop",
+              isMe: u?.id === prof.id
+            };
+          })
+        );
+        setLeaderboard(board.sort((a, b) => b.xp - a.xp).map((item, i) => ({ ...item, rank: i + 1 })));
+      } else {
+        setLeaderboard([]);
+      }
+    }
+    loadLeaderboard();
+  }, []);
+
 
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto animate-fadeIn text-upLightGray">

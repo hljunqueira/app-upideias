@@ -20,7 +20,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { PlanConfig, getStoredPlans, savePlansConfig } from "@/lib/plansStore";
+import { PlanConfig, fetchPlansFromDb, savePlanToDb, deletePlanFromDb, savePlansConfig } from "@/lib/plansStore";
 
 export default function AdminPlansPage() {
   const [plans, setPlans] = useState<PlanConfig[]>([]);
@@ -28,12 +28,13 @@ export default function AdminPlansPage() {
   const [isNewPlan, setIsNewPlan] = useState(false);
   const [newBenefitText, setNewBenefitText] = useState("");
   const [savedSuccess, setSavedSuccess] = useState(false);
-  
+
   // Modal de Exclusão
   const [deletingPlanId, setDeletingPlanId] = useState<string | null>(null);
 
-  const loadPlans = () => {
-    setPlans(getStoredPlans());
+  const loadPlans = async () => {
+    const data = await fetchPlansFromDb();
+    setPlans(data);
   };
 
   useEffect(() => {
@@ -78,10 +79,9 @@ export default function AdminPlansPage() {
     setEditingPlan({ ...plan });
   };
 
-  const handleConfirmDeletePlan = () => {
+  const handleConfirmDeletePlan = async () => {
     if (!deletingPlanId) return;
-    const updated = plans.filter((p) => p.id !== deletingPlanId);
-    savePlansConfig(updated);
+    const updated = await deletePlanFromDb(deletingPlanId);
     setPlans(updated);
     setDeletingPlanId(null);
     if (editingPlan?.id === deletingPlanId) {
@@ -90,20 +90,16 @@ export default function AdminPlansPage() {
   };
 
   const handleToggleFeature = (planId: string, featureKey: keyof PlanConfig["allowedFeatures"]) => {
-    const updated = plans.map((plan) => {
-      if (plan.id === planId) {
-        return {
-          ...plan,
-          allowedFeatures: {
-            ...plan.allowedFeatures,
-            [featureKey]: !plan.allowedFeatures[featureKey]
-          }
-        };
+    const target = plans.find(p => p.id === planId);
+    if (!target) return;
+    const updatedPlan = {
+      ...target,
+      allowedFeatures: {
+        ...target.allowedFeatures,
+        [featureKey]: !target.allowedFeatures[featureKey]
       }
-      return plan;
-    });
-    savePlansConfig(updated);
-    setPlans(updated);
+    };
+    savePlanToDb(updatedPlan).then((updated) => setPlans(updated));
   };
 
   const handleToggleModalFeature = (featureKey: keyof PlanConfig["allowedFeatures"]) => {
@@ -158,20 +154,14 @@ export default function AdminPlansPage() {
       priceMonthly: finalPriceMonthly
     };
 
-    let updated: PlanConfig[];
-    if (isNewPlan) {
-      updated = [...plans, planToSave];
-    } else {
-      updated = plans.map((p) => (p.id === planToSave.id ? planToSave : p));
-    }
-
-    savePlansConfig(updated);
-    setPlans(updated);
-    setSavedSuccess(true);
-    setTimeout(() => {
-      setSavedSuccess(false);
-      setEditingPlan(null);
-    }, 400);
+    savePlanToDb(planToSave).then((updated) => {
+      setPlans(updated);
+      setSavedSuccess(true);
+      setTimeout(() => {
+        setSavedSuccess(false);
+        setEditingPlan(null);
+      }, 400);
+    });
   };
 
   const screenItems = [

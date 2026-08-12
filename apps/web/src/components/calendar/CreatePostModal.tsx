@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Calendar as CalendarIcon, Clock, Send, Trash2, CheckCircle2 } from "lucide-react";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export interface ScheduledPost {
   id: string;
@@ -33,6 +34,7 @@ export function CreatePostModal({
   currentMonthYear,
   initialPost
 }: CreatePostModalProps) {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<ScheduledPost>>({
     title: "",
     type: "Reels",
@@ -40,6 +42,7 @@ export function CreatePostModal({
     time: "18:00",
     caption: ""
   });
+
 
   useEffect(() => {
     if (initialPost) {
@@ -186,10 +189,7 @@ export function CreatePostModal({
             {initialPost && onDelete ? (
               <button
                 type="button"
-                onClick={() => {
-                  onDelete(initialPost.id);
-                  onClose();
-                }}
+                onClick={() => setIsConfirmDeleteOpen(true)}
                 className="p-2.5 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
               >
                 <Trash2 className="w-4 h-4" />
@@ -216,6 +216,23 @@ export function CreatePostModal({
             </div>
           </div>
         </form>
+
+        <ConfirmModal
+          isOpen={isConfirmDeleteOpen}
+          title="Excluir Agendamento"
+          description="Tem certeza que deseja excluir esta publicação agendada do calendário?"
+          confirmText="Sim, Excluir"
+          cancelText="Cancelar"
+          variant="danger"
+          onConfirm={() => {
+            if (initialPost && onDelete) {
+              onDelete(initialPost.id);
+            }
+            setIsConfirmDeleteOpen(false);
+            onClose();
+          }}
+          onClose={() => setIsConfirmDeleteOpen(false)}
+        />
       </div>
     </div>
   );

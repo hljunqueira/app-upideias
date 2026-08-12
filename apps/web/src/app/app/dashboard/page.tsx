@@ -118,46 +118,8 @@ export default function Dashboard() {
     return <DashboardSkeleton />;
   }
 
-  // Fallback data if DB tables are empty (Graceful fallbacks)
-  const displayMetrics = metrics.length > 0 ? metrics : [
-    { metric_date: "01/07", reach: 12000, profile_views: 120, engagement_rate: 3.2 },
-    { metric_date: "05/07", reach: 15000, profile_views: 140, engagement_rate: 3.5 },
-    { metric_date: "10/07", reach: 18000, profile_views: 150, engagement_rate: 3.8 },
-    { metric_date: "15/07", reach: 14000, profile_views: 130, engagement_rate: 3.4 },
-    { metric_date: "20/07", reach: 22000, profile_views: 190, engagement_rate: 3.7 },
-    { metric_date: "25/07", reach: 26000, profile_views: 200, engagement_rate: 3.8 },
-    { metric_date: "30/07", reach: 31000, profile_views: 220, engagement_rate: 3.82 },
-  ];
-
-  const displayPosts = posts.length > 0 ? posts : [
-    {
-      id: "p1",
-      caption: "3 Hacks de Social Media que você não conhecia 🚀 #marketing",
-      media_product_type: "REELS",
-      reach: 18430,
-      like_count: 1240,
-      comments_count: 82,
-      engagement: "6.5%"
-    },
-    {
-      id: "p2",
-      caption: "Estratégia vs. Postagem Aleatória: O que realmente funciona em 2026? 📊",
-      media_product_type: "FEED",
-      reach: 12100,
-      like_count: 980,
-      comments_count: 45,
-      engagement: "4.8%"
-    },
-    {
-      id: "p3",
-      caption: "Como estruturar um funil de conteúdo magnético no Reels 🧲",
-      media_product_type: "REELS",
-      reach: 10500,
-      like_count: 840,
-      comments_count: 38,
-      engagement: "5.1%"
-    }
-  ];
+  const displayMetrics = metrics;
+  const displayPosts = posts;
 
   // Filtragem dinâmica de métricas com base no período (7D, 15D, 30D)
   const filteredMetrics = period === "7D" 
@@ -168,16 +130,15 @@ export default function Dashboard() {
 
   const periodMultiplier = period === "7D" ? 0.35 : period === "15D" ? 0.65 : 1;
 
-  const previewPost = selectedPost || displayPosts[0];
+  const previewPost = selectedPost || displayPosts[0] || null;
+
 
   // Combined Chart Data (Instagram Organic Reach vs Facebook Ads Paid Reach)
-  const chartData = filteredMetrics.map((m, idx) => {
-    const adReachMultiplier = [0.8, 1.2, 1.5, 0.9, 1.3, 1.7, 2.0];
-    const adReach = Math.round(m.reach * (adReachMultiplier[idx % adReachMultiplier.length] || 1));
+  const chartData = filteredMetrics.map((m) => {
     return {
       name: m.metric_date,
-      organicReach: m.reach,
-      paidReach: adReach,
+      organicReach: m.reach || 0,
+      paidReach: m.paid_reach || 0,
     };
   });
 
@@ -239,7 +200,7 @@ export default function Dashboard() {
         {/* Instagram KPIs */}
         <MetricCardPremium
           name="Seguidores Orgânicos"
-          value={Math.round((accounts[0]?.followers_count || 12430) * (period === "7D" ? 0.96 : period === "15D" ? 0.98 : 1)).toLocaleString("pt-BR")}
+          value={Math.round((accounts[0]?.followers_count || 0) * (period === "7D" ? 0.96 : period === "15D" ? 0.98 : 1)).toLocaleString("pt-BR")}
           change={period === "7D" ? "+0,8%" : period === "15D" ? "+1,5%" : "+2,6%"}
           icon={Users}
           status="up"
@@ -247,7 +208,7 @@ export default function Dashboard() {
         />
         <MetricCardPremium
           name="Alcance do Perfil"
-          value={Math.round((filteredMetrics[filteredMetrics.length - 1]?.reach || 31000) * (period === "7D" ? 0.4 : period === "15D" ? 0.7 : 1)).toLocaleString("pt-BR")}
+          value={Math.round((filteredMetrics[filteredMetrics.length - 1]?.reach || 0) * (period === "7D" ? 0.4 : period === "15D" ? 0.7 : 1)).toLocaleString("pt-BR")}
           change={period === "7D" ? "+4.2%" : period === "15D" ? "+8.1%" : "+12,4%"}
           icon={Eye}
           status="up"
@@ -257,16 +218,16 @@ export default function Dashboard() {
         {/* Facebook Ads KPIs */}
         <MetricCardPremium
           name="Investimento (Ads)"
-          value={`R$ ${(1450 * periodMultiplier).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-          change={period === "7D" ? "+5.1%" : period === "15D" ? "+10.2%" : "+15,2%"}
+          value={`R$ ${(accounts[0]?.ad_spend || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+          change="+0,0%"
           icon={DollarSign}
           status="neutral"
           type="facebook"
         />
         <MetricCardPremium
-          name="ROAS Médio — Demo"
-          value={`${(4.82 * (period === "7D" ? 0.9 : period === "15D" ? 0.95 : 1)).toFixed(2)}x`}
-          change="+8,4%"
+          name="ROAS Médio"
+          value={`${(accounts[0]?.roas || 0).toFixed(2)}x`}
+          change="+0,0%"
           icon={TrendingUp}
           status="up"
           type="facebook"

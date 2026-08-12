@@ -18,6 +18,8 @@ import {
   FileText
 } from "lucide-react";
 import { getActiveUserPlan, getStoredPlans, setActiveUserPlan } from "@/lib/plansStore";
+import { supabase } from "@up-analytics/lib";
+
 
 export default function BillingPage() {
   const [activePlanName, setActivePlanName] = useState<string>("Pro");
@@ -44,11 +46,31 @@ export default function BillingPage() {
     aiCreditsMonthly: 500
   };
 
-  const invoices = [
-    { id: "inv-001", date: "2026-07-04", amount: "R$ 129,00", status: "pago", link: "https://pay.upideias.com/inv-001" },
-    { id: "inv-002", date: "2026-06-04", amount: "R$ 129,00", status: "pago", link: "https://pay.upideias.com/inv-002" },
-    { id: "inv-003", date: "2026-08-04", amount: "R$ 129,00", status: "pendente", link: "https://pay.upideias.com/inv-003" }
-  ];
+  const [invoices, setInvoices] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadInvoices() {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (data && data.length > 0) {
+        const mapped = data.map((sub: any) => ({
+          id: sub.id.substring(0, 8),
+          date: sub.created_at || new Date().toISOString(),
+          amount: `R$ ${(sub.amount_cents ? sub.amount_cents / 100 : 129).toFixed(2).replace(".", ",")}`,
+          status: sub.status === "active" ? "pago" : "pendente",
+          link: `https://pay.upideias.com/checkout/${sub.id}`
+        }));
+        setInvoices(mapped);
+      } else {
+        setInvoices([]);
+      }
+    }
+    loadInvoices();
+  }, []);
+
 
   const handleGeneratePaymentLink = (e: React.FormEvent) => {
     e.preventDefault();
