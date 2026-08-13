@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     const { data: existingMetrics } = await adminClient
       .from('social_account_metrics')
       .select('id')
-      .eq('social_account_id', socialAccountId)
+      .eq('account_id', socialAccountId)
       .limit(1);
 
     if (!existingMetrics || existingMetrics.length === 0) {
@@ -103,67 +103,58 @@ export async function POST(request: Request) {
         // Base reach around 1.2k-2.8k with growth trend
         const reach = Math.floor(1200 + Math.random() * 800 + (30 - i) * 35);
         const impressions = Math.floor(reach * 1.4 + Math.random() * 400);
-        const paidReach = Math.floor(reach * 0.4 + Math.random() * 200);
 
         metricsToInsert.push({
-          social_account_id: socialAccountId,
+          account_id: socialAccountId,
           metric_date: dateStr,
-          followers_count: followers - Math.floor(i * 12 + Math.random() * 5),
+          followers_count: Math.max(0, followers - Math.floor(i * 0.5)),
           reach,
-          impressions,
-          paid_reach: paidReach,
+          views: impressions,
           engagement_rate: Number((3.2 + Math.random() * 1.5).toFixed(2)),
           created_at: new Date().toISOString(),
+          platform: (platform || 'instagram').toLowerCase(),
         });
       }
 
       await adminClient.from('social_account_metrics').insert(metricsToInsert);
     }
 
-    // 4. Populate sample posts in social_contents if empty
+    // 4. Populate sample posts in social_content if empty
     const { data: existingPosts } = await adminClient
-      .from('social_contents')
+      .from('social_content')
       .select('id')
-      .eq('social_account_id', socialAccountId)
+      .eq('account_id', socialAccountId)
       .limit(1);
 
     if (!existingPosts || existingPosts.length === 0) {
       const postsToInsert = [
         {
-          social_account_id: socialAccountId,
+          account_id: socialAccountId,
           external_content_id: `post_1_${Date.now()}`,
-          content_type: 'REELS',
+          media_type: 'VIDEO',
           caption: '🚀 5 Estratégias de Conteúdo para Aumentar seu Alcance Orgânico no Instagram em 2026. Salve para consultar depois! #UPAnalytics #MarketingDigital #Growth',
           media_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
           permalink: 'https://instagram.com',
           published_at: new Date(Date.now() - 86400000 * 2).toISOString(),
           like_count: 842,
-          comment_count: 56,
-          share_count: 124,
-          saved_count: 210,
-          reach: 4850,
-          engagement_rate: 4.8,
-          status: 'published',
+          comments_count: 56,
+          platform: (platform || 'instagram').toLowerCase(),
         },
         {
-          social_account_id: socialAccountId,
+          account_id: socialAccountId,
           external_content_id: `post_2_${Date.now()}`,
-          content_type: 'CAROUSEL',
+          media_type: 'CAROUSEL_ALBUM',
           caption: '💡 Como Estruturar Anúncios que Convertem: O Guia Definitivo de Tráfego Pago para Criadores de Conteúdo.',
           media_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
           permalink: 'https://instagram.com',
           published_at: new Date(Date.now() - 86400000 * 5).toISOString(),
           like_count: 615,
-          comment_count: 39,
-          share_count: 88,
-          saved_count: 145,
-          reach: 3420,
-          engagement_rate: 4.1,
-          status: 'published',
+          comments_count: 39,
+          platform: (platform || 'instagram').toLowerCase(),
         },
       ];
 
-      await adminClient.from('social_contents').insert(postsToInsert);
+      await adminClient.from('social_content').insert(postsToInsert);
     }
 
     return NextResponse.json({

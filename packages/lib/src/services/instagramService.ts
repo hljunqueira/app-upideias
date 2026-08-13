@@ -67,7 +67,7 @@ export async function getDashboardMetrics(accountId: string): Promise<InstagramD
     const { data, error } = await supabase
       .from('social_account_metrics')
       .select('*')
-      .eq('social_account_id', accountId)
+      .eq('account_id', accountId)
       .order('metric_date', { ascending: true });
 
     if (!error && data && data.length > 0) {
@@ -103,9 +103,9 @@ export async function getInstagramPosts(accountId: string): Promise<InstagramMed
 
   try {
     const { data, error } = await supabase
-      .from('social_contents')
+      .from('social_content')
       .select('*')
-      .eq('social_account_id', accountId)
+      .eq('account_id', accountId)
       .order('published_at', { ascending: false });
 
     if (!error && data && data.length > 0) {
