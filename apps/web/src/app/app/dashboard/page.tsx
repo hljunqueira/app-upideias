@@ -84,6 +84,9 @@ export default function Dashboard() {
         setSelectedAccountId(activeId);
         await loadAccountData(activeId);
       } else {
+        setSelectedAccountId("");
+        setMetrics([]);
+        setPosts([]);
         if (typeof window !== "undefined" && !localStorage.getItem("up_onboarding_completed")) {
           setShowOnboarding(true);
         }
@@ -97,6 +100,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadDashboardData();
+    const handleAccountChanged = () => {
+      loadDashboardData();
+    };
+    window.addEventListener("social-account-changed", handleAccountChanged);
+    return () => {
+      window.removeEventListener("social-account-changed", handleAccountChanged);
+    };
   }, []);
 
   const handleAccountChange = async (accId: string) => {
@@ -226,7 +236,7 @@ export default function Dashboard() {
       </div>
 
       {/* Profile Overview Banner Card when account is active */}
-      {activeAccount && (
+      {activeAccount ? (
         <div className="bg-gradient-to-r from-upCard via-upCard/80 to-purple-900/10 border border-upBorder/80 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[2.5px] shrink-0 shadow-md">
@@ -270,6 +280,25 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      ) : (
+        <div className="bg-gradient-to-r from-upCard via-upCard/80 to-purple-950/20 border border-upBorder/80 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-center gap-4 text-center sm:text-left">
+            <div className="w-12 h-12 rounded-2xl bg-upPink/10 border border-upPink/30 flex items-center justify-center text-upPink shrink-0">
+              <Instagram className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Nenhuma conta social conectada</h2>
+              <p className="text-xs text-upGray mt-0.5">Conecte sua conta do Instagram para visualizar seus dados de engajamento, alcance e reputação em tempo real.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-phyllo-modal'))}
+            className="px-4 py-2.5 rounded-xl bg-upPink hover:bg-upPink/90 text-white font-bold text-xs transition-all shadow-md shrink-0 flex items-center gap-2 cursor-pointer"
+          >
+            <Instagram className="w-4 h-4" />
+            Conectar Instagram
+          </button>
+        </div>
       )}
 
       {/* KPI Bento Grid com Filtragem Reativa */}
@@ -277,10 +306,12 @@ export default function Dashboard() {
         {/* Instagram KPIs */}
         <MetricCardPremium
           name="Engajamento Médio"
-          value="4,8%"
-          change="+1,2%"
+          value={filteredMetrics.length > 0 && filteredMetrics[filteredMetrics.length - 1]?.engagement_rate
+            ? `${filteredMetrics[filteredMetrics.length - 1].engagement_rate.toFixed(1)}%`
+            : "0,0%"}
+          change={filteredMetrics.length > 0 ? "+1,2%" : "+0,0%"}
           icon={TrendingUp}
-          status="up"
+          status={filteredMetrics.length > 0 ? "up" : "neutral"}
           type="instagram"
         />
         <MetricCardPremium

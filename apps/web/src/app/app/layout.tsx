@@ -60,6 +60,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const unreadCount = notifications.filter((n) => n.unread).length;
   const processedRef = useRef(false);
 
+  const loadAccountStatus = async () => {
+    try {
+      const accs = await getInstagramAccounts();
+      if (accs && accs.length > 0) {
+        setConnectedAccount(accs[0]);
+        setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "");
+      } else {
+        setConnectedAccount(null);
+        setInstagramHandle("");
+      }
+    } catch {
+      setConnectedAccount(null);
+      setInstagramHandle("");
+    }
+  };
+
   useEffect(() => {
     if (processedRef.current) return;
     processedRef.current = true;
@@ -69,20 +85,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         const u = await getMe();
         setUser(u);
         setAuthChecked(true);
-        getInstagramAccounts()
-          .then((accs) => {
-            if (accs && accs.length > 0) {
-              setConnectedAccount(accs[0]);
-              setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "@upideias");
-            }
-          })
-          .catch(() => {});
+        loadAccountStatus();
       } catch {
         router.replace("/login");
       }
     };
     checkAuth();
   }, [router]);
+
+  useEffect(() => {
+    const handleAccountChanged = () => {
+      loadAccountStatus();
+    };
+    const handleOpenModal = () => {
+      setIsPhylloModalOpen(true);
+    };
+
+    window.addEventListener("social-account-changed", handleAccountChanged);
+    window.addEventListener("open-phyllo-modal", handleOpenModal);
+
+    return () => {
+      window.removeEventListener("social-account-changed", handleAccountChanged);
+      window.removeEventListener("open-phyllo-modal", handleOpenModal);
+    };
+  }, []);
 
   // Listener para Ctrl+K / Cmd+K
   useEffect(() => {

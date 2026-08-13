@@ -151,6 +151,7 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
           console.warn("[PhylloConnectModal] Sync notice:", clientErr);
         }
 
+        window.dispatchEvent(new CustomEvent('social-account-changed'));
         if (onSuccess) {
           onSuccess(platform);
         }
@@ -158,6 +159,7 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
 
       phylloConnect.on("accountDisconnected", (accountId: string, workId: string, userId: string) => {
         console.log(`[PhylloConnect] accountDisconnected: accountId=${accountId}`);
+        window.dispatchEvent(new CustomEvent('social-account-changed'));
       });
 
       phylloConnect.on("tokenExpired", (userId: string) => {
