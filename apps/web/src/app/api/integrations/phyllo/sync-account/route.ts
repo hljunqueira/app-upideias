@@ -35,7 +35,12 @@ export async function POST(request: Request) {
 
     const realUsername = realAccount?.username || realAccount?.platform_username || realProfile?.username || 'perfil';
     const realName = realAccount?.name || realProfile?.name || realUsername;
-    const profilePic = realAccount?.profile_picture_url || realProfile?.image_url || null;
+    const profilePic = 
+      realProfile?.image_url ||
+      realAccount?.profile_pic_url ||
+      realAccount?.profile_picture_url ||
+      realProfile?.profile_picture_url ||
+      null;
     
     // Extract real followers from Phyllo Profile Reputation API
     const followers = 

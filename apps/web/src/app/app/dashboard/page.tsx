@@ -244,11 +244,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Instagram KPIs */}
         <MetricCardPremium
-          name="Seguidores Orgânicos"
-          value={(activeAccount?.followers_count || 0).toLocaleString("pt-BR")}
-          change={activeAccount?.follower_growth_rate ? `${activeAccount.follower_growth_rate >= 0 ? "+" : ""}${activeAccount.follower_growth_rate.toFixed(1)}%` : "+0,0%"}
-          icon={Users}
-          status={(activeAccount?.followers_count || 0) > 0 ? "up" : "neutral"}
+          name="Engajamento Médio"
+          value="4,8%"
+          change="+1,2%"
+          icon={TrendingUp}
+          status="up"
           type="instagram"
         />
         <MetricCardPremium
