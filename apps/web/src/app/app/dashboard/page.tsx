@@ -248,11 +248,11 @@ export default function Dashboard() {
             </div>
             <div className="bg-upDark/60 border border-upBorder/60 rounded-xl px-3 py-2 text-center min-w-[100px]">
               <p className="text-[10px] text-upGray font-semibold uppercase">Seguindo</p>
-              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.following_count || 442).toLocaleString("pt-BR")}</p>
+              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.following_count || 0).toLocaleString("pt-BR")}</p>
             </div>
             <div className="bg-upDark/60 border border-upBorder/60 rounded-xl px-3 py-2 text-center min-w-[100px]">
               <p className="text-[10px] text-upGray font-semibold uppercase">Publicações</p>
-              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.media_count || posts.length || 3).toLocaleString("pt-BR")}</p>
+              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.media_count || posts.length || 0).toLocaleString("pt-BR")}</p>
             </div>
           </div>
         </div>

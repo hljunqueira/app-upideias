@@ -42,11 +42,21 @@ export async function POST(request: Request) {
       realProfile?.profile_picture_url ||
       null;
     
-    // Extract real followers from Phyllo Profile Reputation API
+    // Extract real reputation metrics from Phyllo Profile API
     const followers = 
-      realProfile?.reputation?.followers ||
       realProfile?.reputation?.follower_count ||
+      realProfile?.reputation?.followers ||
       realAccount?.followers_count ||
+      0;
+
+    const following = 
+      realProfile?.reputation?.following_count ||
+      realProfile?.reputation?.following ||
+      0;
+
+    const mediaCount = 
+      realProfile?.reputation?.content_count ||
+      realProfile?.reputation?.media_count ||
       0;
 
     // 2. Persist real account details in social_accounts table
@@ -59,6 +69,8 @@ export async function POST(request: Request) {
         name: realName,
         profile_picture_url: profilePic,
         followers_count: followers,
+        following_count: following,
+        media_count: mediaCount,
         status: 'connected',
         connected_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

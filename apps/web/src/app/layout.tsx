@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   title: "UP Ideias — Estratégia, conteúdo e conhecimento em um só lugar",
   description:
     "O ecossistema UP Ideias: métricas do Instagram com IA (UP Analytics) e plataforma de cursos estilo streaming (UP Creator). Transforme métricas em estratégia.",
+  icons: {
+    icon: "/UP-Logo-removebg-preview.png",
+    shortcut: "/UP-Logo-removebg-preview.png",
+    apple: "/UP-Logo-removebg-preview.png",
+  },
 };
 
 export default function RootLayout({
