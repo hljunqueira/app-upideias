@@ -20,19 +20,29 @@ export async function POST(request: Request) {
 
     const adminClient = createAdminClient();
 
-    // 1. Fetch real account details from Phyllo Staging API
+    // 1. Fetch real account & profile details from Phyllo Staging API
     let realAccount: any = null;
+    let realProfile: any = null;
     try {
       realAccount = await phylloClient.getAccount(accountId);
-      console.log(`[SyncAccountRoute] Fetched real Phyllo account ${accountId}:`, realAccount);
+      const profilesRes = await phylloClient.getProfilesByAccount(accountId);
+      if (profilesRes?.data && profilesRes.data.length > 0) {
+        realProfile = profilesRes.data[0];
+      }
     } catch (err: any) {
-      console.warn(`[SyncAccountRoute] Could not fetch real Phyllo account ${accountId}:`, err?.message);
+      console.warn(`[SyncAccountRoute] Notice querying Phyllo API for account ${accountId}:`, err?.message);
     }
 
-    const realUsername = realAccount?.username || realAccount?.platform_username || 'hlj.dev';
-    const realName = realAccount?.name || realAccount?.platform_username || realUsername;
-    const profilePic = realAccount?.profile_picture_url || null;
-    const followers = realAccount?.followers_count || 12450;
+    const realUsername = realAccount?.username || realAccount?.platform_username || realProfile?.username || 'perfil';
+    const realName = realAccount?.name || realProfile?.name || realUsername;
+    const profilePic = realAccount?.profile_picture_url || realProfile?.image_url || null;
+    
+    // Extract real followers from Phyllo Profile Reputation API
+    const followers = 
+      realProfile?.reputation?.followers ||
+      realProfile?.reputation?.follower_count ||
+      realAccount?.followers_count ||
+      0;
 
     // 2. Persist real account details in social_accounts table
     const { data, error } = await adminClient.from('social_accounts').upsert(

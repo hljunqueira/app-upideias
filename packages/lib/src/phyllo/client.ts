@@ -286,6 +286,20 @@ export class PhylloClient {
   async getProfile(profileId: string): Promise<PhylloProfileData> {
     return await this.request<PhylloProfileData>(`/v1/profiles/${profileId}`, { method: 'GET' });
   }
+
+  /**
+   * Fetch profiles list by account_id from Phyllo API
+   */
+  async getProfilesByAccount(accountId: string): Promise<any> {
+    return await this.request<any>(`/v1/profiles?account_id=${encodeURIComponent(accountId)}`, { method: 'GET' });
+  }
+
+  /**
+   * Fetch published contents by account_id from Phyllo Engagement API
+   */
+  async getContentsByAccount(accountId: string): Promise<any> {
+    return await this.request<any>(`/v1/engagement/contents?account_id=${encodeURIComponent(accountId)}`, { method: 'GET' });
+  }
 }
 
 export const phylloClient = new PhylloClient();

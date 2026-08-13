@@ -79,7 +79,7 @@ export async function getDashboardMetrics(accountId: string): Promise<InstagramD
         impressions: m.impressions || 0,
         engagement_rate: m.engagement_rate || 0,
         created_at: m.created_at || new Date().toISOString()
-      })) as InstagramDailyMetrics[];
+      })) as unknown as InstagramDailyMetrics[];
     }
   } catch (e) {}
 
@@ -118,7 +118,7 @@ export async function getInstagramPosts(accountId: string): Promise<InstagramMed
         comments_count: post.comment_count || 0,
         published_at: post.published_at || new Date().toISOString(),
         created_at: post.created_at || new Date().toISOString(),
-      })) as InstagramMedia[];
+      })) as unknown as InstagramMedia[];
     }
   } catch (e) {}
 

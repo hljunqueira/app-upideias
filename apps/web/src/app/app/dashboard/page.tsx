@@ -121,17 +121,20 @@ export default function Dashboard() {
   const displayMetrics = metrics;
   const displayPosts = posts;
 
-  // Filtragem dinâmica de métricas com base no período (7D, 15D, 30D)
-  const filteredMetrics = period === "7D" 
-    ? displayMetrics.slice(-3) 
+  // Filtragem dinâmica de métricas com base no período (Hoje, 7D, 15D, 30D)
+  const filteredMetrics = period === "Hoje"
+    ? displayMetrics.slice(-1)
+    : period === "7D" 
+    ? displayMetrics.slice(-7) 
     : period === "15D" 
-    ? displayMetrics.slice(-5) 
+    ? displayMetrics.slice(-15) 
     : displayMetrics;
 
-  const periodMultiplier = period === "7D" ? 0.35 : period === "15D" ? 0.65 : 1;
+  const totalPeriodReach = filteredMetrics.reduce((sum, m) => sum + (m.reach || 0), 0);
+
+  const activeAccount = accounts.find((a) => a.id === selectedAccountId) || accounts[0];
 
   const previewPost = selectedPost || displayPosts[0] || null;
-
 
   // Combined Chart Data (Instagram Organic Reach vs Facebook Ads Paid Reach)
   const chartData = filteredMetrics.map((m) => {
@@ -179,7 +182,7 @@ export default function Dashboard() {
           )}
 
           <div className="inline-flex bg-upCard rounded-xl p-1 border border-upBorder">
-            {["7D", "15D", "30D"].map((p) => (
+            {["Hoje", "7D", "15D", "30D"].map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
@@ -200,18 +203,18 @@ export default function Dashboard() {
         {/* Instagram KPIs */}
         <MetricCardPremium
           name="Seguidores Orgânicos"
-          value={(accounts[0]?.followers_count || 0).toLocaleString("pt-BR")}
-          change={accounts[0]?.follower_growth_rate ? `${accounts[0].follower_growth_rate >= 0 ? "+" : ""}${accounts[0].follower_growth_rate.toFixed(1)}%` : "+0,0%"}
+          value={(activeAccount?.followers_count || 0).toLocaleString("pt-BR")}
+          change={activeAccount?.follower_growth_rate ? `${activeAccount.follower_growth_rate >= 0 ? "+" : ""}${activeAccount.follower_growth_rate.toFixed(1)}%` : "+0,0%"}
           icon={Users}
-          status={(accounts[0]?.followers_count || 0) > 0 ? "up" : "neutral"}
+          status={(activeAccount?.followers_count || 0) > 0 ? "up" : "neutral"}
           type="instagram"
         />
         <MetricCardPremium
           name="Alcance do Perfil"
-          value={(filteredMetrics[filteredMetrics.length - 1]?.reach || 0).toLocaleString("pt-BR")}
-          change={accounts[0]?.reach_growth_rate ? `${accounts[0].reach_growth_rate >= 0 ? "+" : ""}${accounts[0].reach_growth_rate.toFixed(1)}%` : "+0,0%"}
+          value={totalPeriodReach > 0 ? totalPeriodReach.toLocaleString("pt-BR") : (filteredMetrics[filteredMetrics.length - 1]?.reach || 0).toLocaleString("pt-BR")}
+          change={activeAccount?.reach_growth_rate ? `${activeAccount.reach_growth_rate >= 0 ? "+" : ""}${activeAccount.reach_growth_rate.toFixed(1)}%` : "+0,0%"}
           icon={Eye}
-          status={(filteredMetrics[filteredMetrics.length - 1]?.reach || 0) > 0 ? "up" : "neutral"}
+          status={totalPeriodReach > 0 ? "up" : "neutral"}
           type="instagram"
         />
 
