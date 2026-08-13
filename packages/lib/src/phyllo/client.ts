@@ -298,7 +298,7 @@ export class PhylloClient {
    * Fetch published contents by account_id from Phyllo Engagement API
    */
   async getContentsByAccount(accountId: string): Promise<any> {
-    return await this.request<any>(`/v1/engagement/contents?account_id=${encodeURIComponent(accountId)}`, { method: 'GET' });
+    return await this.request<any>(`/v1/contents?account_id=${encodeURIComponent(accountId)}`, { method: 'GET' });
   }
 }
 
