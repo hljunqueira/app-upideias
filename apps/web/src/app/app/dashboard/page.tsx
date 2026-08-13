@@ -106,12 +106,27 @@ export default function Dashboard() {
   };
 
   const handleSync = async () => {
-    const targetId = selectedAccountId || accounts[0]?.id;
-    if (!targetId) return;
+    const targetAcc = accounts.find((a) => a.id === selectedAccountId) || accounts[0];
+    if (!targetAcc) return;
+
+    const extAccountId = targetAcc.external_account_id || targetAcc.id;
     setSyncing(true);
-    await mockSyncInstagramMetrics(targetId);
-    await loadDashboardData();
-    setSyncing(false);
+
+    try {
+      // 1. Call sync-account route to fetch fresh live data from Phyllo API
+      await fetch("/api/integrations/phyllo/sync-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId: extAccountId, forceRefresh: true }),
+      });
+
+      // 2. Reload account data in memory
+      await loadDashboardData();
+    } catch (e) {
+      console.warn("[Dashboard] Sync error:", e);
+    } finally {
+      setSyncing(false);
+    }
   };
 
   if (loading) {
@@ -152,12 +167,15 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite">Visão Geral UP Ideias</h1>
-            {syncing && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-upPink/10 text-upPink animate-pulse border border-upPink/20">
-                <RefreshCw className="w-3 h-3 animate-spin" />
-                Atualizando dados...
-              </span>
-            )}
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              title="Clique para sincronizar os dados em tempo real com a API da rede social"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-upPink/10 hover:bg-upPink/20 text-upPink transition-all border border-upPink/30 cursor-pointer disabled:opacity-50 shadow-sm"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Atualizando..." : "Atualizar dados"}
+            </button>
           </div>
           <p className="text-sm text-upGray mt-1">Análise unificada de performance orgânica (Instagram) e tráfego pago (Facebook Ads).</p>
         </div>
