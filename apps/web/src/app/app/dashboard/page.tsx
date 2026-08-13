@@ -84,9 +84,12 @@ export default function Dashboard() {
         setSelectedAccountId(activeId);
         await loadAccountData(activeId);
       } else {
+        setAccounts([]);
         setSelectedAccountId("");
         setMetrics([]);
         setPosts([]);
+        setSelectedPost(null);
+        setPostImages({});
         if (typeof window !== "undefined" && !localStorage.getItem("up_onboarding_completed")) {
           setShowOnboarding(true);
         }
