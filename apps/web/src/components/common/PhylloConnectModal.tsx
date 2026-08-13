@@ -226,6 +226,7 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
                       <img
                         src={acc.profile_picture_url}
                         alt={acc.username}
+                        referrerPolicy="no-referrer"
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (

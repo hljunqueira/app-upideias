@@ -244,7 +244,12 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[2.5px] shrink-0 shadow-md">
               {activeAccount.profile_picture_url ? (
-                <img src={activeAccount.profile_picture_url} alt={activeAccount.username} className="w-full h-full rounded-full object-cover" />
+                <img
+                  src={activeAccount.profile_picture_url}
+                  alt={activeAccount.username}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full rounded-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full rounded-full bg-black flex items-center justify-center font-bold text-white text-base">
                   {(activeAccount.username || "IG").substring(0, 2).toUpperCase()}

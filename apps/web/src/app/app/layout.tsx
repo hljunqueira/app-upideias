@@ -184,7 +184,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <span className={`w-2 h-2 rounded-full ${instagramHandle ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
               {connectedAccount?.profile_picture_url ? (
-                <img src={connectedAccount.profile_picture_url} alt="Profile" className="w-4 h-4 rounded-full object-cover shrink-0 border border-upPink/40" />
+                <img
+                  src={connectedAccount.profile_picture_url}
+                  alt="Profile"
+                  referrerPolicy="no-referrer"
+                  className="w-4 h-4 rounded-full object-cover shrink-0 border border-upPink/40"
+                />
               ) : (
                 <Instagram className="w-3.5 h-3.5 text-upPink shrink-0" />
               )}

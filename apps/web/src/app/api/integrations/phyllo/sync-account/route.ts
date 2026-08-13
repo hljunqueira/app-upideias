@@ -20,6 +20,14 @@ export async function POST(request: Request) {
 
     const adminClient = createAdminClient();
 
+    // Fetch existing DB record if available to prevent overwriting with null/0
+    const { data: existingRecords } = await adminClient
+      .from('social_accounts')
+      .select('*')
+      .eq('external_account_id', accountId);
+
+    const existingAcc = existingRecords && existingRecords.length > 0 ? existingRecords[0] : null;
+
     // 1. Fetch real account & profile details from Phyllo Staging API
     let realAccount: any = null;
     let realProfile: any = null;
@@ -33,31 +41,35 @@ export async function POST(request: Request) {
       console.warn(`[SyncAccountRoute] Notice querying Phyllo API for account ${accountId}:`, err?.message);
     }
 
-    const realUsername = realAccount?.username || realAccount?.platform_username || realProfile?.username || 'perfil';
-    const realName = realAccount?.name || realProfile?.name || realUsername;
-    const realBio = realProfile?.introduction || realProfile?.bio || null;
+    const realUsername = realAccount?.username || realAccount?.platform_username || realProfile?.username || existingAcc?.username || 'perfil';
+    const realName = realAccount?.name || realProfile?.name || existingAcc?.name || realUsername;
+    const realBio = realProfile?.introduction || realProfile?.bio || existingAcc?.bio || null;
     const profilePic = 
       realProfile?.image_url ||
       realAccount?.profile_pic_url ||
       realAccount?.profile_picture_url ||
       realProfile?.profile_picture_url ||
+      existingAcc?.profile_picture_url ||
       null;
     
     // Extract real reputation metrics from Phyllo Profile API
     const followers = 
-      realProfile?.reputation?.follower_count ||
-      realProfile?.reputation?.followers ||
-      realAccount?.followers_count ||
+      realProfile?.reputation?.follower_count ??
+      realProfile?.reputation?.followers ??
+      realAccount?.followers_count ??
+      existingAcc?.followers_count ??
       0;
 
     const following = 
-      realProfile?.reputation?.following_count ||
-      realProfile?.reputation?.following ||
+      realProfile?.reputation?.following_count ??
+      realProfile?.reputation?.following ??
+      existingAcc?.following_count ??
       0;
 
     const mediaCount = 
-      realProfile?.reputation?.content_count ||
-      realProfile?.reputation?.media_count ||
+      realProfile?.reputation?.content_count ??
+      realProfile?.reputation?.media_count ??
+      existingAcc?.media_count ??
       0;
 
     // 2. Persist real account details in social_accounts table
