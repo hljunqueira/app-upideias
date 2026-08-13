@@ -18,7 +18,8 @@ import {
   Instagram,
   Layers,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Info
 } from "lucide-react";
 import {
   AreaChart,
@@ -48,7 +49,7 @@ import { OnboardingConnectModal } from "../../../components/common/OnboardingCon
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [period, setPeriod] = useState("Hoje");
+  const [period, setPeriod] = useState("24h");
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [postImages, setPostImages] = useState<Record<string, string>>({});
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -136,8 +137,8 @@ export default function Dashboard() {
   const displayMetrics = metrics;
   const displayPosts = posts;
 
-  // Filtragem dinâmica de métricas com base no período (Hoje, 7D, 15D, 30D)
-  const filteredMetrics = period === "Hoje"
+  // Filtragem dinâmica de métricas com base no período (24h, 7D, 15D, 30D)
+  const filteredMetrics = (period === "24h" || period === "Hoje")
     ? displayMetrics.slice(-1)
     : period === "7D" 
     ? displayMetrics.slice(-7) 
@@ -167,15 +168,23 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite">Visão Geral UP Ideias</h1>
-            <button
-              onClick={handleSync}
-              disabled={syncing}
-              title="Clique para sincronizar os dados em tempo real com a API da rede social"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-upPink/10 hover:bg-upPink/20 text-upPink transition-all border border-upPink/30 cursor-pointer disabled:opacity-50 shadow-sm"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Atualizando..." : "Atualizar dados"}
-            </button>
+            <div className="relative group inline-flex items-center">
+              <button
+                onClick={handleSync}
+                disabled={syncing}
+                title="Clique para sincronizar os dados com a API oficial da rede social"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-upPink/10 hover:bg-upPink/20 text-upPink transition-all border border-upPink/30 cursor-pointer disabled:opacity-50 shadow-sm"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`} />
+                {syncing ? "Atualizando..." : "Atualizar dados"}
+              </button>
+              <div className="ml-2 p-1 rounded-full bg-upCard hover:bg-upBorder/80 text-upGray hover:text-white cursor-help transition-all relative">
+                <Info className="w-3.5 h-3.5" />
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-7 w-72 p-3 rounded-xl bg-upDark/95 backdrop-blur-md border border-upBorder/80 text-[11px] text-upLightGray font-medium shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 leading-relaxed">
+                  ℹ️ Os dados de reputação (seguidores/seguindo) são sincronizados em ciclos automáticos a cada 24 horas pela API da rede social.
+                </div>
+              </div>
+            </div>
           </div>
           <p className="text-sm text-upGray mt-1">Análise unificada de performance orgânica (Instagram) e tráfego pago (Facebook Ads).</p>
         </div>
@@ -200,7 +209,7 @@ export default function Dashboard() {
           )}
 
           <div className="inline-flex bg-upCard rounded-xl p-1 border border-upBorder">
-            {["Hoje", "7D", "15D", "30D"].map((p) => (
+            {["24h", "7D", "15D", "30D"].map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
