@@ -48,7 +48,7 @@ import { OnboardingConnectModal } from "../../../components/common/OnboardingCon
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [period, setPeriod] = useState("30D");
+  const [period, setPeriod] = useState("Hoje");
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [postImages, setPostImages] = useState<Record<string, string>>({});
   const [showOnboarding, setShowOnboarding] = useState(false);
