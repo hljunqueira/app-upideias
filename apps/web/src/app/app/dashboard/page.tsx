@@ -246,7 +246,12 @@ export default function Dashboard() {
                   CONECTADO
                 </span>
               </div>
-              <p className="text-xs text-upGray mt-0.5">{activeAccount.account_name || activeAccount.name || "Perfil Profissional no Instagram"}</p>
+              <p className="text-xs font-semibold text-white mt-0.5">{activeAccount.account_name || activeAccount.name || "Perfil Profissional no Instagram"}</p>
+              {activeAccount.bio && (
+                <p className="text-[11px] text-upLightGray mt-1.5 whitespace-pre-line leading-relaxed max-w-xl bg-upDark/40 px-3 py-2 rounded-xl border border-upBorder/40 shadow-inner">
+                  {activeAccount.bio}
+                </p>
+              )}
             </div>
           </div>
 

@@ -35,6 +35,7 @@ export async function POST(request: Request) {
 
     const realUsername = realAccount?.username || realAccount?.platform_username || realProfile?.username || 'perfil';
     const realName = realAccount?.name || realProfile?.name || realUsername;
+    const realBio = realProfile?.introduction || realProfile?.bio || null;
     const profilePic = 
       realProfile?.image_url ||
       realAccount?.profile_pic_url ||
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
         external_account_id: accountId,
         username: realUsername,
         name: realName,
+        bio: realBio,
         profile_picture_url: profilePic,
         followers_count: followers,
         following_count: following,

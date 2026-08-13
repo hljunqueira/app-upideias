@@ -38,6 +38,7 @@ export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
         username: acc.platform_username || acc.username || acc.account_name || 'perfil',
         account_name: acc.account_name || acc.name || 'Perfil Conectado',
         profile_picture_url: acc.profile_picture_url || '',
+        bio: acc.bio || '',
         followers_count: acc.followers_count || 0,
         following_count: acc.following_count || 0,
         media_count: acc.media_count || 0,
