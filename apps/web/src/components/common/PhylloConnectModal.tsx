@@ -33,8 +33,51 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
   const [successPlatform, setSuccessPlatform] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState<boolean>(false);
+  const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
+  const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
 
-  // Dynamically load Phyllo Connect Web SDK v2
+  // Fetch connected accounts on modal open
+  useEffect(() => {
+    if (!isOpen) return;
+    const loadAccounts = async () => {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user?.id) {
+          const { data } = await supabase
+            .from("social_accounts")
+            .select("*")
+            .eq("user_id", userData.user.id)
+            .eq("status", "connected");
+          setConnectedAccounts(data || []);
+        }
+      } catch (err) {
+        console.warn("[PhylloConnectModal] Fetch accounts notice:", err);
+      }
+    };
+    loadAccounts();
+  }, [isOpen]);
+
+  const handleDisconnect = async (accountId: string) => {
+    setDisconnectingId(accountId);
+    setErrorMessage(null);
+    try {
+      const { error } = await supabase
+        .from("social_accounts")
+        .update({ status: "disconnected", updated_at: new Date().toISOString() })
+        .eq("id", accountId);
+
+      if (error) throw error;
+
+      setConnectedAccounts((prev) => prev.filter((acc) => acc.id !== accountId));
+      if (onSuccess) {
+        onSuccess("disconnected");
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Erro ao desconectar conta social.");
+    } finally {
+      setDisconnectingId(null);
+    }
+  };
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -202,6 +245,48 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
           </div>
         ) : (
           <div className="space-y-4">
+            {connectedAccounts.length > 0 && (
+              <div className="space-y-3 pb-2 border-b border-upBorder/60">
+                <p className="text-xs font-bold text-upGray uppercase tracking-wider">Perfil Conectado</p>
+                {connectedAccounts.map((acc) => (
+                  <div key={acc.id} className="p-3.5 rounded-2xl bg-upCard/60 border border-upBorder flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[2px] shrink-0">
+                        {acc.profile_picture_url ? (
+                          <img src={acc.profile_picture_url} alt={acc.username} className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xs font-bold text-white">
+                            {(acc.platform_username || acc.username || "IG").substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-white truncate">
+                          {acc.platform_username ? `@${acc.platform_username}` : acc.username ? `@${acc.username}` : acc.account_name || "Perfil Conectado"}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-[10px] text-emerald-400 font-semibold uppercase">Conectado</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      disabled={disconnectingId === acc.id}
+                      onClick={() => handleDisconnect(acc.id)}
+                      className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 text-xs font-bold transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                    >
+                      {disconnectingId === acc.id ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        "Desconectar"
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="bg-upCard/40 border border-upBorder/60 rounded-2xl p-4 flex items-center gap-3">
               <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />
               <p className="text-xs text-upGray leading-relaxed">

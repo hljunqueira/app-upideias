@@ -46,6 +46,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
+  const [connectedAccount, setConnectedAccount] = useState<any>(null);
+
   useEffect(() => {
     fetchNotificationsFromDatabase("user").then((notifs) => {
       setNotifications(notifs);
@@ -70,6 +72,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         getInstagramAccounts()
           .then((accs) => {
             if (accs && accs.length > 0) {
+              setConnectedAccount(accs[0]);
               setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "@upideias");
             }
           })
@@ -154,7 +157,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upCard/60 border border-upBorder text-xs text-upLightGray hover:border-upPink/50 shrink-0 transition-all cursor-pointer"
             >
               <span className={`w-2 h-2 rounded-full ${instagramHandle ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
-              <Instagram className="w-3.5 h-3.5 text-upPink" />
+              {connectedAccount?.profile_picture_url ? (
+                <img src={connectedAccount.profile_picture_url} alt="Profile" className="w-4 h-4 rounded-full object-cover shrink-0 border border-upPink/40" />
+              ) : (
+                <Instagram className="w-3.5 h-3.5 text-upPink shrink-0" />
+              )}
               <span className="font-medium text-[11px]">{instagramHandle || "Conectar Instagram"}</span>
             </button>
           </div>
@@ -432,7 +439,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         onSuccess={() => {
           getInstagramAccounts().then((accs) => {
             if (accs && accs.length > 0) {
+              setConnectedAccount(accs[0]);
               setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "@upideias");
+            } else {
+              setConnectedAccount(null);
+              setInstagramHandle(null);
             }
           });
         }}

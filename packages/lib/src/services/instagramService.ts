@@ -35,11 +35,12 @@ export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
       return data.map((acc: any) => ({
         id: acc.id,
         user_id: acc.user_id,
-        username: acc.platform_username || acc.account_name || 'perfil',
-        account_name: acc.account_name || 'Perfil Conectado',
+        username: acc.platform_username || acc.username || acc.account_name || 'perfil',
+        account_name: acc.account_name || acc.name || 'Perfil Conectado',
+        profile_picture_url: acc.profile_picture_url || '',
         followers_count: acc.followers_count || 0,
         status: acc.status || 'connected',
-        connected_at: acc.created_at || new Date().toISOString()
+        connected_at: acc.connected_at || acc.created_at || new Date().toISOString()
       })) as unknown as InstagramAccount[];
     }
   } catch (e) {}

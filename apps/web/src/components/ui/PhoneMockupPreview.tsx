@@ -10,6 +10,8 @@ interface PhoneMockupPreviewProps {
   engagement: string;
   type: string;
   imageUrl?: string;
+  username?: string;
+  profilePictureUrl?: string;
   className?: string;
 }
 
@@ -21,6 +23,8 @@ export const PhoneMockupPreview: React.FC<PhoneMockupPreviewProps> = ({
   engagement,
   type,
   imageUrl: externalImageUrl,
+  username = "creator_upideias",
+  profilePictureUrl,
   className,
 }) => {
   const [customImage, setCustomImage] = React.useState<string | null>(null);
@@ -59,11 +63,17 @@ export const PhoneMockupPreview: React.FC<PhoneMockupPreviewProps> = ({
       <div className="flex-1 overflow-y-auto bg-[#050508] p-3 flex flex-col gap-3 scrollbar-hide">
         {/* Fake Instagram Header */}
         <div className="flex items-center gap-2 border-b border-upBorder/40 pb-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px]">
-            <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-[8px] font-extrabold text-upWhite">UP</div>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px] shrink-0">
+            {profilePictureUrl ? (
+              <img src={profilePictureUrl} alt={username} className="w-full h-full rounded-full object-cover" />
+            ) : (
+              <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-[8px] font-extrabold text-upWhite">
+                {username.substring(0, 2).toUpperCase()}
+              </div>
+            )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-upWhite">creator_upideias</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] font-bold text-upWhite truncate">{username.startsWith('@') ? username : `@${username}`}</span>
             <span className="text-[8px] text-upGray">Patrocinado • Facebook Ads</span>
           </div>
         </div>

@@ -372,6 +372,8 @@ export default function Dashboard() {
           </div>
 
           <PhoneMockupPreview
+            username={accounts[0]?.username ? accounts[0].username : "creator_upideias"}
+            profilePictureUrl={accounts[0]?.profile_picture_url || undefined}
             caption={previewPost?.caption || "Seu perfil conectado no UP Analytics está pronto para receber publicações estratégicas."}
             reach={previewPost?.reach ? previewPost.reach.toLocaleString("pt-BR") : "0"}
             likes={previewPost?.like_count ? previewPost.like_count.toLocaleString("pt-BR") : "0"}

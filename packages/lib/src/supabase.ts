@@ -9,6 +9,6 @@ const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg0Mzk3MjM3LCJleHAiOjIwOTk3NTcyMzd9.OWLxzoQBPXdgcbLruENE_JnutMSDM4T05Sunsqhe_eI';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg2NTA0NzMwLCJleHAiOjE5NDQxODQ3MzB9.vOqyYLQPBKVOWIshQvk0ImybA7gZh4ehXqRgSTeB-90';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
