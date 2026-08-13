@@ -39,6 +39,8 @@ export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
         account_name: acc.account_name || acc.name || 'Perfil Conectado',
         profile_picture_url: acc.profile_picture_url || '',
         followers_count: acc.followers_count || 0,
+        following_count: acc.following_count || 0,
+        media_count: acc.media_count || 0,
         status: acc.status || 'connected',
         connected_at: acc.connected_at || acc.created_at || new Date().toISOString()
       })) as unknown as InstagramAccount[];

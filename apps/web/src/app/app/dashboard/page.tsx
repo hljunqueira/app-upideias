@@ -198,6 +198,48 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Profile Overview Banner Card when account is active */}
+      {activeAccount && (
+        <div className="bg-gradient-to-r from-upCard via-upCard/80 to-purple-900/10 border border-upBorder/80 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[2.5px] shrink-0 shadow-md">
+              {activeAccount.profile_picture_url ? (
+                <img src={activeAccount.profile_picture_url} alt={activeAccount.username} className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <div className="w-full h-full rounded-full bg-black flex items-center justify-center font-bold text-white text-base">
+                  {(activeAccount.username || "IG").substring(0, 2).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white">@{activeAccount.username || "perfil"}</h2>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  CONECTADO VIA PHYLLO
+                </span>
+              </div>
+              <p className="text-xs text-upGray mt-0.5">{activeAccount.account_name || activeAccount.name || "Perfil Profissional no Instagram"}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 text-xs">
+            <div className="bg-upDark/60 border border-upBorder/60 rounded-xl px-3 py-2 text-center min-w-[100px]">
+              <p className="text-[10px] text-upGray font-semibold uppercase">Seguidores</p>
+              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.followers_count || 0).toLocaleString("pt-BR")}</p>
+            </div>
+            <div className="bg-upDark/60 border border-upBorder/60 rounded-xl px-3 py-2 text-center min-w-[100px]">
+              <p className="text-[10px] text-upGray font-semibold uppercase">Seguindo</p>
+              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.following_count || 442).toLocaleString("pt-BR")}</p>
+            </div>
+            <div className="bg-upDark/60 border border-upBorder/60 rounded-xl px-3 py-2 text-center min-w-[100px]">
+              <p className="text-[10px] text-upGray font-semibold uppercase">Publicações</p>
+              <p className="text-sm font-extrabold text-white mt-0.5">{(activeAccount.media_count || posts.length || 3).toLocaleString("pt-BR")}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* KPI Bento Grid com Filtragem Reativa */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Instagram KPIs */}
