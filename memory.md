@@ -27,7 +27,21 @@
 - **Desativação em vez de Exclusão (Soft-Delete):** É proibido deletar fisicamente clientes assinantes da tabela `profiles`. A remoção de acesso deve ser realizada via alteração do campo `status` para `'Suspenso'` (**Desativar Conta**), permitindo a **Reativação** a qualquer momento com o botão **Reativar Conta** (`status = 'Ativo'`).
 - **Bloqueio de Contas Suspensas:** O `middleware.ts` valida o campo `status` da tabela `profiles` e redireciona usuários suspensos que tentem acessar `/app/*` para `/login?error=account_suspended`.
 - **Proteção Contra Erros de Objeto Nulo (`Optional Chaining` em `previewPost`):** Qualquer componente visual que consuma seleções de posts ou mídias (ex: `PhoneMockupPreview`) deve obrigatoriamente utilizar a sintaxe de encadeamento opcional (`previewPost?.caption`, `previewPost?.id`) e fornecer valores limpos de fallback. Isso garante que perfis recém-criados ou sem publicações sincronizadas carreguem a interface sem lançar exceções do tipo `TypeError: Cannot read properties of null`.
-- **Fallback Resiliente de Tabelas Sociais (`instagramService.ts`):** Na busca de contas conectadas (`getInstagramAccounts`), a consulta tenta inicialmente a tabela `instagram_accounts` e executa um fallback resiliente para a tabela `social_accounts` (com cast duplo `as unknown as InstagramAccount[]`) para prevenir retornos 404 do PostgREST durante a sincronização de schemas.
+- **Nomenclatura do Schema Relacional PostgreSQL (`social_accounts`, `social_account_metrics`, `social_content`):**
+  - A coluna de relacionamento chave estrangeira em `social_account_metrics` e `social_content` chama-se **`account_id`** (NÃO `social_account_id`).
+  - A tabela de publicações no PostgreSQL Supabase chama-se **`social_content`** (singular, NÃO `social_contents`).
+  - A tabela `social_accounts` armazena as colunas de reputação viva: `followers_count`, `following_count`, `media_count`, `profile_picture_url` e `bio`.
+- **Regra de Ouro: Proibição Absoluta de Dados Falsos ou Hardcoded:**
+  - É estritamente proibido utilizar datasets fictícios ou números hardcoded para métricas de reputação. Todos os dados (`followers_count`, `following_count`, `media_count`, `profile_picture_url`, `bio`) devem vir 100% ao vivo da API oficial.
+- **Higienização White-Label Estrita (Sem Menção à Phyllo na UI):**
+  - É estritamente proibido exibir o nome "Phyllo" ou qualquer fornecedor de infraestrutura nas telas do usuário final. O badge de status do perfil exibe unicamente **`CONECTADO`** (white-label).
+- **Ciclo de Atualização de Reputação e Filtro Padrão `24h`:**
+  - Como a API oficial atualiza os contadores de reputação em lotes agendados (*batch sync* a cada 24h), o filtro padrão do painel é **`24h`** e inclui um ícone `(i)` com tooltip explicativo informando o ciclo de atualização da API.
+- **Sincronização Sob Demanda (Force Refresh):**
+  - O botão **"Atualizar dados"** no cabeçalho do Dashboard invoca `POST /api/integrations/phyllo/sync-account` com `forceRefresh: true`, atualizando os registros no PostgreSQL Supabase e recarregando os estados do React instantaneamente em memória sem exigir recarga da página (F5).
+- **Favicon e Ícones com Fundo Transparente:**
+  - O favicon principal da aplicação e a propriedade `metadata.icons` utilizam a logo oficial com fundo transparente (`/UP-Logo-removebg-preview.png`).
+
 
 
 
