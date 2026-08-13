@@ -140,24 +140,15 @@ export function PhylloConnectModal({ isOpen, onClose, onSuccess }: PhylloConnect
         setSuccessPlatform(platform);
 
         try {
-          const { data: userData } = await supabase.auth.getUser();
-          if (userData?.user?.id) {
-            await supabase.from("social_accounts").upsert(
-              {
-                user_id: userData.user.id,
-                platform: platform || "instagram",
-                external_account_id: accountId,
-                username: "creator_upideias",
-                name: "Creator UP",
-                status: "connected",
-                connected_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              },
-              { onConflict: "platform,external_account_id" }
-            );
-          }
+          const res = await fetch("/api/integrations/phyllo/sync-account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ accountId, platform: platform || "instagram" }),
+          });
+          const resData = await res.json();
+          console.log("[PhylloConnectModal] Sync account result:", resData);
         } catch (clientErr) {
-          console.warn("[PhylloConnect] Fast client sync notice:", clientErr);
+          console.warn("[PhylloConnectModal] Sync notice:", clientErr);
         }
 
         if (onSuccess) {

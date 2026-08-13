@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { phylloClient } from '@up-analytics/lib';
 
 /**
  * Validates HMAC SHA-256 signature from Phyllo-Signatures header against RAW body.
@@ -167,18 +168,33 @@ export async function POST(request: NextRequest) {
             ? (workPlatformName === 'twitter' ? 'x' : workPlatformName)
             : 'instagram';
 
+          let realAccount: any = null;
+          try {
+            realAccount = await phylloClient.getAccount(phylloAccountId);
+          } catch (accErr) {
+            console.warn(`[PhylloWebhook] Could not fetch real account details for ${phylloAccountId}:`, accErr);
+          }
+
+          const username = realAccount?.username || realAccount?.platform_username || body.username || body.data?.username || 'perfil';
+          const name = realAccount?.name || realAccount?.platform_username || username;
+          const profilePic = realAccount?.profile_picture_url || body.profile_picture_url || null;
+
           await adminClient.from('social_accounts').upsert(
             {
               user_id: supabaseUserId,
               platform,
               external_account_id: phylloAccountId,
+              username,
+              name,
+              profile_picture_url: profilePic,
+              followers_count: realAccount?.followers_count || 0,
               status: 'connected',
               connected_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             },
             { onConflict: 'platform,external_account_id' }
           );
-          console.log(`[PhylloWebhook] Account ${phylloAccountId} linked to Supabase user ${supabaseUserId}`);
+          console.log(`[PhylloWebhook] Account ${phylloAccountId} (${username}) linked to Supabase user ${supabaseUserId}`);
         } else if (eventType === 'ACCOUNTS.DISCONNECTED') {
           await adminClient
             .from('social_accounts')
