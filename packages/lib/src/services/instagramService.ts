@@ -49,25 +49,80 @@ export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
 }
 
 export async function getDashboardMetrics(accountId: string): Promise<InstagramDailyMetrics[]> {
-  const { data, error } = await supabase
-    .from('instagram_daily_metrics')
-    .select('*')
-    .eq('instagram_account_id', accountId)
-    .order('metric_date', { ascending: true });
+  try {
+    const { data, error } = await supabase
+      .from('instagram_daily_metrics')
+      .select('*')
+      .eq('instagram_account_id', accountId)
+      .order('metric_date', { ascending: true });
 
-  if (error || !data) return [];
-  return data as InstagramDailyMetrics[];
+    if (!error && data && data.length > 0) {
+      return data as InstagramDailyMetrics[];
+    }
+  } catch (e) {}
+
+  try {
+    const { data, error } = await supabase
+      .from('social_account_metrics')
+      .select('*')
+      .eq('social_account_id', accountId)
+      .order('metric_date', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return data.map((m: any) => ({
+        id: m.id,
+        instagram_account_id: accountId,
+        metric_date: m.metric_date || m.date || new Date().toISOString().split('T')[0],
+        followers_count: m.followers_count || 0,
+        reach: m.reach || m.impressions || 0,
+        paid_reach: m.paid_reach || 0,
+        impressions: m.impressions || 0,
+        engagement_rate: m.engagement_rate || 0,
+        created_at: m.created_at || new Date().toISOString()
+      })) as InstagramDailyMetrics[];
+    }
+  } catch (e) {}
+
+  return [];
 }
 
 export async function getInstagramPosts(accountId: string): Promise<InstagramMedia[]> {
-  const { data, error } = await supabase
-    .from('instagram_media')
-    .select('*')
-    .eq('instagram_account_id', accountId)
-    .order('published_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('instagram_media')
+      .select('*')
+      .eq('instagram_account_id', accountId)
+      .order('published_at', { ascending: false });
 
-  if (error || !data) return [];
-  return data as InstagramMedia[];
+    if (!error && data && data.length > 0) {
+      return data as InstagramMedia[];
+    }
+  } catch (e) {}
+
+  try {
+    const { data, error } = await supabase
+      .from('social_contents')
+      .select('*')
+      .eq('social_account_id', accountId)
+      .order('published_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      return data.map((post: any) => ({
+        id: post.id,
+        instagram_account_id: accountId,
+        media_type: post.content_type || 'IMAGE',
+        caption: post.caption || '',
+        media_url: post.media_url || '',
+        permalink: post.permalink || 'https://instagram.com',
+        like_count: post.like_count || 0,
+        comments_count: post.comment_count || 0,
+        published_at: post.published_at || new Date().toISOString(),
+        created_at: post.created_at || new Date().toISOString(),
+      })) as InstagramMedia[];
+    }
+  } catch (e) {}
+
+  return [];
 }
 
 export async function getPostDetails(postId: string): Promise<InstagramMedia> {

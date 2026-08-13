@@ -161,7 +161,10 @@ export async function POST(request: NextRequest) {
           eventType === 'ACCOUNTS.CONNECTED' ||
           eventType === 'ACCOUNTS.STATUS_UPDATED' ||
           eventType === 'PROFILES.ADDED' ||
-          eventType === 'PROFILES.UPDATED'
+          eventType === 'PROFILES.UPDATED' ||
+          eventType === 'ENGAGEMENT.PROFILE_UPDATED' ||
+          eventType === 'ENGAGEMENT.CONTENTS_UPDATED' ||
+          eventType.includes('PROFILE')
         ) {
           const workPlatformName = (body.work_platform_name || body.work_platform_id || 'instagram').toLowerCase();
           const platform = ['tiktok', 'youtube', 'linkedin', 'x', 'twitter'].includes(workPlatformName)
