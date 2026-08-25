@@ -237,22 +237,22 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
 
         {/* Botões de Ação */}
         <div className="mt-6 space-y-3">
-          {/* Botão Instagram Direto */}
+          {/* Botão Oficial Meta Graph para Instagram */}
           <button
-            onClick={() => handleConnect("instagram")}
+            onClick={() => handleConnect("facebook")}
             disabled={connecting}
-            className="w-full group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#12121a] via-[#1a0f1c] to-rose-950/30 border border-rose-500/30 hover:border-rose-500/80 transition-all duration-300 shadow-md hover:shadow-[0_0_25px_rgba(244,63,94,0.25)] cursor-pointer disabled:opacity-60"
+            className="w-full group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#12121a] via-[#1a0f1c] to-rose-950/40 border border-rose-500/40 hover:border-rose-500/90 transition-all duration-300 shadow-md hover:shadow-[0_0_25px_rgba(244,63,94,0.3)] cursor-pointer disabled:opacity-60"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md">
                 IG
               </div>
               <div className="text-left">
                 <p className="text-sm font-bold text-white font-display flex items-center gap-1.5">
-                  <span>Conectar com Instagram Direto</span>
+                  <span>Conectar Instagram Profissional</span>
                   <Plus className="w-3.5 h-3.5 text-rose-400" />
                 </p>
-                <p className="text-xs text-neutral-400 mt-0.5">Login com usuário e senha do @instagram</p>
+                <p className="text-xs text-neutral-400 mt-0.5">Autorização oficial Meta Graph API • Sincroniza métricas</p>
               </div>
             </div>
 
@@ -260,32 +260,11 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
               {connecting ? (
                 <RefreshCw className="h-4 w-4 text-rose-400 animate-spin" />
               ) : (
-                <div className="p-2 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                <div className="p-2.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-all">
                   <ArrowRight className="h-4 w-4" />
                 </div>
               )}
             </div>
-          </button>
-
-          {/* Botão Facebook / Meta Graph */}
-          <button
-            onClick={() => handleConnect("facebook")}
-            disabled={connecting}
-            className="w-full group flex items-center justify-between p-3.5 rounded-2xl bg-[#12121a]/80 border border-white/10 hover:border-blue-500/60 transition-all duration-300 cursor-pointer disabled:opacity-60"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#1877F2] flex items-center justify-center text-white font-bold text-sm shadow-md">
-                f
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-semibold text-neutral-200">
-                  Ou conectar via Facebook Page vinculada
-                </p>
-                <p className="text-[10px] text-neutral-400">Recomendado para contas vinculadas a páginas comerciais</p>
-              </div>
-            </div>
-
-            <ArrowRight className="h-3.5 w-3.5 text-neutral-400 group-hover:text-white" />
           </button>
         </div>
 
