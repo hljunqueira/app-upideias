@@ -202,7 +202,7 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
         isLandingPageFeatured: formData.isLandingPageFeatured ?? true,
         isRecommendedFirst: formData.isRecommendedFirst ?? false,
         accessTier: (formData.accessTier as any) || "Grátis",
-        orderIndex: initialCourse?.orderIndex || Date.now(),
+        orderIndex: initialCourse?.orderIndex || 1,
         status: (formData.status as any) || "published",
         modulesCount: Number(formData.modulesCount) || 1,
         lessonsCount: Number(formData.lessonsCount) || 1,
