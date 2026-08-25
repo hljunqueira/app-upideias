@@ -42,7 +42,14 @@ function RegisterContent() {
       await apiRegister(name, email, password);
       router.push(`/checkout?plan=${plan}`);
     } catch (err: any) {
-      setError(err.message || "Erro ao criar conta. Tente novamente.");
+      const msg = err?.message || "";
+      if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("User already registered")) {
+        setError("Este e-mail já está cadastrado. Por favor, faça login para continuar.");
+      } else if (msg.includes("Password should be") || (msg.includes("password") && msg.includes("least"))) {
+        setError("A senha deve ter no mínimo 6 caracteres.");
+      } else {
+        setError(msg || "Erro ao criar conta. Tente novamente.");
+      }
     } finally {
       setLoading(false);
     }

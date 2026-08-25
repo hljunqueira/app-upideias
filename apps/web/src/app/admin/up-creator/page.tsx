@@ -24,15 +24,11 @@ import {
 import {
   Course,
   Trail,
-  INITIAL_TRAILS,
-  INITIAL_STUDENT_LOGS,
   fetchCoursesFromDb,
   fetchTrailsFromDb,
   saveCourseToDb,
   deleteCourseFromDb,
-  toggleLandingFeaturedInDb,
-  getStoredCourses,
-  getStoredTrails
+  toggleLandingFeaturedInDb
 } from "@/lib/coursesStore";
 import { CourseModal } from "@/components/admin/CourseModal";
 import { TrailRoadmapView } from "@/components/admin/TrailRoadmapView";
@@ -44,7 +40,7 @@ import { supabase } from "@up-analytics/lib";
 
 export default function AdminUpCreatorPage() {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [trails, setTrails] = useState<Trail[]>(INITIAL_TRAILS);
+  const [trails, setTrails] = useState<Trail[]>([]);
   const [activeTab, setActiveTab] = useState<"courses" | "trails" | "modules" | "analytics">("courses");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [totalStudents, setTotalStudents] = useState<number>(0);
@@ -100,9 +96,10 @@ export default function AdminUpCreatorPage() {
   }, []);
 
   const handleSaveCourse = async (updatedCourse: Course) => {
-    await saveCourseToDb(updatedCourse);
+    const result = await saveCourseToDb(updatedCourse);
     const updated = await fetchCoursesFromDb();
     setCourses(updated);
+    return result;
   };
 
   const onRequestDeleteCourse = (id: string) => {
@@ -573,7 +570,7 @@ export default function AdminUpCreatorPage() {
       {activeTab === "modules" && <ModuleLessonBuilder courses={courses} />}
 
       {/* CONTEÚDO DA ABA 4: QUEM ASSISTIU (ANALYTICS) */}
-      {activeTab === "analytics" && <StudentAnalyticsView logs={INITIAL_STUDENT_LOGS} />}
+      {activeTab === "analytics" && <StudentAnalyticsView logs={[]} totalStudents={totalStudents} />}
 
       {/* MODAL DE CRIAÇÃO E EDIÇÃO COM LIVE PREVIEW */}
       <CourseModal

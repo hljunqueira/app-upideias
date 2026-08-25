@@ -28,7 +28,7 @@ interface AccountItem {
   followers: string;
   status: "Conectado" | "Token Expirado" | "Erro Meta API";
   lastSync: string;
-  phylloAccountId?: string;
+  nangoConnectionId?: string;
   platform?: string;
 }
 
@@ -39,7 +39,7 @@ export default function AdminAccountsPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
   
-  // Modal de Detalhes de Conexão Phyllo
+  // Modal de Detalhes de Conexão Nango
   const [selectedDetailsAccount, setSelectedDetailsAccount] = useState<AccountItem | null>(null);
   
   // Modal de Confirmação de Revogação
@@ -58,7 +58,7 @@ export default function AdminAccountsPage() {
           followers: (a.followers_count || 12400).toLocaleString("pt-BR"),
           status: a.status === "active" || a.status === "connected" ? "Conectado" : "Token Expirado",
           lastSync: a.updated_at ? new Date(a.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "Há 5 minutos",
-          phylloAccountId: a.phyllo_account_id || `acc_phyllo_${a.id.substring(0, 8)}`,
+          nangoConnectionId: a.external_account_id || a.nango_connection_id || `conn_${a.id.substring(0, 8)}`,
           platform: a.platform || "instagram"
         }));
         setAccounts(mapped);
@@ -350,8 +350,8 @@ export default function AdminAccountsPage() {
 
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-xl bg-upCard/40 border border-upBorder/60 space-y-1">
-                <p className="text-upGray font-semibold">Phyllo Account ID</p>
-                <p className="font-mono text-white text-[11px]">{selectedDetailsAccount.phylloAccountId}</p>
+                <p className="text-upGray font-semibold">Nango Connection ID</p>
+                <p className="font-mono text-white text-[11px]">{selectedDetailsAccount.nangoConnectionId || selectedDetailsAccount.id}</p>
               </div>
 
               <div className="p-3 rounded-xl bg-upCard/40 border border-upBorder/60 space-y-1">

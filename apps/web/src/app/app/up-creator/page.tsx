@@ -41,15 +41,28 @@ export default function UpCreatorPage() {
       }
 
       if (u?.id) {
-        const { count } = await supabase
+        const { data: progressData } = await supabase
           .from("user_lesson_progress")
-          .select("*", { count: "exact", head: true })
+          .select("completed, updated_at")
           .eq("user_id", u.id);
         
-        const completedCount = count || 0;
+        const completedLessons = (progressData || []).filter((p) => p.completed);
+        const completedCount = completedLessons.length;
         const totalXp = completedCount * 50;
         setXpTotal(totalXp);
-        setStreakDays(completedCount > 0 ? Math.min(30, completedCount + 1) : 1);
+        
+        // Calcula dias de ofensiva reais baseados em datas únicas de estudo
+        if (completedCount === 0) {
+          setStreakDays(0);
+        } else {
+          const uniqueDates = new Set(
+            completedLessons
+              .map((p) => p.updated_at ? p.updated_at.split("T")[0] : null)
+              .filter(Boolean)
+          );
+          setStreakDays(Math.max(1, uniqueDates.size));
+        }
+
         if (totalXp >= 1000) setLevelTitle("Criador Pro (Nível 3)");
         else if (totalXp >= 300) setLevelTitle("Criador Ativo (Nível 2)");
         else setLevelTitle("Criador (Nível 1)");
@@ -58,11 +71,13 @@ export default function UpCreatorPage() {
     initData();
   }, []);
 
-  const currentTrail = trails.find((t) => t.id === selectedTrailId) || trails[0];
+  const currentTrail = trails.find((t) => t.id === selectedTrailId) || trails[0] || null;
 
-  const trailCourses = courses
-    .filter((c) => c.track.toLowerCase() === currentTrail?.name.toLowerCase())
-    .sort((a, b) => a.orderIndex - b.orderIndex);
+  const trailCourses = currentTrail
+    ? courses
+        .filter((c) => (c.track || "").toLowerCase().trim() === (currentTrail.name || "").toLowerCase().trim())
+        .sort((a, b) => a.orderIndex - b.orderIndex)
+    : courses;
 
   const studentStats = {
     name: studentName,
@@ -75,31 +90,38 @@ export default function UpCreatorPage() {
 
   useEffect(() => {
     async function loadLeaderboard() {
-      const u = await getMe().catch(() => null);
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, name, avatar_url")
-        .limit(5);
+      try {
+        const u = await getMe().catch(() => null);
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, name")
+          .limit(5);
 
-      if (data && data.length > 0) {
-        const board = await Promise.all(
-          data.map(async (prof: any, idx: number) => {
-            const { count } = await supabase
-              .from("user_lesson_progress")
-              .select("*", { count: "exact", head: true })
-              .eq("user_id", prof.id);
-            const xp = (count || 0) * 50;
-            return {
-              rank: idx + 1,
-              name: prof.name || "Aluno UP",
-              xp: xp,
-              avatar: prof.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop",
-              isMe: u?.id === prof.id
-            };
-          })
-        );
-        setLeaderboard(board.sort((a, b) => b.xp - a.xp).map((item, i) => ({ ...item, rank: i + 1 })));
-      } else {
+        if (!error && data && data.length > 0) {
+          const board = await Promise.all(
+            data.map(async (prof: any, idx: number) => {
+              if (!prof || !prof.id) return null;
+              const { count } = await supabase
+                .from("user_lesson_progress")
+                .select("*", { count: "exact", head: true })
+                .eq("user_id", prof.id);
+              const xp = (count || 0) * 50;
+              return {
+                rank: idx + 1,
+                name: prof.name || "Aluno UP",
+                xp: xp,
+                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop",
+                isMe: u?.id === prof.id
+              };
+            })
+          );
+          const validBoard = board.filter(Boolean) as any[];
+          setLeaderboard(validBoard.sort((a, b) => b.xp - a.xp).map((item, i) => ({ ...item, rank: i + 1 })));
+        } else {
+          setLeaderboard([]);
+        }
+      } catch (e) {
+        console.warn("Erro ao carregar leaderboard:", e);
         setLeaderboard([]);
       }
     }
@@ -121,7 +143,7 @@ export default function UpCreatorPage() {
                 <GraduationCap className="w-3.5 h-3.5" /> UP Creator Academy
               </span>
               <span className="text-[10px] font-extrabold uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 fill-amber-400" /> {studentStats.streakDays} Dias de Ofensiva 🔥
+                <Flame className="w-3.5 h-3.5 fill-amber-400" /> {studentStats.streakDays} {studentStats.streakDays === 1 ? "Dia" : "Dias"} de Ofensiva 🔥
               </span>
             </div>
             
@@ -200,72 +222,84 @@ export default function UpCreatorPage() {
             </div>
           )}
 
-          {/* LINHA DO TEMPO SEQUENCIAL DE CURSOS (Rocketseat / DIO Style) */}
-          <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-4 before:bottom-4 before:w-0.5 before:bg-gradient-to-b before:from-upPink before:via-upPink/50 before:to-transparent">
-            {trailCourses.map((course, index) => {
-              const isFirst = index === 0;
-              return (
-                <div key={course.id} className="relative group">
-                  {/* Nó Numerado */}
-                  <div
-                    className={`absolute -left-6 top-6 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shadow-md ${
-                      isFirst
-                        ? "bg-emerald-500 text-black ring-4 ring-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
-                        : "bg-upDark text-white border border-upPink/60"
-                    }`}
-                  >
-                    {index + 1}
-                  </div>
-
-                  {/* Card do Curso na Trilha do Aluno */}
-                  <div className="bg-[#0e0e14] border border-upBorder/60 hover:border-upPink/60 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={course.thumbnailUrl}
-                        alt={course.title}
-                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-white/10 shrink-0 group-hover:scale-105 transition duration-300"
-                      />
-                      <div>
-                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                          {isFirst && (
-                            <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black border border-emerald-400 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                              🟢 COMEÇAR POR AQUI
-                            </span>
-                          )}
-                          <span className="text-[9px] font-extrabold uppercase bg-upPink/20 text-upPink px-2.5 py-0.5 rounded-md">
-                            {course.tag}
-                          </span>
-                          <span className="text-[10px] text-upGray font-medium">Nível: {course.level}</span>
-                        </div>
-
-                        <h4 className="text-base font-bold text-white group-hover:text-upPink transition">
-                          {course.title}
-                        </h4>
-                        <p className="text-xs text-upGray line-clamp-1 mt-0.5 max-w-md">{course.description}</p>
-
-                        <div className="flex items-center gap-3 mt-3 text-[11px] text-upGray">
-                          <span>{course.modulesCount} Módulos</span>
-                          <span>•</span>
-                          <span>{course.lessonsCount} Aulas</span>
-                          <span>•</span>
-                          <span className="text-amber-400 font-bold">+{course.xpReward} XP</span>
-                        </div>
-                      </div>
+          {/* LINHA DO TEMPO SEQUENCIAL DE CURSOS */}
+          {trailCourses.length > 0 ? (
+            <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-4 before:bottom-4 before:w-0.5 before:bg-gradient-to-b before:from-upPink before:via-upPink/50 before:to-transparent">
+              {trailCourses.map((course, index) => {
+                const isFirst = index === 0;
+                return (
+                  <div key={course.id} className="relative group">
+                    {/* Nó Numerado */}
+                    <div
+                      className={`absolute -left-6 top-6 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shadow-md ${
+                        isFirst
+                          ? "bg-emerald-500 text-black ring-4 ring-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                          : "bg-upDark text-white border border-upPink/60"
+                      }`}
+                    >
+                      {index + 1}
                     </div>
 
-                    {/* Botão para Acessar o Player do Curso */}
-                    <Link
-                      href={`/app/up-creator/course/${course.id}`}
-                      className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-upPink hover:bg-upPink/90 text-white rounded-xl text-xs font-bold shadow-[0_0_20px_rgba(255,83,104,0.3)] transition self-end sm:self-center"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-white" />
-                      <span>Iniciar Curso</span>
-                    </Link>
+                    {/* Card do Curso na Trilha do Aluno */}
+                    <div className="bg-[#0e0e14] border border-upBorder/60 hover:border-upPink/60 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={course.thumbnailUrl}
+                          alt={course.title}
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-white/10 shrink-0 group-hover:scale-105 transition duration-300"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            {isFirst && (
+                              <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black border border-emerald-400 px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                                🟢 COMEÇAR POR AQUI
+                              </span>
+                            )}
+                            <span className="text-[9px] font-extrabold uppercase bg-upPink/20 text-upPink px-2.5 py-0.5 rounded-md">
+                              {course.tag}
+                            </span>
+                            <span className="text-[10px] text-upGray font-medium">Nível: {course.level}</span>
+                          </div>
+
+                          <h4 className="text-base font-bold text-white group-hover:text-upPink transition">
+                            {course.title}
+                          </h4>
+                          <p className="text-xs text-upGray line-clamp-1 mt-0.5 max-w-md">{course.description}</p>
+
+                          <div className="flex items-center gap-3 mt-3 text-[11px] text-upGray">
+                            <span>{course.modulesCount} Módulos</span>
+                            <span>•</span>
+                            <span>{course.lessonsCount} Aulas</span>
+                            <span>•</span>
+                            <span className="text-amber-400 font-bold">+{course.xpReward} XP</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Botão para Acessar o Player do Curso */}
+                      <Link
+                        href={`/app/up-creator/course/${course.id}`}
+                        className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-upPink hover:bg-upPink/90 text-white rounded-xl text-xs font-bold shadow-[0_0_20px_rgba(255,83,104,0.3)] transition self-end sm:self-center"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-white" />
+                        <span>Iniciar Curso</span>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 rounded-3xl bg-[#0e0e14] border border-white/10 text-center flex flex-col items-center justify-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-neutral-400">
+                <GraduationCap className="w-6 h-6" />
+              </div>
+              <h4 className="text-base font-bold text-white">Nenhum curso publicado nesta trilha ainda</h4>
+              <p className="text-xs text-neutral-400 max-w-md">
+                O conteúdo desta trilha está sendo preparado e em breve todas as aulas estarão disponíveis.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* COLUNA DA DIREITA: Leaderboard da Semana */}

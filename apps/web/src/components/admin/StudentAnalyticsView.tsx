@@ -6,11 +6,11 @@ import { Users, Eye, CheckCircle2, Award, PlayCircle } from "lucide-react";
 import { supabase } from "@up-analytics/lib";
 
 interface StudentAnalyticsViewProps {
-  logs: StudentWatchLog[];
+  logs?: StudentWatchLog[];
   totalStudents?: number;
 }
 
-export function StudentAnalyticsView({ logs, totalStudents = 0 }: StudentAnalyticsViewProps) {
+export function StudentAnalyticsView({ logs = [], totalStudents = 0 }: StudentAnalyticsViewProps) {
   const [activeStudentsCount, setActiveStudentsCount] = useState<number>(totalStudents);
   const [totalXpDistributed, setTotalXpDistributed] = useState<number>(0);
   const [completionRate, setCompletionRate] = useState<number>(0);

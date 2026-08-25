@@ -14,24 +14,12 @@ export async function mockSyncInstagramMetrics(accountId: string): Promise<boole
 export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
   try {
     const { data, error } = await supabase
-      .from('instagram_accounts')
-      .select('*')
-      .eq('status', 'connected');
-
-    if (!error && data && data.length > 0) {
-      return data as InstagramAccount[];
-    }
-  } catch (e) {
-    // Ignora e tenta fallback na tabela social_accounts
-  }
-
-  try {
-    const { data, error } = await supabase
       .from('social_accounts')
       .select('*')
-      .eq('status', 'connected');
+      .eq('status', 'connected')
+      .order('connected_at', { ascending: false });
 
-    if (!error && data) {
+    if (!error && data && data.length > 0) {
       return data.map((acc: any) => ({
         id: acc.id,
         user_id: acc.user_id,
@@ -46,24 +34,27 @@ export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
         connected_at: acc.connected_at || acc.created_at || new Date().toISOString()
       })) as unknown as InstagramAccount[];
     }
-  } catch (e) {}
+  } catch (e) {
+    // Fallback
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('instagram_accounts')
+      .select('*')
+      .eq('status', 'connected');
+
+    if (!error && data && data.length > 0) {
+      return data as InstagramAccount[];
+    }
+  } catch (err) {
+    console.warn('[instagramService] instagram_accounts fetch notice:', err);
+  }
 
   return [];
 }
 
 export async function getDashboardMetrics(accountId: string): Promise<InstagramDailyMetrics[]> {
-  try {
-    const { data, error } = await supabase
-      .from('instagram_daily_metrics')
-      .select('*')
-      .eq('instagram_account_id', accountId)
-      .order('metric_date', { ascending: true });
-
-    if (!error && data && data.length > 0) {
-      return data as InstagramDailyMetrics[];
-    }
-  } catch (e) {}
-
   try {
     const { data, error } = await supabase
       .from('social_account_metrics')
@@ -84,24 +75,28 @@ export async function getDashboardMetrics(accountId: string): Promise<InstagramD
         created_at: m.created_at || new Date().toISOString()
       })) as unknown as InstagramDailyMetrics[];
     }
-  } catch (e) {}
+  } catch (err) {
+    console.warn('[instagramService] social_account_metrics fetch notice:', err);
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('instagram_daily_metrics')
+      .select('*')
+      .eq('instagram_account_id', accountId)
+      .order('metric_date', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return data as InstagramDailyMetrics[];
+    }
+  } catch (err) {
+    console.warn('[instagramService] instagram_daily_metrics fetch notice:', err);
+  }
 
   return [];
 }
 
 export async function getInstagramPosts(accountId: string): Promise<InstagramMedia[]> {
-  try {
-    const { data, error } = await supabase
-      .from('instagram_media')
-      .select('*')
-      .eq('instagram_account_id', accountId)
-      .order('published_at', { ascending: false });
-
-    if (!error && data && data.length > 0) {
-      return data as InstagramMedia[];
-    }
-  } catch (e) {}
-
   try {
     const { data, error } = await supabase
       .from('social_content')
@@ -113,17 +108,32 @@ export async function getInstagramPosts(accountId: string): Promise<InstagramMed
       return data.map((post: any) => ({
         id: post.id,
         instagram_account_id: accountId,
-        media_type: post.content_type || 'IMAGE',
+        media_type: post.media_type || post.content_type || 'IMAGE',
         caption: post.caption || '',
         media_url: post.media_url || '',
         permalink: post.permalink || 'https://instagram.com',
-        like_count: post.like_count || 0,
-        comments_count: post.comment_count || 0,
+        thumbnail_url: post.thumbnail_url || post.media_url || '',
         published_at: post.published_at || new Date().toISOString(),
-        created_at: post.created_at || new Date().toISOString(),
+        like_count: post.like_count || 0,
+        comments_count: post.comments_count || 0
       })) as unknown as InstagramMedia[];
     }
-  } catch (e) {}
+  } catch (err) {
+    console.warn('[instagramService] social_content fetch notice:', err);
+  }
+  try {
+    const { data, error } = await supabase
+      .from('instagram_media')
+      .select('*')
+      .eq('instagram_account_id', accountId)
+      .order('published_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      return data as InstagramMedia[];
+    }
+  } catch (err) {
+    console.warn('[instagramService] instagram_media fetch notice:', err);
+  }
 
   return [];
 }
@@ -138,6 +148,7 @@ export async function getPostDetails(postId: string): Promise<InstagramMedia> {
   if (error || !data) {
     throw new Error(error?.message || 'Post não encontrado');
   }
+
   return data as InstagramMedia;
 }
 

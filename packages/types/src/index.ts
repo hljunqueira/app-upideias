@@ -97,7 +97,7 @@ export interface Subscription {
   updated_at: string;
 }
 
-export type SocialPlatform = 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'x';
+export type SocialPlatform = 'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'linkedin' | 'x';
 
 /**
  * Modelo de domínio público seguro para UI e Frontend.

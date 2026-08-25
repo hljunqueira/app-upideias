@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "../../utils/cn";
-import { Heart, MessageCircle, Send, Bookmark, Eye, Signal, Battery, Wifi } from "lucide-react";
+import { Heart, MessageCircle, Send, Bookmark, Signal, Battery, Wifi } from "lucide-react";
 
 interface PhoneMockupPreviewProps {
   caption: string;
@@ -12,6 +12,7 @@ interface PhoneMockupPreviewProps {
   imageUrl?: string;
   username?: string;
   profilePictureUrl?: string;
+  publishedAt?: string;
   className?: string;
 }
 
@@ -19,135 +20,111 @@ export const PhoneMockupPreview: React.FC<PhoneMockupPreviewProps> = ({
   caption,
   reach,
   likes,
-  comments: _comments,
+  comments,
   engagement,
-  type,
-  imageUrl: externalImageUrl,
-  username = "creator_upideias",
+  imageUrl,
+  username = "hlj.dev",
   profilePictureUrl,
+  publishedAt,
   className,
 }) => {
-  const [customImage, setCustomImage] = React.useState<string | null>(null);
-
-  const displayImage = customImage || externalImageUrl;
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCustomImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
-    <div className={cn("relative mx-auto w-[280px] h-[550px] bg-black rounded-[40px] border-[8px] border-upBorder shadow-2xl overflow-hidden flex flex-col", className)}>
+    <div className={cn("relative mx-auto w-[320px] h-[680px] bg-black rounded-[46px] border-[8px] border-neutral-800 shadow-2xl overflow-hidden flex flex-col", className)}>
       {/* Dynamic Island / Notch */}
-      <div className="absolute top-2 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-50 flex items-center justify-end px-3">
-        <div className="w-2 h-2 rounded-full bg-slate-900 border border-slate-800" />
+      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-50 flex items-center justify-end px-3">
+        <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 border border-neutral-800" />
       </div>
 
       {/* Status Bar */}
-      <div className="h-10 pt-2 px-6 flex justify-between items-center text-[10px] text-upWhite font-semibold z-40 select-none bg-upDark/30 backdrop-blur-sm shrink-0">
+      <div className="h-10 pt-2 px-6 flex justify-between items-center text-[10px] text-white font-semibold z-40 select-none bg-black/50 backdrop-blur-sm shrink-0">
         <span>10:50</span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <Signal className="w-2.5 h-2.5" />
           <Wifi className="w-2.5 h-2.5" />
-          <Battery className="w-3 h-3" />
+          <Battery className="w-3.5 h-3.5" />
         </div>
       </div>
 
       {/* Screen Content */}
-      <div className="flex-1 overflow-y-auto bg-[#050508] p-3 flex flex-col gap-3 scrollbar-hide">
-        {/* Fake Instagram Header */}
-        <div className="flex items-center gap-2 border-b border-upBorder/40 pb-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px] shrink-0">
+      <div className="flex-1 overflow-y-auto bg-[#0a0a0f] p-3.5 flex flex-col gap-3 scrollbar-thin scrollbar-thumb-white/10">
+        {/* Header do Instagram */}
+        <div className="flex items-center gap-2.5 border-b border-white/5 pb-2.5 shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[1.5px] shrink-0">
             {profilePictureUrl ? (
-              <img src={profilePictureUrl} alt={username} className="w-full h-full rounded-full object-cover" />
+              <img src={profilePictureUrl} alt={username} referrerPolicy="no-referrer" className="w-full h-full rounded-full object-cover" />
             ) : (
-              <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-[8px] font-extrabold text-upWhite">
+              <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-[8px] font-extrabold text-white">
                 {username.substring(0, 2).toUpperCase()}
               </div>
             )}
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-[10px] font-bold text-upWhite truncate">{username.startsWith('@') ? username : `@${username}`}</span>
-            <span className="text-[8px] text-upGray">Patrocinado • Facebook Ads</span>
+            <span className="text-[11px] font-bold text-white truncate">{username.startsWith('@') ? username : `@${username}`}</span>
+            <span className="text-[9px] text-neutral-400">Publicação Oficial • Instagram</span>
           </div>
         </div>
 
-        {/* Caption */}
-        <p className="text-[10px] text-upWhite leading-relaxed line-clamp-3">
-          {caption}
-        </p>
+        {/* Foto do Post em Alta Definição */}
+        {imageUrl ? (
+          <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-neutral-900 border border-white/5 shrink-0">
+            <img src={imageUrl} alt="Post" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="aspect-square w-full rounded-xl bg-neutral-900 border border-white/5 flex items-center justify-center text-xs text-neutral-500 shrink-0">
+            Sem imagem
+          </div>
+        )}
 
-        {/* Media Box com Upload Interativo de Imagem */}
-        <label className="relative aspect-square w-full rounded-xl bg-gradient-to-br from-upPink/20 to-purple-500/20 border border-upBorder/60 flex items-center justify-center overflow-hidden group cursor-pointer">
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageChange}
-          />
+        {/* Botões de Ação */}
+        <div className="flex justify-between items-center text-white py-0.5 shrink-0">
+          <div className="flex items-center gap-3">
+            <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+            <MessageCircle className="w-4 h-4 text-neutral-300" />
+            <Send className="w-4 h-4 text-neutral-300" />
+          </div>
+          <Bookmark className="w-4 h-4 text-neutral-300" />
+        </div>
 
-          {displayImage ? (
-            <img src={displayImage} alt="Post" className="w-full h-full object-cover" />
-          ) : (
-            <>
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
-              <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[8px] font-bold text-upWhite uppercase z-20">
-                {type}
-              </span>
-              <div className="z-10 flex flex-col items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-upPink/20 text-upPink flex items-center justify-center border border-upPink/30 group-hover:scale-110 transition">
-                  <Eye className="w-5 h-5" />
-                </div>
-                <span className="text-[9px] text-upWhite font-extrabold tracking-wider uppercase group-hover:text-upPink transition">
-                  Clique p/ alterar Foto 📷
-                </span>
-              </div>
-            </>
+        {/* Curtidas & Data */}
+        <div className="flex items-center justify-between text-[11px] shrink-0">
+          <span className="font-bold text-white">{likes} {Number(likes) === 1 ? 'curtida' : 'curtidas'}</span>
+          {publishedAt && (
+            <span className="text-[9px] text-neutral-400">{new Date(publishedAt).toLocaleDateString('pt-BR')}</span>
           )}
-        </label>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between items-center text-upWhite py-1">
-          <div className="flex gap-3">
-            <Heart className="w-4 h-4 text-upPink fill-upPink" />
-            <MessageCircle className="w-4 h-4" />
-            <Send className="w-4 h-4" />
-          </div>
-          <Bookmark className="w-4 h-4" />
         </div>
 
-        {/* Stats overlay box inside phone */}
-        <div className="rounded-xl border border-upBorder bg-upCard/80 backdrop-blur-md p-3 flex flex-col gap-2">
-          <div className="flex justify-between items-center text-[8px] font-bold uppercase text-upGray tracking-wider">
-            <span>Resultados do Anúncio</span>
-            <span className="text-green-400 font-extrabold">ROAS 4.8x</span>
+        {/* Legenda Completa com Destaque */}
+        <div className="text-[11px] text-neutral-300 leading-relaxed whitespace-pre-line bg-white/[0.03] p-3 rounded-xl border border-white/5">
+          <span className="font-bold text-white mr-1.5">{username.startsWith('@') ? username : `@${username}`}</span>
+          {caption}
+        </div>
+
+        {/* Estatísticas do Post */}
+        <div className="rounded-xl border border-white/10 bg-[#12121a] p-3 flex flex-col gap-2 shrink-0 mt-2">
+          <div className="flex justify-between items-center text-[9px] font-bold uppercase text-neutral-400 tracking-wider">
+            <span>Métricas do Post</span>
+            <span className="text-emerald-400 font-bold">{engagement}% Engaj.</span>
           </div>
-          <div className="grid grid-cols-3 gap-1 text-center mt-1">
-            <div className="bg-upDark/50 rounded-lg p-1.5 border border-upBorder/40">
-              <div className="text-[10px] font-extrabold text-upWhite">{reach}</div>
-              <div className="text-[6px] text-upGray uppercase mt-0.5">Alcance</div>
+          <div className="grid grid-cols-3 gap-1.5 text-center mt-1">
+            <div className="bg-black/40 rounded-lg p-1.5 border border-white/5">
+              <div className="text-[11px] font-bold text-white">{likes}</div>
+              <div className="text-[7px] text-neutral-400 uppercase mt-0.5">Curtidas</div>
             </div>
-            <div className="bg-upDark/50 rounded-lg p-1.5 border border-upBorder/40">
-              <div className="text-[10px] font-extrabold text-upWhite">{likes}</div>
-              <div className="text-[6px] text-upGray uppercase mt-0.5">Cliques</div>
+            <div className="bg-black/40 rounded-lg p-1.5 border border-white/5">
+              <div className="text-[11px] font-bold text-white">{comments || 0}</div>
+              <div className="text-[7px] text-neutral-400 uppercase mt-0.5">Comentários</div>
             </div>
-            <div className="bg-upDark/50 rounded-lg p-1.5 border border-upBorder/40">
-              <div className="text-[10px] font-extrabold text-green-400">{engagement}</div>
-              <div className="text-[6px] text-upGray uppercase mt-0.5">Engaj.</div>
+            <div className="bg-black/40 rounded-lg p-1.5 border border-white/5">
+              <div className="text-[11px] font-bold text-white">{reach || 110}</div>
+              <div className="text-[7px] text-neutral-400 uppercase mt-0.5">Alcance</div>
             </div>
           </div>
         </div>
       </div>
       
       {/* Home Indicator Bar */}
-      <div className="h-6 flex items-center justify-center shrink-0 bg-transparent z-40 select-none pb-1">
-        <div className="w-24 h-1 bg-upWhite/40 rounded-full" />
+      <div className="h-5 flex items-center justify-center shrink-0 bg-transparent z-40 select-none pb-1">
+        <div className="w-24 h-1 bg-white/30 rounded-full" />
       </div>
     </div>
   );

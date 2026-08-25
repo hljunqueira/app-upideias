@@ -40,7 +40,7 @@ interface AiProviderConfig {
 interface SocialApiConfig {
   id: string;
   name: string;
-  providerKey: "phyllo" | "meta" | "custom";
+  providerKey: "nango" | "meta" | "custom";
   description: string;
   clientId: string;
   clientSecret: string;
@@ -104,11 +104,11 @@ const INITIAL_PROVIDERS: AiProviderConfig[] = [
 ];
 
 const INITIAL_SOCIAL_API: SocialApiConfig = {
-  id: "social_phyllo",
-  name: "Phyllo Connect API (getphyllo.com)",
-  providerKey: "phyllo",
-  description: "API Unificada para integração de métricas do Instagram, TikTok e YouTube",
-  clientId: "phyllo_live_client_8932187",
+  id: "social_nango",
+  name: "Nango Connect API (nango.dev)",
+  providerKey: "nango",
+  description: "API Unificada para integração de métricas do Instagram via Graph API",
+  clientId: "nango_pk_live_8932187",
   clientSecret: "••••••••••••••••••••••••••••",
   environment: "production",
   status: "Ativo",

@@ -6,8 +6,6 @@ import { Play, X, Video, Sparkles, CheckCircle2 } from "lucide-react";
 import {
   Course,
   Trail,
-  getStoredCourses,
-  getStoredTrails,
   fetchCoursesFromDb,
   fetchTrailsFromDb
 } from "@/lib/coursesStore";
@@ -111,17 +109,6 @@ export default function CreatorShowcase() {
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
-    // Carregar cache inicial do localStorage para UX instantânea
-    const initialCourses = getStoredCourses();
-    const initialTrails = getStoredTrails();
-    if (initialCourses.length > 0) {
-      setCourses(initialCourses.filter((c) => c.isLandingPageFeatured));
-    }
-    if (initialTrails.length > 0) {
-      setTrails(initialTrails);
-    }
-
-    // Buscar dados do Supabase
     const loadFromDb = async () => {
       const [dbCourses, dbTrails] = await Promise.all([
         fetchCoursesFromDb(),
@@ -134,10 +121,12 @@ export default function CreatorShowcase() {
     loadFromDb();
 
     const handleCoursesUpdate = () => {
-      setCourses(getStoredCourses().filter((c) => c.isLandingPageFeatured));
+      fetchCoursesFromDb().then((dbCourses) => {
+        setCourses(dbCourses.filter((c) => c.isLandingPageFeatured));
+      });
     };
     const handleTrailsUpdate = () => {
-      setTrails(getStoredTrails());
+      fetchTrailsFromDb().then(setTrails);
     };
 
     window.addEventListener("up_courses_updated", handleCoursesUpdate);

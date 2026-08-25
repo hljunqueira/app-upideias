@@ -29,7 +29,7 @@ import {
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { getMe, apiLogout } from "@/lib/api";
 import { getInstagramAccounts } from "@up-analytics/lib";
-import { PhylloConnectModal } from "@/components/common/PhylloConnectModal";
+import { NangoConnectModal } from "@/components/common/NangoConnectModal";
 import { fetchNotificationsFromDatabase, getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -38,7 +38,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [instagramHandle, setInstagramHandle] = useState<string | null>(null);
-  const [isPhylloModalOpen, setIsPhylloModalOpen] = useState(false);
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -98,15 +98,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       loadAccountStatus();
     };
     const handleOpenModal = () => {
-      setIsPhylloModalOpen(true);
+      setIsConnectModalOpen(true);
     };
 
     window.addEventListener("social-account-changed", handleAccountChanged);
+    window.addEventListener("open-nango-modal", handleOpenModal);
     window.addEventListener("open-phyllo-modal", handleOpenModal);
+    window.addEventListener("open-connect-modal", handleOpenModal);
 
     return () => {
       window.removeEventListener("social-account-changed", handleAccountChanged);
+      window.removeEventListener("open-nango-modal", handleOpenModal);
       window.removeEventListener("open-phyllo-modal", handleOpenModal);
+      window.removeEventListener("open-connect-modal", handleOpenModal);
     };
   }, []);
 
@@ -177,12 +181,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </span>
             </Link>
 
-            {/* Status Chip Instagram com Phyllo Connect SDK */}
+            {/* Status Chip Instagram com Nango Connect */}
             <button
-              onClick={() => setIsPhylloModalOpen(true)}
-              className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-upCard/60 border border-upBorder text-xs text-upLightGray hover:border-upPink/50 shrink-0 transition-all cursor-pointer"
+              onClick={() => setIsConnectModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-upCard/80 border border-upBorder hover:border-upPink/60 text-xs text-upLightGray hover:text-white shrink-0 transition-all cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(255,83,104,0.2)]"
             >
-              <span className={`w-2 h-2 rounded-full ${instagramHandle ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+              <span className={`w-2 h-2 rounded-full ${instagramHandle ? "bg-emerald-400 animate-pulse" : "bg-upPink"}`} />
               {connectedAccount?.profile_picture_url ? (
                 <img
                   src={connectedAccount.profile_picture_url}
@@ -463,10 +467,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Modal Command Palette (Ctrl+K) */}
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
 
-      {/* Modal de Conexão de Redes Sociais via Phyllo Connect SDK */}
-      <PhylloConnectModal
-        isOpen={isPhylloModalOpen}
-        onClose={() => setIsPhylloModalOpen(false)}
+      {/* Modal de Conexão de Redes Sociais via Nango Connect */}
+      <NangoConnectModal
+        isOpen={isConnectModalOpen}
+        onClose={() => setIsConnectModalOpen(false)}
         onSuccess={() => {
           getInstagramAccounts().then((accs) => {
             if (accs && accs.length > 0) {
