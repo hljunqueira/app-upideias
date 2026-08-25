@@ -46,12 +46,16 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
     setDisconnectingId(accountId);
     setErrorMessage(null);
     try {
-      const { error } = await supabase
-        .from("social_accounts")
-        .update({ status: "disconnected", updated_at: new Date().toISOString() })
-        .eq("id", accountId);
+      const res = await fetch("/api/integrations/nango/disconnect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId }),
+      });
 
-      if (error) throw error;
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error || "Erro ao desconectar conta.");
+      }
 
       setConnectedAccounts((prev) => prev.filter((acc) => acc.id !== accountId));
       window.dispatchEvent(new CustomEvent("social-account-changed"));

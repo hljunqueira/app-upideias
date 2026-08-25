@@ -16,29 +16,33 @@ export async function GET() {
 
     const adminClient = createAdminClient();
 
-    // 1. Busca conexões ativas no Nango
-    let connections: any[] = [];
-    try {
-      const connRes = await fetch(`${nangoClient['host']}/connections`, {
-        headers: nangoClient['getAuthHeader'](),
-      });
-      if (connRes.ok) {
-        const connJson = await connRes.json();
-        connections = connJson.connections || [];
-      }
-    } catch (e) {
-      console.warn('[LiveData] Error fetching connections:', e);
-    }
+    // 1. Busca a conta social conectada do usuário logado
+    const { data: userAccount } = await adminClient
+      .from('social_accounts')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'connected')
+      .order('connected_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    const fbConn = connections.find((c: any) => c.provider_config_key === 'facebook') || connections[0];
-    if (!fbConn) {
+    if (!userAccount) {
       return NextResponse.json({ account: null, posts: [], metrics: [] });
     }
 
-    const connectionId = fbConn.connection_id;
+    const connectionId = userAccount.external_account_id || userAccount.id;
+    const providerKey = userAccount.platform === 'instagram' ? 'instagram' : 'facebook';
 
     // 2. Busca perfil e conta Instagram Business vinculada
-    const profile = await nangoClient.getInstagramProfile(connectionId, 'facebook');
+    let profile: any = userAccount;
+    try {
+      const fetchedProfile = await nangoClient.getInstagramProfile(connectionId, providerKey);
+      if (fetchedProfile && fetchedProfile.username && fetchedProfile.username !== 'perfil_conectado') {
+        profile = { ...userAccount, ...fetchedProfile };
+      }
+    } catch (e) {
+      console.warn('[LiveData] Profile refresh notice:', e);
+    }
     const igId = profile.externalAccountId;
 
     let bio = '';
