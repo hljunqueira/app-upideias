@@ -12,6 +12,8 @@
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:mobile": "npm run start --workspace=apps/mobile",
     "build:web": "npm run build --workspace=apps/web",
+    "deploy-all": "vercel --prod",
+    "deploy:vps": "bash scripts/deploy-vps.sh",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
