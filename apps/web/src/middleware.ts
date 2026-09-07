@@ -18,10 +18,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.upideias.com';
-  const supabaseUrl = rawUrl.replace(/^["']|["']$/g, '').trim() || 'https://api.upideias.com';
-  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
-  const supabaseAnonKey = rawKey.replace(/^["']|["']$/g, '').trim();
+  const rawUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/^["']|["']$/g, '').trim();
+  const supabaseUrl =
+    rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+      ? rawUrl
+      : 'https://api.upideias.com';
+  const rawKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '').replace(/^["']|["']$/g, '').trim();
+  const supabaseAnonKey =
+    rawKey && !rawKey.includes('[SENSITIVE]')
+      ? rawKey
+      : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg2NTA0NzMwLCJleHAiOjE5NDQxODQ3MzB9.vOqyYLQPBKVOWIshQvk0ImybA7gZh4ehXqRgSTeB-90';
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
