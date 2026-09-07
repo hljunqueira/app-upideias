@@ -6,6 +6,14 @@
 - [x] Auditoria global profunda em todas as páginas, modais e componentes: remoção definitiva de fotos Unsplash, fallbacks estáticos de valores e emails, e integração com Supabase.
 - [x] Validação de integridade: linter e build do Next.js sem erros (44/44 rotas geradas).
 
+## Status Atual: VPS Deploy Concluído com Sucesso
+- **Vercel Deploy:** Ativo em produção (https://www.upideias.com).
+- **VPS Deploy (Docker):** Concluído e ativo em `http://184.107.141.97:3000`.
+  - Imagem: `app-upideias-web` (Node.js 22-alpine).
+  - Container: `up-analytics-web` (Up e respondendo 200 OK na porta 3000).
+  - Script automatizado de deploy: `scripts/deploy-vps.sh` + `npm run deploy:vps`.
+  - Normalizador de variáveis: `scripts/sanitize-env.py`.
+
 ## Log de Modificações Recentes
 - **Auditoria Global & Conexões Reais ao Banco de Dados**:
   - `admin/ai-usage`: Conectado à tabela `ai_requests` com cálculo dinâmico de tokens e custos em tempo real; persistência de provedores sob `up_ai_providers_config`; remoção de textos legados ("Phyllo").
