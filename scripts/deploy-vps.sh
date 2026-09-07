@@ -28,7 +28,11 @@ fi
 
 if [ -f ".env" ]; then
   echo "🧹 Sanitizando arquivo .env com sanitize-env.py..."
-  python3 scripts/sanitize-env.py .env || tr -d '\r' < .env > .env.clean && mv .env.clean .env
+  if command -v python3 &>/dev/null; then
+    python3 scripts/sanitize-env.py .env
+  else
+    tr -d '\r' < .env > .env.clean && mv .env.clean .env
+  fi
 fi
 
 # 4. Reconstrução e reinicialização dos containers com Docker Compose
