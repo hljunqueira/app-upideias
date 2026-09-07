@@ -147,6 +147,13 @@ export default function Dashboard() {
     views: m.impressions || m.views || 0,
   }));
 
+  const isAccountConnected = Boolean(
+    account &&
+    account.username &&
+    !account.username.startsWith("perfil_") &&
+    account.username !== "perfil"
+  );
+
   return (
     <div className="flex flex-col gap-8">
       {/* Header Principal com Título e Filtro de Período Oficial */}
@@ -192,7 +199,7 @@ export default function Dashboard() {
       </div>
 
       {/* Se não houver conta conectada, exibe tela de boas-vindas / CTA */}
-      {!account ? (
+      {!isAccountConnected ? (
         <div className="flex flex-col items-center justify-center p-12 sm:p-16 rounded-3xl bg-[#0e0e14]/60 border border-white/10 text-center max-w-xl mx-auto my-12 animate-fade-in">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl mb-4">
             IG

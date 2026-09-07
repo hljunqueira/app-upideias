@@ -98,8 +98,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    if (!igId) {
-      igId = '17841475969861706';
+    if (!igId || igId === connectionId || igId === '17841475969861706' && user.email !== 'usuario@upideias.com') {
+      if (!userAccount.external_account_id || userAccount.external_account_id === connectionId) {
+        return NextResponse.json({ account: null, posts: [], metrics: [], summary: null });
+      }
     }
 
     // 4. Busca dados de perfil em tempo real da Meta Graph API

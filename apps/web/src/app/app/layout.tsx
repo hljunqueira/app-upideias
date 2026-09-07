@@ -60,9 +60,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const unreadCount = notifications.filter((n) => n.unread).length;
   const processedRef = useRef(false);
 
-  const loadAccountStatus = async () => {
+  const loadAccountStatus = async (targetUserId?: string) => {
     try {
-      const accs = await getInstagramAccounts();
+      const uid = targetUserId || user?.id;
+      const accs = await getInstagramAccounts(uid);
       if (accs && accs.length > 0) {
         setConnectedAccount(accs[0]);
         setInstagramHandle(accs[0].username ? `@${accs[0].username}` : "");
@@ -85,7 +86,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         const u = await getMe();
         setUser(u);
         setAuthChecked(true);
-        loadAccountStatus();
+        loadAccountStatus(u?.id);
       } catch {
         router.replace("/login");
       }
@@ -95,7 +96,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleAccountChanged = () => {
-      loadAccountStatus();
+      loadAccountStatus(user?.id);
     };
     const handleOpenModal = () => {
       setIsConnectModalOpen(true);

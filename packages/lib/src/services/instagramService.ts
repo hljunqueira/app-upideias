@@ -13,11 +13,22 @@ export async function syncInstagramMetrics(accountId: string): Promise<boolean> 
 
 export const mockSyncInstagramMetrics = syncInstagramMetrics;
 
-export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
+export async function getInstagramAccounts(userId?: string): Promise<InstagramAccount[]> {
   try {
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const { data: userData } = await supabase.auth.getUser();
+      targetUserId = userData?.user?.id;
+    }
+
+    if (!targetUserId) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('social_accounts')
       .select('*')
+      .eq('user_id', targetUserId)
       .eq('status', 'connected')
       .order('connected_at', { ascending: false });
 
