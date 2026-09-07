@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle2, XCircle, Clock, Sparkles, Image as ImageIcon, Copy, Check, MessageSquare, X, Send } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Sparkles, Image as ImageIcon, Copy, Check, MessageSquare, X, Send, Palette } from "lucide-react";
 import { ApprovalItem, fetchApprovalsFromDb, updateApprovalStatus } from "@/lib/approvalsStore";
 
 import { PlanGate } from "@/components/common/PlanGate";
@@ -102,17 +102,33 @@ export default function ApprovalsPage() {
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-upGray block">
                     Preview da Arte / Criativo
                   </span>
-                  <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-upBorder/60 group shadow-lg bg-upDark">
-                    <img
-                      src={item.imageUrl || "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop"}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-3">
-                      <span className="text-[10px] font-bold text-white bg-black/60 px-2.5 py-1 rounded-lg backdrop-blur-md">
-                        Arte Sugerida pelo Gestor 🖼️
-                      </span>
-                    </div>
+                  <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-upBorder/60 group shadow-lg bg-upDark flex items-center justify-center">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#121018] to-[#1e101c] flex flex-col items-center justify-center p-6 text-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-upPink/15 border border-upPink/30 flex items-center justify-center text-upPink">
+                          <ImageIcon className="w-6 h-6" />
+                        </div>
+                        <span className="text-[11px] font-bold text-upGray uppercase tracking-wider">
+                          Arte em Produção
+                        </span>
+                        <span className="text-[10px] text-upGray/70">
+                          Formato: {item.format}
+                        </span>
+                      </div>
+                    )}
+                    {item.imageUrl && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-3">
+                        <span className="text-[10px] font-bold text-white bg-black/60 px-2.5 py-1 rounded-lg backdrop-blur-md">
+                          Arte Sugerida pelo Gestor
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -141,8 +157,9 @@ export default function ApprovalsPage() {
 
                   {/* Box 2: Ideia Visual & Arte (Orientação Dica do Admin) */}
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-upPink mb-1.5 block">
-                      🎨 Ideia Visual & Dica de Arte (Gestor UP)
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-upPink mb-1.5 flex items-center gap-1.5">
+                      <Palette className="w-3.5 h-3.5" />
+                      <span>Ideia Visual & Dica de Arte (Gestor UP)</span>
                     </span>
                     <div className="p-4 bg-upDark/80 border border-upPink/30 rounded-2xl text-xs text-upLightGray leading-relaxed">
                       {item.visualIdea}

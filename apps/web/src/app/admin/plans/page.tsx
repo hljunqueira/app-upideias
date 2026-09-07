@@ -248,7 +248,7 @@ export default function AdminPlansPage() {
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-upGray font-medium">Slots de Clientes:</span>
                   <span className="font-extrabold text-white">
-                    {plan.clientSlotsLimit === -1 ? "♾️ Ilimitados" : plan.clientSlotsLimit === 0 ? "🔒 Nenhum" : `${plan.clientSlotsLimit} Marcas`}
+                    {plan.clientSlotsLimit === -1 ? "Ilimitados" : plan.clientSlotsLimit === 0 ? "0 Marcas (Individual)" : `${plan.clientSlotsLimit} Marcas`}
                   </span>
                 </div>
               </div>

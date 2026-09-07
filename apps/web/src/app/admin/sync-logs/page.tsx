@@ -43,7 +43,7 @@ export default function AdminSyncLogsPage() {
         if (data && data.length > 0) {
           const mapped: SyncLogItem[] = data.map((l: any) => ({
             id: l.id,
-            accountHandle: l.account_handle || "@upideias",
+            accountHandle: l.account_handle || "@perfil",
             syncType: l.sync_type || "Métricas do Instagram",
             itemsProcessed: l.items_processed || 0,
             status: l.status === "success" ? "Sucesso" : "Com Erro",
@@ -74,21 +74,63 @@ export default function AdminSyncLogsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleForceSyncAll = () => {
+  const handleForceSyncAll = async () => {
     setIsSyncingAll(true);
-    setTimeout(() => {
-      const newLog: SyncLogItem = {
-        id: `sync_${Date.now()}`,
-        accountHandle: "@todos_perfis",
-        syncType: "Mídias do Instagram",
-        itemsProcessed: 142,
-        status: "Sucesso",
-        executionTime: "4.8s",
-        timestamp: "Agora mesmo",
-      };
-      setLogs((prev) => [newLog, ...prev]);
+    try {
+      const { data: accounts } = await supabase
+        .from("social_accounts")
+        .select("id, username, external_account_id")
+        .eq("status", "connected");
+
+      if (accounts && accounts.length > 0) {
+        for (const acc of accounts) {
+          const startTime = Date.now();
+          try {
+            await fetch("/api/integrations/nango/sync-account", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ connectionId: acc.external_account_id || acc.id })
+            });
+            const duration = `${((Date.now() - startTime) / 1000).toFixed(1)}s`;
+            await supabase.from("sync_logs").insert({
+              instagram_account_id: acc.id,
+              account_handle: acc.username ? `@${acc.username}` : undefined,
+              sync_type: "Métricas do Instagram",
+              status: "success",
+              execution_time: duration,
+              finished_at: new Date().toISOString()
+            });
+          } catch (err: any) {
+            await supabase.from("sync_logs").insert({
+              instagram_account_id: acc.id,
+              account_handle: acc.username ? `@${acc.username}` : undefined,
+              sync_type: "Métricas do Instagram",
+              status: "error",
+              message: err?.message || "Erro na sincronização",
+              finished_at: new Date().toISOString()
+            });
+          }
+        }
+      }
+
+      const { data: freshLogs } = await supabase.from("sync_logs").select("*").order("created_at", { ascending: false });
+      if (freshLogs) {
+        setLogs(freshLogs.map((l: any) => ({
+          id: l.id,
+          accountHandle: l.account_handle || (l.instagram_account_id ? `Conta ${l.instagram_account_id.substring(0, 8)}` : "Geral"),
+          syncType: l.sync_type || "Métricas do Instagram",
+          itemsProcessed: l.items_processed || 0,
+          status: l.status === "success" ? "Sucesso" : "Com Erro",
+          executionTime: l.execution_time || "0.8s",
+          timestamp: l.finished_at ? new Date(l.finished_at).toLocaleTimeString("pt-BR") : "Recentemente",
+          errorMessage: l.message
+        })));
+      }
+    } catch (e) {
+      console.error("Erro ao sincronizar todas as contas:", e);
+    } finally {
       setIsSyncingAll(false);
-    }, 1200);
+    }
   };
 
   const handleRetrySync = (id: string) => {

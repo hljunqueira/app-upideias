@@ -18,7 +18,7 @@ import {
   Trash2
 } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { supabase, mockSyncInstagramMetrics, disconnectInstagramAccount } from "@up-analytics/lib";
+import { supabase, syncInstagramMetrics, disconnectInstagramAccount } from "@up-analytics/lib";
 
 interface AccountItem {
   id: string;
@@ -50,17 +50,21 @@ export default function AdminAccountsPage() {
     try {
       const { data } = await supabase.from("social_accounts").select("*");
       if (data && data.length > 0) {
-        const mapped: AccountItem[] = data.map((a: any) => ({
-          id: a.id,
-          handle: a.handle ? (a.handle.startsWith("@") ? a.handle : `@${a.handle}`) : "@upideias",
-          ownerName: a.owner_name || "Criador UP",
-          ownerEmail: a.owner_email || "criador@upideias.com",
-          followers: (a.followers_count || 12400).toLocaleString("pt-BR"),
-          status: a.status === "active" || a.status === "connected" ? "Conectado" : "Token Expirado",
-          lastSync: a.updated_at ? new Date(a.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "Há 5 minutos",
-          nangoConnectionId: a.external_account_id || a.nango_connection_id || `conn_${a.id.substring(0, 8)}`,
-          platform: a.platform || "instagram"
-        }));
+        const mapped: AccountItem[] = data.map((a: any) => {
+          const rawHandle = a.username || a.platform_username || a.handle;
+          const handle = rawHandle ? (rawHandle.startsWith("@") ? rawHandle : `@${rawHandle}`) : "-";
+          return {
+            id: a.id,
+            handle,
+            ownerName: a.name || a.account_name || "Perfil Conectado",
+            ownerEmail: a.owner_email || a.email || "-",
+            followers: (a.followers_count ?? 0).toLocaleString("pt-BR"),
+            status: a.status === "active" || a.status === "connected" ? "Conectado" : "Token Expirado",
+            lastSync: a.updated_at ? new Date(a.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "Sem sincronização recente",
+            nangoConnectionId: a.external_account_id || a.nango_connection_id || `conn_${a.id.substring(0, 8)}`,
+            platform: a.platform || "instagram"
+          };
+        });
         setAccounts(mapped);
       } else {
         setAccounts([]);
@@ -79,7 +83,7 @@ export default function AdminAccountsPage() {
   const handleGlobalSync = async () => {
     setSyncingAll(true);
     try {
-      await Promise.all(accounts.map(acc => mockSyncInstagramMetrics(acc.id)));
+      await Promise.all(accounts.map((acc) => syncInstagramMetrics(acc.id)));
       await loadAccounts();
     } catch (e) {
       console.error("Erro ao sincronizar contas:", e);
@@ -89,7 +93,7 @@ export default function AdminAccountsPage() {
   };
 
   const handleSyncAccount = async (id: string) => {
-    await mockSyncInstagramMetrics(id);
+    await syncInstagramMetrics(id);
     setAccounts((prev) =>
       prev.map((a) =>
         a.id === id ? { ...a, lastSync: "Agora mesmo", status: "Conectado" } : a
@@ -227,7 +231,7 @@ export default function AdminAccountsPage() {
                 <th className="px-6 py-4">Perfil Conectado</th>
                 <th className="px-6 py-4">Assinante Proprietário</th>
                 <th className="px-6 py-4">Seguidores</th>
-                <th className="px-6 py-4">Status Token Phyllo</th>
+                <th className="px-6 py-4">Status Conexão Meta</th>
                 <th className="px-6 py-4">Última Sync</th>
                 <th className="px-6 py-4 text-right">Ações</th>
               </tr>
@@ -236,7 +240,7 @@ export default function AdminAccountsPage() {
               {loading ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12 text-upGray">
-                    Carregando conexões Phyllo...
+                    Carregando contas conectadas...
                   </td>
                 </tr>
               ) : filteredAccounts.length === 0 ? (
@@ -294,7 +298,7 @@ export default function AdminAccountsPage() {
                         <button
                           onClick={() => handleSyncAccount(acc.id)}
                           className="px-2.5 py-1.5 rounded-xl bg-upDark hover:bg-emerald-500/20 hover:text-emerald-400 border border-upBorder/60 transition-all text-xs font-semibold flex items-center gap-1"
-                          title="Forçar Sincronização Phyllo"
+                          title="Forçar Sincronização Oficial"
                         >
                           <RefreshCw className="w-3.5 h-3.5" />
                           <span>Sync</span>
@@ -303,7 +307,7 @@ export default function AdminAccountsPage() {
                         <button
                           onClick={() => setSelectedDetailsAccount(acc)}
                           className="p-2 rounded-xl bg-upDark hover:bg-upPink/20 hover:text-upPink border border-upBorder/60 transition-all text-upGray"
-                          title="Ver Detalhes Phyllo"
+                          title="Ver Detalhes da Conexão"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -325,7 +329,7 @@ export default function AdminAccountsPage() {
         </div>
       </div>
 
-      {/* Modal de Detalhes da Conexão Phyllo */}
+      {/* Modal de Detalhes da Conexão Oficial */}
       {selectedDetailsAccount && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
           <div className="bg-[#0e0e14] border border-upBorder/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-6 relative">
@@ -335,7 +339,7 @@ export default function AdminAccountsPage() {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Detalhes do Token Phyllo</h3>
+                  <h3 className="text-base font-bold text-white">Detalhes da Conexão Oficial</h3>
                   <p className="text-xs text-upGray">{selectedDetailsAccount.handle}</p>
                 </div>
               </div>
@@ -350,7 +354,7 @@ export default function AdminAccountsPage() {
 
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-xl bg-upCard/40 border border-upBorder/60 space-y-1">
-                <p className="text-upGray font-semibold">Nango Connection ID</p>
+                <p className="text-upGray font-semibold">ID da Conexão Oficial</p>
                 <p className="font-mono text-white text-[11px]">{selectedDetailsAccount.nangoConnectionId || selectedDetailsAccount.id}</p>
               </div>
 
@@ -388,7 +392,7 @@ export default function AdminAccountsPage() {
       <ConfirmModal
         isOpen={!!deletingAccountId}
         title="Revogar Conexão Social"
-        description="Tem certeza que deseja revogar o token de acesso desta conta social? O cliente precisará reconectá-la via Phyllo SDK."
+        description="Tem certeza que deseja revogar o token de acesso desta conta social? O cliente precisará autorizar a reconexão pelo painel."
         confirmText="Sim, Revogar Conexão"
         cancelText="Cancelar"
         onConfirm={handleConfirmRevokeAccount}

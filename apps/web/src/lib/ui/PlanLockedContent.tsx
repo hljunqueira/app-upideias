@@ -1,4 +1,5 @@
 import React from 'react';
+import { Lock } from 'lucide-react';
 
 interface PlanLockedContentProps {
   featureName: string;
@@ -22,8 +23,8 @@ export function PlanLockedContent({ featureName, requiredPlan = 'Pro', children 
 
       {/* Glassmorphic lock overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-upBlack/70 backdrop-blur-sm p-6 text-center z-10">
-        <div className="w-12 h-12 rounded-full bg-upPink/10 border border-upPink/20 flex items-center justify-center text-upPink mb-4">
-          🔒
+        <div className="w-12 h-12 rounded-full bg-upPink/10 border border-upPink/20 flex items-center justify-center text-upPink mb-4 shadow-lg shadow-upPink/20">
+          <Lock className="w-5 h-5 text-upPink" />
         </div>
         <h3 className="text-base font-bold text-upWhite">Recurso Bloqueado</h3>
         <p className="text-xs text-upGray mt-2 max-w-xs leading-relaxed">

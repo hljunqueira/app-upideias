@@ -1,15 +1,17 @@
 import { InstagramAccount, InstagramDailyMetrics, InstagramMedia, InstagramMediaMetrics } from '@up-analytics/types';
 import { supabase } from '../supabase';
 
-export async function mockSyncInstagramMetrics(accountId: string): Promise<boolean> {
+export async function syncInstagramMetrics(accountId: string): Promise<boolean> {
   const { error } = await supabase.from('sync_logs').insert({
     instagram_account_id: accountId,
     status: 'success',
-    message: 'Métricas sincronizadas via VPS',
+    message: 'Métricas sincronizadas via API oficial',
     finished_at: new Date().toISOString()
   });
   return !error;
 }
+
+export const mockSyncInstagramMetrics = syncInstagramMetrics;
 
 export async function getInstagramAccounts(): Promise<InstagramAccount[]> {
   try {

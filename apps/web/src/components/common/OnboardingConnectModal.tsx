@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Sparkles, Instagram, CheckCircle2, ArrowRight, RefreshCw, ShieldCheck, Rocket } from "lucide-react";
-import { mockSyncInstagramMetrics } from "@up-analytics/lib";
+import React, { useState, useEffect } from "react";
+import { Instagram, CheckCircle2, ArrowRight, RefreshCw, ShieldCheck } from "lucide-react";
 
 interface OnboardingConnectModalProps {
   isOpen: boolean;
@@ -13,30 +12,32 @@ interface OnboardingConnectModalProps {
 export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: OnboardingConnectModalProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [connecting, setConnecting] = useState(false);
-  const [syncing, setSyncing] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleConnected = () => {
+      setConnecting(false);
+      setStep(3);
+    };
+
+    window.addEventListener("social-account-changed", handleConnected);
+    return () => {
+      window.removeEventListener("social-account-changed", handleConnected);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleStartConnection = async () => {
+  const handleStartConnection = () => {
     setConnecting(true);
-    // Simula abertura e autorização na rede social
-    setTimeout(async () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("open-nango-modal"));
+    }
+    // Aguarda abertura do modal oficial
+    setTimeout(() => {
       setConnecting(false);
-      setStep(2);
-      setSyncing(true);
-
-      // Dispara a busca automática de métricas na API
-      try {
-        await mockSyncInstagramMetrics("account_onboarding_id");
-      } catch (e) {
-        console.error("Erro na sincronização inicial:", e);
-      } finally {
-        setTimeout(() => {
-          setSyncing(false);
-          setStep(3);
-        }, 1200);
-      }
-    }, 1200);
+    }, 1000);
   };
 
   const handleFinish = () => {
@@ -55,7 +56,7 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
           <div className="space-y-6 animate-fade-in">
             <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-upPink to-purple-600 p-[1.5px] mx-auto shadow-[0_0_30px_rgba(255,83,104,0.4)]">
               <div className="w-full h-full rounded-[23px] bg-upDark flex items-center justify-center text-upPink">
-                <Rocket className="w-8 h-8" />
+                <Instagram className="w-8 h-8" />
               </div>
             </div>
 
@@ -64,10 +65,10 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
                 Primeiro Acesso • Configuração Rápida
               </span>
               <h3 className="text-2xl font-black text-white tracking-tight">
-                Bem-vindo ao UP Analytics! 🎉
+                Bem-vindo ao UP Analytics
               </h3>
               <p className="text-xs text-upGray leading-relaxed max-w-sm mx-auto">
-                Para começar a gerar seus relatórios de inteligência artificial, analise de engajamento e diagnósticos de alcance, conecte seu perfil do Instagram.
+                Para começar a gerar seus relatórios analíticos, análise de engajamento e diagnósticos de alcance, conecte seu perfil do Instagram.
               </p>
             </div>
 
@@ -78,24 +79,34 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
               </p>
             </div>
 
-            <button
-              disabled={connecting}
-              onClick={handleStartConnection}
-              className="w-full py-3.5 bg-upPink hover:bg-upPinkDark text-white font-extrabold text-sm rounded-2xl shadow-[0_0_25px_rgba(255,83,104,0.4)] transition-all flex items-center justify-center gap-2 group"
-            >
-              {connecting ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Abrindo Conexão Segura...</span>
-                </>
-              ) : (
-                <>
-                  <Instagram className="w-4 h-4" />
-                  <span>Vincular Meu Instagram Agora</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
+            <div className="flex flex-col gap-2 pt-1">
+              <button
+                disabled={connecting}
+                onClick={handleStartConnection}
+                className="w-full py-3.5 bg-upPink hover:bg-upPinkDark text-white font-extrabold text-sm rounded-2xl shadow-[0_0_25px_rgba(255,83,104,0.4)] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+              >
+                {connecting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Abrindo Conexão Segura...</span>
+                  </>
+                ) : (
+                  <>
+                    <Instagram className="w-4 h-4" />
+                    <span>Vincular Meu Instagram Agora</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleFinish}
+                className="text-xs text-upGray hover:text-white py-2 transition-colors cursor-pointer"
+              >
+                Explorar painel e conectar depois
+              </button>
+            </div>
           </div>
         )}
 
@@ -128,10 +139,10 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
 
             <div className="space-y-2">
               <h3 className="text-2xl font-black text-white tracking-tight">
-                Tudo Pronto! 🚀
+                Conexão Estabelecida com Sucesso
               </h3>
               <p className="text-xs text-upGray max-w-sm mx-auto leading-relaxed">
-                Seu perfil foi vinculado e suas métricas foram sincronizadas com sucesso. O seu painel do UP Analytics está configurado!
+                Seu perfil foi vinculado e suas métricas foram sincronizadas com sucesso. O seu painel do UP Analytics está pronto para uso.
               </p>
             </div>
 

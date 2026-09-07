@@ -120,7 +120,7 @@ export async function fetchNotificationsFromDatabase(scope: "admin" | "user"): P
           items.push({
             id: `acc_${acc.id}`,
             scope: "user",
-            title: "Conexão Social Ativa 🟢",
+            title: "Conexão Social Ativa",
             description: `Conta @${acc.username || "Instagram"} sincronizada com sucesso.`,
             time: formatRelativeTime(acc.connected_at),
             unread: false,

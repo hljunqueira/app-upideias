@@ -51,8 +51,9 @@ function CourseCard({
       {/* Badge de Recomendação de Estudo (Trilha Guiada) */}
       {c.isRecommendedFirst && (
         <div className="relative px-4 z-10 -mt-2">
-          <span className="text-[9px] font-extrabold uppercase tracking-wider bg-emerald-500 text-black border border-emerald-400 px-2.5 py-0.5 rounded-md shadow-lg flex items-center gap-1 w-max">
-            🟢 COMEÇAR POR AQUI
+          <span className="text-[9px] font-extrabold uppercase tracking-wider bg-emerald-500 text-black border border-emerald-400 px-2.5 py-0.5 rounded-md shadow-lg flex items-center gap-1.5 w-max">
+            <span className="w-1.5 h-1.5 rounded-full bg-black inline-block" />
+            <span>COMEÇAR POR AQUI</span>
           </span>
         </div>
       )}

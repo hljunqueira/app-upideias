@@ -9,9 +9,11 @@ import {
   TrendingDown, 
   Lightbulb, 
   CheckSquare,
-  RefreshCw
+  RefreshCw,
+  Check,
+  AlertTriangle
 } from "lucide-react";
-import { generateAiInsight } from "@up-analytics/lib";
+import { generateAiInsight, getInstagramAccounts } from "@up-analytics/lib";
 import { AiInsight } from "@up-analytics/types";
 
 import { PlanGate } from "@/components/common/PlanGate";
@@ -23,10 +25,12 @@ export default function AiStrategyPage() {
   const fetchInsight = async () => {
     setLoading(true);
     try {
-      const data = await generateAiInsight("ig-account-123");
+      const accounts = await getInstagramAccounts();
+      const accountId = accounts && accounts.length > 0 ? accounts[0].id : "default";
+      const data = await generateAiInsight(accountId);
       setInsight(data);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao gerar diagnóstico:", error);
     } finally {
       setLoading(false);
     }
@@ -44,10 +48,10 @@ export default function AiStrategyPage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite flex items-center gap-2">
             <BrainCircuit className="w-8 h-8 text-upPink" />
-            Estratégia IA
+            Estratégia & Diagnósticos
           </h1>
           <p className="text-sm text-upGray mt-1">
-            Diagnósticos inteligentes de perfil gerados com base em inteligência artificial.
+            Diagnósticos analíticos consolidados com base no histórico real de métricas da sua conta.
           </p>
         </div>
 
@@ -64,7 +68,7 @@ export default function AiStrategyPage() {
       {loading ? (
         <div className="bg-upCard border border-upBorder rounded-2xl p-16 flex flex-col items-center justify-center gap-4 text-center">
           <div className="w-12 h-12 rounded-full border-4 border-upPink/20 border-t-upPink animate-spin"></div>
-          <span className="text-sm text-upGray font-medium">Analisando métricas de perfil com a IA...</span>
+          <span className="text-sm text-upGray font-medium">Analisando histórico de métricas e retenção...</span>
         </div>
       ) : insight ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -72,7 +76,7 @@ export default function AiStrategyPage() {
           <div className="lg:col-span-2 flex flex-col gap-6">
             <div className="bg-upCard border border-upBorder rounded-2xl p-6">
               <span className="text-[10px] font-bold uppercase tracking-wider text-upPink bg-upPink/10 px-2.5 py-1 rounded-md">
-                Análise Semanal (Gemini Pro)
+                Diagnóstico Executivo de Performance
               </span>
               <h2 className="text-xl font-bold text-upWhite mt-4">{insight.title}</h2>
               <p className="text-sm text-upGray mt-3 leading-relaxed">{insight.summary}</p>
@@ -89,8 +93,8 @@ export default function AiStrategyPage() {
                 <ul className="flex flex-col gap-3">
                   {insight.what_improved.map((item: string, index: number) => (
                     <li key={index} className="text-xs text-upGray flex items-start gap-2.5 leading-relaxed">
-                      <span className="text-green-400 mt-0.5">✓</span>
-                      {item}
+                      <Check className="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" />
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -105,8 +109,8 @@ export default function AiStrategyPage() {
                 <ul className="flex flex-col gap-3">
                   {insight.what_got_worse.map((item: string, index: number) => (
                     <li key={index} className="text-xs text-upGray flex items-start gap-2.5 leading-relaxed">
-                      <span className="text-upPink mt-0.5">⚠</span>
-                      {item}
+                      <AlertTriangle className="w-3.5 h-3.5 text-upPink mt-0.5 shrink-0" />
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -116,14 +120,14 @@ export default function AiStrategyPage() {
             {/* Opportunities */}
             <div className="bg-upCard border border-upBorder rounded-2xl p-6">
               <div className="flex items-center gap-2 text-upWhite mb-4 font-bold text-sm uppercase tracking-wider">
-                <Lightbulb className="w-5 h-5 text-yellow-400" />
-                Oportunidades de Ouro
+                <Lightbulb className="w-5 h-5 text-amber-400" />
+                Oportunidades Estratégicas
               </div>
               <ul className="flex flex-col gap-3">
                 {insight.opportunities.map((item: string, index: number) => (
                   <li key={index} className="text-xs text-upGray flex items-start gap-2.5 leading-relaxed">
-                    <span className="text-yellow-400 font-bold mt-0.5">•</span>
-                    {item}
+                    <span className="text-amber-400 font-bold mt-0.5">•</span>
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>

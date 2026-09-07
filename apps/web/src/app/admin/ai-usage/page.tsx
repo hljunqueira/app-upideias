@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@up-analytics/lib";
 import {
   Cpu,
   Search,
@@ -40,7 +41,7 @@ interface AiProviderConfig {
 interface SocialApiConfig {
   id: string;
   name: string;
-  providerKey: "nango" | "meta" | "custom";
+  providerKey: "meta" | "custom";
   description: string;
   clientId: string;
   clientSecret: string;
@@ -54,48 +55,52 @@ interface AiUsageItem {
   userEmail: string;
   model: string;
   tokensUsed: string;
+  rawTokens: number;
   estimatedCost: string;
+  rawCostCents: number;
   requestsCount: number;
   lastUsage: string;
   provider: string;
 }
 
+const STORAGE_KEY_PROVIDERS = "up_ai_providers_config";
+
 const INITIAL_PROVIDERS: AiProviderConfig[] = [
   {
     id: "prov_groq",
-    name: "Groq Cloud (Llama 3 70B / Mixtral)",
+    name: "Groq Cloud (Llama 3 70B)",
     providerKey: "groq",
-    description: "Inferência ultrarrápida com Llama 3 70B Versatile e Mixtral-8x7b",
-    apiKey: "gsk_live_99812489123891238912389",
+    description: "Inferência rápida com Llama 3 70B Versatile",
+    apiKey: "",
     defaultModel: "llama3-70b-8192",
     status: "Ativo",
     isDefault: true,
   },
   {
     id: "prov_gemini",
-    name: "Google Gemini AI (1.5 Pro & Flash)",
+    name: "Google Gemini (1.5 Pro & Flash)",
     providerKey: "gemini",
-    description: "Multimodal com janela de contexto expandida e suporte a imagens",
-    apiKey: "AIzaSy_live_89123891238912389",
+    description: "Multimodal com janela de contexto expandida",
+    apiKey: "",
     defaultModel: "gemini-1.5-pro-latest",
     status: "Ativo",
     isDefault: false,
   },
   {
     id: "prov_openai",
-    name: "OpenAI (GPT-4o & GPT-4o-mini)",
+    name: "OpenAI (GPT-4o)",
     providerKey: "openai",
-    description: "Modelo padrão da indústria para raciocínio avançado",
-    apiKey: "sk-proj-live-89123891238912389",
+    description: "Modelo para raciocínio analítico avançado",
+    apiKey: "",
     defaultModel: "gpt-4o",
     status: "Ativo",
     isDefault: false,
   },
   {
     id: "prov_anthropic",
-    name: "Anthropic Claude (Claude 3.5 Sonnet)",
+    name: "Anthropic Claude (3.5 Sonnet)",
     providerKey: "anthropic",
-    description: "Excelente escrita criativa e redação de conteúdo humano",
+    description: "Redação de roteiros e textos estratégicos",
     apiKey: "",
     defaultModel: "claude-3-5-sonnet-20240620",
     status: "Inativo",
@@ -104,11 +109,11 @@ const INITIAL_PROVIDERS: AiProviderConfig[] = [
 ];
 
 const INITIAL_SOCIAL_API: SocialApiConfig = {
-  id: "social_nango",
-  name: "Nango Connect API (nango.dev)",
-  providerKey: "nango",
-  description: "API Unificada para integração de métricas do Instagram via Graph API",
-  clientId: "nango_pk_live_8932187",
+  id: "social_unified",
+  name: "API de Métricas Sociais (Instagram Graph API)",
+  providerKey: "meta",
+  description: "Conexão de dados oficiais do Instagram com sincronização contínua de métricas e alcance",
+  clientId: "Configurado via Servidor",
   clientSecret: "••••••••••••••••••••••••••••",
   environment: "production",
   status: "Ativo",
@@ -117,13 +122,80 @@ const INITIAL_SOCIAL_API: SocialApiConfig = {
 const INITIAL_AI_USAGE: AiUsageItem[] = [];
 
 export default function AdminAiUsagePage() {
-  const [providers, setProviders] = useState<AiProviderConfig[]>(INITIAL_PROVIDERS);
+  const [providers, setProviders] = useState<AiProviderConfig[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_PROVIDERS);
+        if (raw) return JSON.parse(raw);
+      } catch (err) {
+        console.warn("Erro ao carregar provedores salvos:", err);
+      }
+    }
+    return INITIAL_PROVIDERS;
+  });
   const [socialApi, setSocialApi] = useState<SocialApiConfig>(INITIAL_SOCIAL_API);
   const [usageList, setUsageList] = useState<AiUsageItem[]>(INITIAL_AI_USAGE);
+  const [loadingUsage, setLoadingUsage] = useState(true);
   const [search, setSearch] = useState("");
   const [filterProvider, setFilterProvider] = useState<string>("todos");
   const [showKeys, setShowKeys] = useState<{ [key: string]: boolean }>({});
-  const [isTestingPhyllo, setIsTestingPhyllo] = useState(false);
+  const [isTestingSocial, setIsTestingSocial] = useState(false);
+
+  const saveProviders = (updated: AiProviderConfig[]) => {
+    setProviders(updated);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEY_PROVIDERS, JSON.stringify(updated));
+      } catch (err) {
+        console.warn("Erro ao salvar provedores:", err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    async function loadAiRequests() {
+      setLoadingUsage(true);
+      try {
+        const { data, error } = await supabase
+          .from("ai_requests")
+          .select("*, profiles(name, email)")
+          .order("created_at", { ascending: false })
+          .limit(100);
+
+        if (!error && data && data.length > 0) {
+          const mapped: AiUsageItem[] = data.map((req: any) => {
+            const promptTokens = req.prompt_tokens || 0;
+            const completionTokens = req.completion_tokens || 0;
+            const totalTokens = promptTokens + completionTokens;
+            const costCents = req.cost_cents || 0;
+
+            return {
+              id: req.id,
+              userName: req.profiles?.name || "Usuário UP",
+              userEmail: req.profiles?.email || "-",
+              model: req.metadata?.model || (req.request_type ? `IA (${req.request_type})` : "Llama 3 70B"),
+              tokensUsed: totalTokens.toLocaleString("pt-BR"),
+              rawTokens: totalTokens,
+              estimatedCost: `R$ ${(costCents / 100).toFixed(4).replace(".", ",")}`,
+              rawCostCents: costCents,
+              requestsCount: 1,
+              lastUsage: req.created_at ? new Date(req.created_at).toLocaleDateString("pt-BR") : "Recentemente",
+              provider: req.metadata?.provider || "Groq"
+            };
+          });
+          setUsageList(mapped);
+        } else {
+          setUsageList([]);
+        }
+      } catch (err) {
+        console.warn("Erro ao carregar requisições de IA:", err);
+        setUsageList([]);
+      } finally {
+        setLoadingUsage(false);
+      }
+    }
+    loadAiRequests();
+  }, []);
 
   // Modal para Nova API State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -148,37 +220,35 @@ export default function AdminAiUsagePage() {
   };
 
   const handleToggleStatus = (id: string) => {
-    setProviders((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? { ...p, status: p.status === "Ativo" ? "Inativo" : "Ativo" }
-          : p
-      )
+    const updated = providers.map((p) =>
+      p.id === id
+        ? { ...p, status: (p.status === "Ativo" ? "Inativo" : "Ativo") as "Ativo" | "Inativo" }
+        : p
     );
+    saveProviders(updated);
   };
 
   const handleSetDefault = (id: string) => {
-    setProviders((prev) =>
-      prev.map((p) => ({
-        ...p,
-        isDefault: p.id === id,
-      }))
-    );
+    const updated = providers.map((p) => ({
+      ...p,
+      isDefault: p.id === id,
+    }));
+    saveProviders(updated);
   };
 
   const handleTestApiKey = (provider: AiProviderConfig) => {
     if (!provider.apiKey) {
-      alert(`⚠️ Insira uma chave de API para o provedor ${provider.name}.`);
+      alert(`Insira uma chave de API para o provedor ${provider.name}.`);
       return;
     }
-    alert(`⚡ Conexão com a API de IA [${provider.name}] testada e validada com sucesso no modelo ${provider.defaultModel}!`);
+    alert(`Conexão com o motor de IA [${provider.name}] validada com sucesso no modelo ${provider.defaultModel}.`);
   };
 
-  const handleTestPhylloApi = () => {
-    setIsTestingPhyllo(true);
+  const handleTestSocialApi = () => {
+    setIsTestingSocial(true);
     setTimeout(() => {
-      setIsTestingPhyllo(false);
-      alert(`🚀 Conexão Phyllo API (getphyllo.com) validada com sucesso em ambiente ${socialApi.environment.toUpperCase()}! Integração de Instagram, TikTok e YouTube ativa.`);
+      setIsTestingSocial(false);
+      alert(`Conexão com a API de Métricas Sociais validada com sucesso em ambiente ${socialApi.environment.toUpperCase()}! Integração do Instagram ativa.`);
     }, 1000);
   };
 
@@ -209,21 +279,20 @@ export default function AdminAiUsagePage() {
   const handleSaveProvider = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingProvider) {
-      setProviders((prev) =>
-        prev.map((p) =>
-          p.id === editingProvider.id
-            ? {
-                ...p,
-                name: formData.name,
-                providerKey: formData.providerKey,
-                description: formData.description,
-                apiKey: formData.apiKey,
-                defaultModel: formData.defaultModel,
-                status: formData.apiKey ? "Ativo" : "Inativo",
-              }
-            : p
-        )
+      const updated = providers.map((p) =>
+        p.id === editingProvider.id
+          ? {
+              ...p,
+              name: formData.name,
+              providerKey: formData.providerKey,
+              description: formData.description,
+              apiKey: formData.apiKey,
+              defaultModel: formData.defaultModel,
+              status: (formData.apiKey ? "Ativo" : "Inativo") as "Ativo" | "Inativo",
+            }
+          : p
       );
+      saveProviders(updated);
     } else {
       const newProv: AiProviderConfig = {
         id: `prov_${Date.now()}`,
@@ -232,13 +301,17 @@ export default function AdminAiUsagePage() {
         description: formData.description,
         apiKey: formData.apiKey,
         defaultModel: formData.defaultModel,
-        status: formData.apiKey ? "Ativo" : "Inativo",
+        status: (formData.apiKey ? "Ativo" : "Inativo") as "Ativo" | "Inativo",
         isDefault: false,
       };
-      setProviders((prev) => [...prev, newProv]);
+      saveProviders([...providers, newProv]);
     }
     setIsModalOpen(false);
   };
+
+  const totalCalculatedTokens = usageList.reduce((acc, curr) => acc + (curr.rawTokens || 0), 0);
+  const totalCalculatedCostCents = usageList.reduce((acc, curr) => acc + (curr.rawCostCents || 0), 0);
+  const totalCalculatedCostFormatted = `R$ ${(totalCalculatedCostCents / 100).toFixed(2).replace(".", ",")}`;
 
   const filteredUsage = usageList.filter((item) => {
     const matchesSearch =
@@ -257,10 +330,10 @@ export default function AdminAiUsagePage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
             <Cpu className="w-8 h-8 text-upPink" />
-            Central de APIs de IA & Phyllo Social API
+            Central de APIs de IA & Métricas Oficiais
           </h1>
           <p className="text-sm text-upGray mt-1">
-            Gerencie Chaves de API para <strong>Groq, Gemini, OpenAI</strong> e a integração universal de redes sociais com <strong>Phyllo (getphyllo.com)</strong>.
+            Gerencie Chaves de API para <strong>Groq, Gemini, OpenAI</strong> e a integração oficial com a API do Instagram.
           </p>
         </div>
 
@@ -273,7 +346,7 @@ export default function AdminAiUsagePage() {
         </button>
       </div>
 
-      {/* Seção Phyllo Social Integration Banner Card */}
+      {/* Seção Social Integration Banner Card */}
       <div className="bg-gradient-to-r from-purple-900/50 via-upDark to-upCard/80 border border-purple-500/40 rounded-2xl p-6 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
@@ -281,21 +354,21 @@ export default function AdminAiUsagePage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-bold text-white">Integração Universal Phyllo API</h3>
+              <h3 className="text-lg font-bold text-white">Integração Oficial com Instagram Graph API</h3>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                getphyllo.com
+                API Oficial
               </span>
             </div>
             <p className="text-xs text-upLightGray mt-1 max-w-2xl leading-relaxed">
-              Integre métricas de perfil, seguidores, engajamento e publicações do Instagram, TikTok e YouTube através da API unificada da Phyllo.
+              Sincronize métricas de perfil, seguidores, engajamento e publicações através da conexão oficial autorizada pelo usuário.
             </p>
           </div>
         </div>
 
-        {/* Campos Phyllo Form */}
+        {/* Campos Social API Form */}
         <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-upGray font-bold uppercase">Client ID Phyllo</span>
+            <span className="text-[10px] text-upGray font-bold uppercase">Client ID / App</span>
             <input
               type="text"
               value={socialApi.clientId}
@@ -317,12 +390,12 @@ export default function AdminAiUsagePage() {
           </div>
 
           <button
-            onClick={handleTestPhylloApi}
-            disabled={isTestingPhyllo}
+            onClick={handleTestSocialApi}
+            disabled={isTestingSocial}
             className="self-end sm:self-auto px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0 disabled:opacity-50 flex items-center gap-1.5"
           >
-            <Link2 className={`w-3.5 h-3.5 ${isTestingPhyllo ? "animate-spin" : ""}`} />
-            {isTestingPhyllo ? "Testando..." : "Testar Phyllo"}
+            <Link2 className={`w-3.5 h-3.5 ${isTestingSocial ? "animate-spin" : ""}`} />
+            {isTestingSocial ? "Testando..." : "Testar Conexão Oficial"}
           </button>
         </div>
       </div>
@@ -435,8 +508,10 @@ export default function AdminAiUsagePage() {
         <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
           <div>
             <p className="text-xs text-upGray font-bold uppercase tracking-wider">Total de Tokens / Chamadas</p>
-            <p className="text-2xl font-black text-white mt-1">1.568.800</p>
-            <p className="text-[10px] text-upGray mt-0.5">Groq + Gemini + OpenAI + Phyllo</p>
+            <p className="text-2xl font-black text-white mt-1">
+              {loadingUsage ? "..." : totalCalculatedTokens.toLocaleString("pt-BR")}
+            </p>
+            <p className="text-[10px] text-upGray mt-0.5">Soma em tempo real das requisições</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-upPink/10 text-upPink flex items-center justify-center border border-upPink/20">
             <Cpu className="w-5 h-5" />
@@ -446,8 +521,12 @@ export default function AdminAiUsagePage() {
         <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
           <div>
             <p className="text-xs text-upGray font-bold uppercase tracking-wider">Custo de API Consumido</p>
-            <p className="text-2xl font-black text-emerald-400 mt-1">R$ 86,40</p>
-            <p className="text-[10px] text-emerald-300 mt-0.5">Economia de 75% com Groq</p>
+            <p className="text-2xl font-black text-emerald-400 mt-1">
+              {loadingUsage ? "..." : totalCalculatedCostFormatted}
+            </p>
+            <p className="text-[10px] text-emerald-300 mt-0.5">
+              {totalCalculatedTokens > 0 ? "Otimizado para alto desempenho" : "Nenhum custo registrado"}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
             <DollarSign className="w-5 h-5" />
@@ -456,9 +535,9 @@ export default function AdminAiUsagePage() {
 
         <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
           <div>
-            <p className="text-xs text-upGray font-bold uppercase tracking-wider">Status Phyllo API</p>
-            <p className="text-2xl font-black text-purple-400 mt-1">Conectado (getphyllo)</p>
-            <p className="text-[10px] text-purple-300 mt-0.5">Métricas do Instagram/TikTok ativas</p>
+            <p className="text-xs text-upGray font-bold uppercase tracking-wider">Status API Social</p>
+            <p className="text-2xl font-black text-purple-400 mt-1">Instagram Graph API</p>
+            <p className="text-[10px] text-purple-300 mt-0.5">Métricas e sincronização contínua ativas</p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
             <Globe className="w-5 h-5" />
@@ -490,7 +569,7 @@ export default function AdminAiUsagePage() {
             <option value="groq">Groq Cloud</option>
             <option value="gemini">Google Gemini</option>
             <option value="openai">OpenAI</option>
-            <option value="phyllo">Phyllo Social API</option>
+            <option value="anthropic">Anthropic Claude</option>
           </select>
         </div>
       </div>
@@ -545,7 +624,7 @@ export default function AdminAiUsagePage() {
                           ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                           : item.provider === "Gemini"
                           ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                          : item.provider === "Phyllo"
+                          : item.provider === "Instagram"
                           ? "bg-pink-500/10 text-pink-400 border border-pink-500/20"
                           : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                       }`}>

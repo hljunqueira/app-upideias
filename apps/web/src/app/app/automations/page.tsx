@@ -35,6 +35,17 @@ export default function AutomationsPage() {
     async function loadPreferences() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Carrega telefone salvo no perfil
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("phone")
+          .eq("id", user.id)
+          .single();
+
+        if (profile?.phone) {
+          setPhoneNumber(profile.phone);
+        }
+
         const prefs = await getNotificationPreferences(user.id);
         if (prefs) {
           setNotifications({
@@ -71,9 +82,17 @@ export default function AutomationsPage() {
     setLoading(true);
     setMessageSent(null);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ phone: phoneNumber.trim(), whatsapp_opt_in: true })
+          .eq("id", user.id);
+      }
+
       const success = await sendWhatsAppMessage(
         phoneNumber,
-        "🟢 UP Ideias: Seu número foi conectado com sucesso para receber notificações de desempenho e lembretes de postagens!"
+        "[UP Ideias] Seu número foi conectado com sucesso para receber notificações de desempenho e lembretes de postagens."
       );
       if (success) {
         setMessageSent(true);

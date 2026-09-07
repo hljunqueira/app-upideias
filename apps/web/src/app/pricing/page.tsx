@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { PlanConfig, getStoredPlans } from "@/lib/plansStore";
+import { PlanConfig, fetchPlansFromDb } from "@/lib/plansStore";
 
 export default function Pricing() {
   const [plansList, setPlansList] = useState<PlanConfig[]>([]);
 
   useEffect(() => {
-    setPlansList(getStoredPlans());
-    const handleUpdate = () => setPlansList(getStoredPlans());
+    fetchPlansFromDb().then(setPlansList);
+    const handleUpdate = () => {
+      fetchPlansFromDb().then(setPlansList);
+    };
     window.addEventListener("up_plans_updated", handleUpdate);
     return () => window.removeEventListener("up_plans_updated", handleUpdate);
   }, []);

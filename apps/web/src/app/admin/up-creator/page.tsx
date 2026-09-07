@@ -399,13 +399,15 @@ export default function AdminUpCreatorPage() {
                   {/* Badges de Status (Se está ativo na landing page) */}
                   <div className="relative px-3.5 z-10 space-y-1">
                     {c.isRecommendedFirst && (
-                      <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black px-2 py-0.5 rounded flex items-center gap-1 w-max shadow-md">
-                        🟢 COMEÇAR POR AQUI
+                      <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black px-2 py-0.5 rounded flex items-center gap-1.5 w-max shadow-md">
+                        <span className="w-1.5 h-1.5 rounded-full bg-black inline-block" />
+                        <span>COMEÇAR POR AQUI</span>
                       </span>
                     )}
                     {c.isLandingPageFeatured && (
-                      <span className="text-[9px] font-extrabold uppercase bg-blue-500/80 text-white px-2 py-0.5 rounded flex items-center gap-1 w-max shadow-md backdrop-blur-sm">
-                        ⭐ Ativo na Landing
+                      <span className="text-[9px] font-extrabold uppercase bg-blue-500/80 text-white px-2 py-0.5 rounded flex items-center gap-1.5 w-max shadow-md backdrop-blur-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-200 inline-block" />
+                        <span>Ativo na Landing</span>
                       </span>
                     )}
                   </div>

@@ -94,7 +94,7 @@ export default function UpCreatorPage() {
         const u = await getMe().catch(() => null);
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, name")
+          .select("id, name, avatar_url")
           .limit(5);
 
         if (!error && data && data.length > 0) {
@@ -108,9 +108,9 @@ export default function UpCreatorPage() {
               const xp = (count || 0) * 50;
               return {
                 rank: idx + 1,
-                name: prof.name || "Aluno UP",
+                name: prof.name || "Membro da Comunidade",
                 xp: xp,
-                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop",
+                avatar: prof.avatar_url || "",
                 isMe: u?.id === prof.id
               };
             })
@@ -142,8 +142,9 @@ export default function UpCreatorPage() {
               <span className="text-[10px] font-extrabold uppercase tracking-widest bg-upPink/20 text-upPink border border-upPink/30 px-3 py-1 rounded-full flex items-center gap-1">
                 <GraduationCap className="w-3.5 h-3.5" /> UP Creator Academy
               </span>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 fill-amber-400" /> {studentStats.streakDays} {studentStats.streakDays === 1 ? "Dia" : "Dias"} de Ofensiva 🔥
+              <span className="text-[10px] font-extrabold uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>{studentStats.streakDays} {studentStats.streakDays === 1 ? "Dia" : "Dias"} de Ofensiva</span>
               </span>
             </div>
             
@@ -251,8 +252,9 @@ export default function UpCreatorPage() {
                         <div>
                           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                             {isFirst && (
-                              <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black border border-emerald-400 px-2.5 py-0.5 rounded-md flex items-center gap-1">
-                                🟢 COMEÇAR POR AQUI
+                              <span className="text-[9px] font-extrabold uppercase bg-emerald-500 text-black border border-emerald-400 px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-black inline-block" />
+                                <span>COMEÇAR POR AQUI</span>
                               </span>
                             )}
                             <span className="text-[9px] font-extrabold uppercase bg-upPink/20 text-upPink px-2.5 py-0.5 rounded-md">
@@ -339,11 +341,17 @@ export default function UpCreatorPage() {
                     >
                       {item.rank}
                     </span>
-                    <img
-                      src={item.avatar}
-                      alt={item.name}
-                      className="w-8 h-8 rounded-full object-cover border border-white/10"
-                    />
+                    {item.avatar ? (
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="w-8 h-8 rounded-full object-cover border border-white/10"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-upPink/20 border border-upPink/40 text-upPink font-bold text-xs flex items-center justify-center">
+                        {item.name ? item.name.charAt(0).toUpperCase() : "U"}
+                      </div>
+                    )}
                     <div>
                       <p className="text-xs font-bold text-white">
                         {item.name} {item.isMe && "(Você)"}

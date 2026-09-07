@@ -17,6 +17,7 @@ import {
   Trash2
 } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { supabase, sendWhatsAppMessage } from "@up-analytics/lib";
 
 interface WhatsappLogItem {
   id: string;
@@ -29,10 +30,8 @@ interface WhatsappLogItem {
   instanceName: string;
 }
 
-const INITIAL_LOGS: WhatsappLogItem[] = [];
-
 export default function AdminWhatsappLogsPage() {
-  const [logs, setLogs] = useState<WhatsappLogItem[]>(INITIAL_LOGS);
+  const [logs, setLogs] = useState<WhatsappLogItem[]>([]);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("todos");
   const [deletingLogId, setDeletingLogId] = useState<string | null>(null);
@@ -52,6 +51,33 @@ export default function AdminWhatsappLogsPage() {
     messageType: "Notificação de Post",
     content: "",
   });
+
+  const loadLogs = async () => {
+    try {
+      const { data } = await supabase.from("whatsapp_messages").select("*").order("created_at", { ascending: false });
+      if (data && data.length > 0) {
+        const mapped: WhatsappLogItem[] = data.map((m: any) => ({
+          id: m.id,
+          phone: m.phone || "-",
+          recipientName: m.recipient_name || "Cliente",
+          messageType: (m.type || "Notificação de Post") as any,
+          content: m.message || "",
+          status: m.status === "delivered" || m.status === "sent" ? "Entregue" : "Pendente",
+          sentAt: m.sent_at ? new Date(m.sent_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "Recentemente",
+          instanceName: m.instance_name || "API WhatsApp"
+        }));
+        setLogs(mapped);
+      } else {
+        setLogs([]);
+      }
+    } catch {
+      setLogs([]);
+    }
+  };
+
+  useEffect(() => {
+    loadLogs();
+  }, []);
 
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =
@@ -73,37 +99,47 @@ export default function AdminWhatsappLogsPage() {
     setIsModalOpen(true);
   };
 
-  const handleResendLog = (id: string) => {
-    setLogs((prev) =>
-      prev.map((log) =>
-        log.id === id ? { ...log, status: "Entregue", sentAt: "Agora mesmo" } : log
-      )
-    );
+  const handleResendLog = async (id: string) => {
+    const target = logs.find(l => l.id === id);
+    if (target) {
+      await sendWhatsAppMessage(target.phone, target.content);
+      await loadLogs();
+    }
   };
 
   const onRequestDeleteLog = (id: string) => {
     setDeletingLogId(id);
   };
 
-  const handleConfirmDeleteLog = () => {
+  const handleConfirmDeleteLog = async () => {
     if (!deletingLogId) return;
-    setLogs((prev) => prev.filter((l) => l.id !== deletingLogId));
+    try {
+      await supabase.from("whatsapp_messages").delete().eq("id", deletingLogId);
+      await loadLogs();
+    } catch (err) {
+      console.error("Erro ao excluir log de WhatsApp:", err);
+    }
     setDeletingLogId(null);
   };
 
-  const handleSendWhatsapp = (e: React.FormEvent) => {
+  const handleSendWhatsapp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newLog: WhatsappLogItem = {
-      id: `log_${Date.now()}`,
-      phone: formData.phone,
-      recipientName: formData.recipientName,
-      messageType: formData.messageType,
-      content: formData.content,
-      status: "Entregue",
-      sentAt: "Agora mesmo",
-      instanceName: "Evolution_Bot_01",
-    };
-    setLogs((prev) => [newLog, ...prev]);
+    if (!formData.phone || !formData.content) return;
+    try {
+      await sendWhatsAppMessage(formData.phone, formData.content);
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from("whatsapp_messages").insert({
+        user_id: user?.id,
+        phone: formData.phone,
+        type: formData.messageType,
+        message: formData.content,
+        status: "delivered",
+        sent_at: new Date().toISOString()
+      });
+      await loadLogs();
+    } catch (err) {
+      console.error("Erro ao enviar WhatsApp:", err);
+    }
     setIsModalOpen(false);
   };
 

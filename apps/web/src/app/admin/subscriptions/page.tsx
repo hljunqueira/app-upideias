@@ -35,7 +35,7 @@ interface SubscriptionItem {
 import { useEffect } from "react";
 import { supabase } from "@up-analytics/lib";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { getStoredPlans, PlanConfig } from "@/lib/plansStore";
+import { getStoredPlans, fetchPlansFromDb, PlanConfig } from "@/lib/plansStore";
 
 export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
@@ -46,26 +46,37 @@ export default function AdminSubscriptionsPage() {
   const [deletingSubId, setDeletingSubId] = useState<string | null>(null);
 
   useEffect(() => {
-    setAvailablePlans(getStoredPlans());
+    fetchPlansFromDb().then((p) => setAvailablePlans(p.length > 0 ? p : getStoredPlans()));
+    const handleUpdate = () => {
+      fetchPlansFromDb().then((p) => setAvailablePlans(p.length > 0 ? p : getStoredPlans()));
+    };
+    window.addEventListener("up_plans_updated", handleUpdate);
+    return () => window.removeEventListener("up_plans_updated", handleUpdate);
   }, []);
 
   useEffect(() => {
     async function loadSubscriptions() {
       setLoading(true);
       try {
-        const { data } = await supabase.from("subscriptions").select("*");
+        const { data } = await supabase
+          .from("subscriptions")
+          .select("*, profiles(name, email)")
+          .order("created_at", { ascending: false });
+
         if (data && data.length > 0) {
           const mapped: SubscriptionItem[] = data.map((s: any) => ({
             id: s.id,
-            subscriptionId: s.id.substring(0, 12),
-            customerName: s.customer_name || "Cliente UP",
-            customerEmail: s.customer_email || "cliente@upideias.com",
-            planName: s.plan_name || "Pro",
-            amount: s.amount ? `R$ ${s.amount}` : "R$ 129,00",
-            cycle: "Mensal",
-            paymentMethod: "Cartão de Crédito",
-            status: s.status === "active" ? "Ativa" : "Pendente",
-            nextDueDate: s.next_due_date ? new Date(s.next_due_date).toLocaleDateString("pt-BR") : "A definir"
+            subscriptionId: s.payment_provider_subscription_id || s.id.substring(0, 12),
+            customerName: s.profiles?.name || s.customer_name || "Assinante",
+            customerEmail: s.profiles?.email || s.customer_email || "-",
+            planName: s.plan_name || (s.plan_id ? "Plano Ativo" : "Plano"),
+            amount: s.amount ? `R$ ${s.amount}` : (s.amount_cents ? `R$ ${(s.amount_cents / 100).toFixed(2).replace(".", ",")}` : "R$ 0,00"),
+            cycle: s.cycle === "annual" ? "Anual" : "Mensal",
+            paymentMethod: s.payment_provider || "Cartão de Crédito",
+            status: s.status === "active" ? "Ativa" : s.status === "pending" ? "Pendente" : s.status === "cancelled" ? "Cancelada" : "Inadimplente",
+            nextDueDate: s.current_period_end
+              ? new Date(s.current_period_end).toLocaleDateString("pt-BR")
+              : (s.next_due_date ? new Date(s.next_due_date).toLocaleDateString("pt-BR") : "A definir")
           }));
           setSubscriptions(mapped);
         } else {
@@ -100,7 +111,7 @@ export default function AdminSubscriptionsPage() {
     customerName: "",
     customerEmail: "",
     planName: "Pro",
-    amount: "R$ 197,00",
+    amount: "R$ 129,00",
     cycle: "Mensal",
     paymentMethod: "Cartão de Crédito",
     status: "Ativa",
@@ -119,12 +130,15 @@ export default function AdminSubscriptionsPage() {
 
   const handleOpenAddModal = () => {
     setEditingSub(null);
+    const defaultPlan = availablePlans.find(p => p.id === "pro") || availablePlans[0] || { name: "Pro", priceMonthly: 129 };
+    const defaultPrice = typeof defaultPlan.priceMonthly === "number" ? `R$ ${defaultPlan.priceMonthly},00` : "R$ 129,00";
+    
     setFormData({
       subscriptionId: `SUB-${Math.floor(100000 + Math.random() * 900000)}`,
       customerName: "",
       customerEmail: "",
-      planName: "Pro",
-      amount: "R$ 197,00",
+      planName: defaultPlan.name,
+      amount: defaultPrice,
       cycle: "Mensal",
       paymentMethod: "Cartão de Crédito",
       status: "Ativa",
@@ -153,39 +167,127 @@ export default function AdminSubscriptionsPage() {
     setDeletingSubId(id);
   };
 
-  const handleConfirmDeleteSubscription = () => {
+  const handleConfirmDeleteSubscription = async () => {
     if (!deletingSubId) return;
+    try {
+      await supabase.from("subscriptions").delete().eq("id", deletingSubId);
+    } catch (err) {
+      console.error("Erro ao excluir assinatura no Supabase:", err);
+    }
     setSubscriptions((prev) => prev.filter((s) => s.id !== deletingSubId));
     setDeletingSubId(null);
   };
 
-  const handleSyncGateway = (id: string) => {
+  const handleSyncGateway = async (id: string) => {
+    const nextDueDateObj = new Date();
+    nextDueDateObj.setDate(nextDueDateObj.getDate() + 30);
+    const formattedNextDue = nextDueDateObj.toLocaleDateString("pt-BR");
+
+    try {
+      await supabase
+        .from("subscriptions")
+        .update({
+          status: "active",
+          current_period_end: nextDueDateObj.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
+    } catch (err) {
+      console.error("Erro ao sincronizar assinatura no gateway:", err);
+    }
+
     setSubscriptions((prev) =>
       prev.map((s) =>
-        s.id === id ? { ...s, status: "Ativa", nextDueDate: "15/09/2026" } : s
+        s.id === id ? { ...s, status: "Ativa", nextDueDate: formattedNextDue } : s
       )
     );
   };
 
-  const handleSaveSubscription = (e: React.FormEvent) => {
+  const handleSaveSubscription = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingSub) {
-      // Update
-      setSubscriptions((prev) =>
-        prev.map((s) =>
-          s.id === editingSub.id
-            ? { ...s, ...formData }
-            : s
-        )
-      );
-    } else {
-      // Create
-      const newSub: SubscriptionItem = {
-        id: String(Date.now()),
-        ...formData,
-      };
-      setSubscriptions((prev) => [newSub, ...prev]);
+    const numericAmount = parseFloat(formData.amount.replace(/[^0-9,.]/g, "").replace(",", ".")) || 0;
+    const statusMap: Record<string, string> = {
+      "Ativa": "active",
+      "Pendente": "pending",
+      "Cancelada": "cancelled",
+      "Inadimplente": "past_due"
+    };
+
+    try {
+      if (editingSub) {
+        // Atualizar assinatura no Supabase
+        await supabase
+          .from("subscriptions")
+          .update({
+            plan_name: formData.planName,
+            amount: numericAmount,
+            amount_cents: Math.round(numericAmount * 100),
+            status: statusMap[formData.status] || "active",
+            cycle: formData.cycle === "Anual" ? "annual" : "monthly",
+            payment_provider: formData.paymentMethod,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", editingSub.id);
+
+        setSubscriptions((prev) =>
+          prev.map((s) =>
+            s.id === editingSub.id
+              ? { ...s, ...formData }
+              : s
+          )
+        );
+      } else {
+        // Criar nova assinatura no Supabase
+        let targetUserId: string | null = null;
+        if (formData.customerEmail) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("email", formData.customerEmail.trim().toLowerCase())
+            .maybeSingle();
+          if (profile) targetUserId = profile.id;
+        }
+
+        if (!targetUserId) {
+          targetUserId = crypto.randomUUID();
+          await supabase.from("profiles").insert({
+            id: targetUserId,
+            name: formData.customerName,
+            email: formData.customerEmail.trim().toLowerCase(),
+            plan: formData.planName,
+            status: "Ativo"
+          });
+        }
+
+        const newId = crypto.randomUUID();
+        const { error } = await supabase
+          .from("subscriptions")
+          .insert({
+            id: newId,
+            user_id: targetUserId,
+            plan_name: formData.planName,
+            amount: numericAmount,
+            amount_cents: Math.round(numericAmount * 100),
+            status: statusMap[formData.status] || "active",
+            cycle: formData.cycle === "Anual" ? "annual" : "monthly",
+            payment_provider: formData.paymentMethod,
+            payment_provider_subscription_id: formData.subscriptionId,
+            current_period_start: new Date().toISOString(),
+            current_period_end: new Date(Date.now() + 30 * 86400000).toISOString()
+          });
+
+        if (!error) {
+          const newSub: SubscriptionItem = {
+            id: newId,
+            ...formData,
+          };
+          setSubscriptions((prev) => [newSub, ...prev]);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao persistir assinatura no banco:", err);
     }
+
     setIsModalOpen(false);
   };
 
@@ -446,7 +548,14 @@ export default function AdminSubscriptionsPage() {
                   <label className="text-xs font-semibold text-upGray">Plano</label>
                   <select
                     value={formData.planName}
-                    onChange={(e) => setFormData({ ...formData, planName: e.target.value as any })}
+                    onChange={(e) => {
+                      const selectedPlanName = e.target.value;
+                      const found = availablePlans.find((p) => p.name === selectedPlanName);
+                      const priceStr = found && typeof found.priceMonthly === "number"
+                        ? `R$ ${found.priceMonthly},00`
+                        : formData.amount;
+                      setFormData({ ...formData, planName: selectedPlanName, amount: priceStr });
+                    }}
                     className="px-4 py-2.5 bg-upCard/60 border border-upBorder rounded-xl text-white text-xs focus:outline-none focus:border-upPink transition-all"
                   >
                     {availablePlans.map((p) => (

@@ -92,7 +92,7 @@ export async function fetchCoursesFromDb(): Promise<Course[]> {
       tag: c.tag || "Geral",
       lessonInfo: c.lesson_info || `${c.modules_count || 1} Módulo(s)`,
       progress: c.progress || 0,
-      thumbnailUrl: c.thumbnail_url || "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=600&auto=format&fit=crop",
+      thumbnailUrl: c.thumbnail_url || "/UP_Ideias_transparente.png",
       videoTeaserUrl: c.video_teaser_url || undefined,
       level: (c.level as any) || "Iniciante",
       xpReward: c.xp_reward || 350,
@@ -118,7 +118,7 @@ export async function saveCourseToDb(course: Course): Promise<{ success: boolean
     const fallbackThumb =
       course.thumbnailUrl && course.thumbnailUrl.trim().length > 0
         ? course.thumbnailUrl
-        : "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=600&auto=format&fit=crop";
+        : "/UP_Ideias_transparente.png";
 
     const { error } = await supabase.from("courses").upsert({
       id: course.id,

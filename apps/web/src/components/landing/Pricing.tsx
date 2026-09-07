@@ -3,7 +3,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
-import { PlanConfig, getStoredPlans } from "@/lib/plansStore";
+import { PlanConfig, getStoredPlans, fetchPlansFromDb } from "@/lib/plansStore";
 import { getSupportWhatsAppUrl } from "@/lib/config";
 
 function SpotlightCard({ p, i, annual }: { p: PlanConfig; i: number; annual: boolean }) {
@@ -129,10 +129,14 @@ export default function Pricing() {
   const [annual, setAnnual] = useState(false);
 
   useEffect(() => {
-    setPlans(getStoredPlans());
+    fetchPlansFromDb().then((data) => {
+      setPlans(data.length > 0 ? data : getStoredPlans());
+    });
 
     const handleUpdate = () => {
-      setPlans(getStoredPlans());
+      fetchPlansFromDb().then((data) => {
+        setPlans(data.length > 0 ? data : getStoredPlans());
+      });
     };
 
     window.addEventListener("up_plans_updated", handleUpdate);

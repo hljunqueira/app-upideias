@@ -105,7 +105,7 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
             width = maxWidth;
           } else {
             width = Math.round((width * maxHeight) / height);
-            maxHeight;
+            height = maxHeight;
           }
         }
 
@@ -185,7 +185,7 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
     try {
       const fallbackThumb =
         formData.thumbnailUrl?.trim() ||
-        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=600&auto=format&fit=crop";
+        "/UP_Ideias_transparente.png";
 
       const courseToSave: Course = {
         id: initialCourse?.id || `course-${Date.now()}`,
@@ -441,7 +441,7 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
                   <div className="flex items-center gap-2">
                     <input
                       type="url"
-                      placeholder="Cole a URL da imagem (ex: https://images.unsplash.com/...)"
+                      placeholder="Cole a URL da imagem (ex: https://...)"
                       value={customImageUrl}
                       onChange={(e) => handleApplyUrl(e.target.value)}
                       className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-rose-500/80 transition"
@@ -568,7 +568,7 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
                   onChange={(e) => setFormData((prev) => ({ ...prev, isRecommendedFirst: e.target.checked }))}
                   className="rounded border-white/20 bg-neutral-800 text-rose-500 focus:ring-0 w-4 h-4 cursor-pointer"
                 />
-                <span>Marcar como "🟢 Começar por aqui" (Primeiro da Trilha)</span>
+                <span>Marcar como "Começar por aqui" (Primeiro da Trilha)</span>
               </label>
             </div>
 

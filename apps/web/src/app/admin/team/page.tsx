@@ -10,13 +10,14 @@ import {
   DollarSign, 
   TrendingUp, 
   Palette, 
+  Briefcase,
   X, 
   Trash2, 
-  Lock,
-  Check,
-  Eye,
-  Edit,
-  Plus
+  Lock, 
+  Check, 
+  Eye, 
+  Edit, 
+  Plus 
 } from "lucide-react";
 import { 
   TeamMember, 
@@ -66,7 +67,7 @@ export default function AdminTeamPage() {
         const mapped: TeamMember[] = teamProfiles.map((p: any) => ({
           id: p.id,
           name: p.name || p.full_name || "Membro da Equipe",
-          email: p.email || "equipe@upideias.com",
+          email: p.email || (p.name ? `${p.name.toLowerCase().replace(/\s+/g, ".")}@upideias.com` : "-"),
           role: (["vendas", "suporte", "cs", "criacao"].includes(p.role) ? p.role : "vendas") as TeamRole,
           roleTitle: p.role_title || (p.role === "admin" ? "Administrador Master" : `Especialista em ${p.role}`),
           status: "ativo",
@@ -186,12 +187,24 @@ export default function AdminTeamPage() {
       roleTitle: roleTitles[role],
       status: "ativo",
       assignedAccountsCount: editingMember?.assignedAccountsCount || 0,
-      avatarUrl: editingMember?.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+      avatarUrl: editingMember?.avatarUrl,
       permissions: editingMember?.permissions || DEFAULT_PERMISSIONS,
       createdAt: editingMember?.createdAt || new Date().toISOString()
     };
 
     saveTeamMember(newMember);
+
+    // Sincroniza o cargo do membro na tabela profiles do Supabase
+    try {
+      supabase
+        .from("profiles")
+        .update({ role: role, name: name.trim() })
+        .eq("email", email.trim())
+        .then();
+    } catch (err) {
+      console.warn("Erro ao sincronizar papel do membro no Supabase:", err);
+    }
+
     setIsInviteModalOpen(false);
   };
 
@@ -204,6 +217,11 @@ export default function AdminTeamPage() {
   const handleConfirmDelete = () => {
     if (deletingMemberId) {
       deleteTeamMember(deletingMemberId);
+      try {
+        supabase.from("profiles").update({ role: "user" }).eq("id", deletingMemberId).then();
+      } catch (err) {
+        console.warn("Erro ao reverter papel do membro no Supabase:", err);
+      }
       setDeletingMemberId(null);
     }
   };
@@ -334,11 +352,17 @@ export default function AdminTeamPage() {
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
-                <img
-                  src={member.avatarUrl}
-                  alt={member.name}
-                  className="w-14 h-14 rounded-2xl object-cover border border-upBorder/80 shrink-0"
-                />
+                {member.avatarUrl ? (
+                  <img
+                    src={member.avatarUrl}
+                    alt={member.name}
+                    className="w-14 h-14 rounded-2xl object-cover border border-upBorder/80 shrink-0"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-upPink/20 to-purple-600/20 border border-upPink/30 flex items-center justify-center text-upPink font-extrabold text-lg shrink-0">
+                    {member.name ? member.name.slice(0, 2).toUpperCase() : "UP"}
+                  </div>
+                )}
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <h3 className="text-base font-bold text-white">{member.name}</h3>
@@ -428,24 +452,26 @@ export default function AdminTeamPage() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                   {[
-                    { id: "vendas", label: "💼 Vendas" },
-                    { id: "suporte", label: "🎧 Suporte" },
-                    { id: "cs", label: "📈 Gestão CS" },
-                    { id: "criacao", label: "🎨 Criação" }
+                    { id: "vendas", label: "Vendas", Icon: Briefcase },
+                    { id: "suporte", label: "Suporte", Icon: Headphones },
+                    { id: "cs", label: "Gestão CS", Icon: TrendingUp },
+                    { id: "criacao", label: "Criação", Icon: Palette }
                   ].map((r) => {
                     const isMain = r.id === tempMainRole;
+                    const IconComp = r.Icon;
                     return (
                       <button
                         key={r.id}
                         type="button"
                         onClick={() => handleChangeMainRole(r.id as TeamRole)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition text-center border cursor-pointer ${
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
                           isMain
                             ? "bg-upPink text-white border-upPink shadow-lg shadow-upPink/20"
                             : "bg-upDark/60 text-upGray border-upBorder/50 hover:text-white"
                         }`}
                       >
-                        {r.label}
+                        <IconComp className="w-3.5 h-3.5 shrink-0" />
+                        <span>{r.label}</span>
                       </button>
                     );
                   })}
@@ -462,20 +488,21 @@ export default function AdminTeamPage() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                   {[
-                    { id: "vendas", label: "💼 Vendas" },
-                    { id: "suporte", label: "🎧 Suporte" },
-                    { id: "cs", label: "📈 Gestão CS" },
-                    { id: "criacao", label: "🎨 Criação" }
+                    { id: "vendas", label: "Vendas", Icon: Briefcase },
+                    { id: "suporte", label: "Suporte", Icon: Headphones },
+                    { id: "cs", label: "Gestão CS", Icon: TrendingUp },
+                    { id: "criacao", label: "Criação", Icon: Palette }
                   ].map((r) => {
                     const isMain = r.id === tempMainRole;
                     const isSelected = isMain || tempSecondaryRoles.includes(r.id as TeamRole);
+                    const IconComp = r.Icon;
                     return (
                       <button
                         key={r.id}
                         type="button"
                         disabled={isMain}
                         onClick={() => handleToggleSecondaryRole(r.id as TeamRole)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition text-center border cursor-pointer ${
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
                           isMain
                             ? "bg-upPink/20 text-upPink border-upPink/40 opacity-75 cursor-not-allowed"
                             : isSelected
@@ -483,7 +510,8 @@ export default function AdminTeamPage() {
                             : "bg-upDark/60 text-upGray border-upBorder/50 hover:text-white"
                         }`}
                       >
-                        {r.label} {isMain && "(Principal)"}
+                        <IconComp className="w-3.5 h-3.5 shrink-0" />
+                        <span>{r.label} {isMain && "(Principal)"}</span>
                       </button>
                     );
                   })}
@@ -638,24 +666,28 @@ export default function AdminTeamPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { id: "vendas", label: "💼 Vendas" },
-                    { id: "suporte", label: "🎧 Suporte" },
-                    { id: "cs", label: "📈 Gestão de Contas" },
-                    { id: "criacao", label: "🎨 Criação & Copy" }
-                  ].map((r) => (
-                    <button
-                      key={r.id}
-                      type="button"
-                      onClick={() => setRole(r.id as any)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold transition text-left border cursor-pointer ${
-                        role === r.id
-                          ? "bg-upPink text-white border-upPink shadow-md"
-                          : "bg-upDark/60 text-upGray border-upBorder/50 hover:text-white"
-                      }`}
-                    >
-                      {r.label}
-                    </button>
-                  ))}
+                    { id: "vendas", label: "Vendas", Icon: Briefcase },
+                    { id: "suporte", label: "Suporte", Icon: Headphones },
+                    { id: "cs", label: "Gestão de Contas", Icon: TrendingUp },
+                    { id: "criacao", label: "Criação & Copy", Icon: Palette }
+                  ].map((r) => {
+                    const IconComp = r.Icon;
+                    return (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => setRole(r.id as any)}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center gap-2 text-left border cursor-pointer ${
+                          role === r.id
+                            ? "bg-upPink text-white border-upPink shadow-md"
+                            : "bg-upDark/60 text-upGray border-upBorder/50 hover:text-white"
+                        }`}
+                      >
+                        <IconComp className="w-3.5 h-3.5 shrink-0" />
+                        <span>{r.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

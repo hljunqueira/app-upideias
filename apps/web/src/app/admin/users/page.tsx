@@ -58,13 +58,13 @@ export default function AdminUsersPage() {
       if (!error && data && data.length > 0) {
         const mapped: UserItem[] = data.map((p: any) => ({
           id: p.id,
-          name: p.name || p.full_name || "Cliente UP",
+          name: p.name || p.full_name || (p.email ? p.email.split("@")[0] : "Usuário"),
           email: p.email || "Sem e-mail",
           plan: p.plan || "Pro",
           status: p.status === "Suspenso" ? "Suspenso" : p.status === "Pendente" ? "Pendente" : "Ativo",
-          instagramHandle: p.instagram_handle || "@upideias",
+          instagramHandle: p.instagram_handle || "-",
           role: p.role === "admin" ? "admin" : "user",
-          createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString("pt-BR") : "Hoje"
+          createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString("pt-BR") : new Date().toLocaleDateString("pt-BR")
         }));
         setUsers(mapped);
       } else {
@@ -408,7 +408,7 @@ export default function AdminUsersPage() {
                           title="Ver Métricas e Sugerir Conteúdo"
                         >
                           <Instagram className="w-3.5 h-3.5" />
-                          <span>📊 Sugerir</span>
+                          <span>Sugerir Pauta</span>
                         </button>
 
                         <button

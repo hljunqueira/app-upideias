@@ -3,28 +3,62 @@
 import React, { useState } from "react";
 import {
   Zap,
-  Search,
-  Plus,
-  Edit2,
-  Trash2,
-  DollarSign,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle
+  Search
 } from "lucide-react";
 
 interface CreditRateItem {
   id: string;
   actionName: string;
-  category: "Geração de IA" | "Estratégia & Análise" | "API Social (Phyllo/Meta)" | "Imagem & Mídia";
+  category: "Geração de IA" | "Estratégia & Análise" | "API de Métricas / Redes Sociais" | "Imagem & Mídia";
   creditCost: number;
   description: string;
 }
 
-const INITIAL_RATES: CreditRateItem[] = [];
+const DEFAULT_RATES: CreditRateItem[] = [
+  {
+    id: "rate_content_gen",
+    actionName: "Geração de Ideia / Roteiro de Post",
+    category: "Geração de IA",
+    creditCost: 5,
+    description: "Criação de gancho, roteiro e legenda para feed e Reels."
+  },
+  {
+    id: "rate_ai_strategy",
+    actionName: "Diagnóstico Semanal Estratégico",
+    category: "Estratégia & Análise",
+    creditCost: 10,
+    description: "Consolidação de insights e oportunidades baseados em alcance e retenção."
+  },
+  {
+    id: "rate_social_sync",
+    actionName: "Sincronização de Métricas Oficiais",
+    category: "API de Métricas / Redes Sociais",
+    creditCost: 1,
+    description: "Atualização de contadores de reputação, seguidores e publicações."
+  },
+  {
+    id: "rate_whatsapp_alert",
+    actionName: "Envio de Notificação WhatsApp",
+    category: "Estratégia & Análise",
+    creditCost: 2,
+    description: "Disparo automático de alertas de postagem e resumos no WhatsApp."
+  }
+];
+
+const STORAGE_KEY_RATES = "up_credit_rates_config";
 
 export default function AdminCreditSettingsPage() {
-  const [rates, setRates] = useState<CreditRateItem[]>(INITIAL_RATES);
+  const [rates, setRates] = useState<CreditRateItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_RATES);
+        if (raw) return JSON.parse(raw);
+      } catch (err) {
+        console.warn("Erro ao carregar taxas salvas:", err);
+      }
+    }
+    return DEFAULT_RATES;
+  });
   const [search, setSearch] = useState("");
 
   const filteredRates = rates.filter(
@@ -34,9 +68,13 @@ export default function AdminCreditSettingsPage() {
   );
 
   const handleUpdateCost = (id: string, newCost: number) => {
-    setRates((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, creditCost: newCost } : r))
-    );
+    setRates((prev) => {
+      const updated = prev.map((r) => (r.id === id ? { ...r, creditCost: newCost } : r));
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY_RATES, JSON.stringify(updated));
+      }
+      return updated;
+    });
   };
 
   return (
@@ -51,6 +89,17 @@ export default function AdminCreditSettingsPage() {
           <p className="text-sm text-upGray mt-1">
             Defina o valor em créditos cobrado do usuário para cada tipo de ação de IA e chamada de API.
           </p>
+        </div>
+
+        <div className="relative w-full md:w-72">
+          <Search className="w-4 h-4 text-upGray absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Filtrar operação..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-upCard border border-upBorder rounded-xl text-xs text-white placeholder-upGray focus:outline-none focus:border-upPink transition"
+          />
         </div>
       </div>
 

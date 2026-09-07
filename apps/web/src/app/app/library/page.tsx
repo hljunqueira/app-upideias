@@ -91,7 +91,7 @@ export default function LibraryPage() {
         title: newTitle.trim(),
         media_type: newType,
         description: newDescription.trim() || "Sem descrição informada.",
-        file_url: newFileUrl || (newType === "image" ? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" : null)
+        file_url: newFileUrl.trim() || null
       } as any);
       await loadLibraryItems();
     } catch (e) {

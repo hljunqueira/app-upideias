@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Send, Eye, Users, TrendingUp, Sparkles, Image as ImageIcon, Calendar, CheckCircle2 } from "lucide-react";
+import { X, Send, TrendingUp, Image as ImageIcon, CheckCircle2, Palette } from "lucide-react";
 import { ApprovalItem, saveApprovalItem } from "@/lib/approvalsStore";
 
 interface AdminSuggestContentModalProps {
@@ -23,10 +23,10 @@ export function AdminSuggestContentModal({
   const [formData, setFormData] = useState({
     title: "",
     format: "Reels" as "Reels" | "Carrossel" | "Imagem" | "Story",
-    targetDate: "05/08/2026",
+    targetDate: new Date().toLocaleDateString("pt-BR"),
     caption: "",
     visualIdea: "",
-    imageUrl: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop"
+    imageUrl: ""
   });
   const [sentSuccess, setSentSuccess] = useState(false);
 
@@ -42,10 +42,10 @@ export function AdminSuggestContentModal({
       userName: user.name,
       title: formData.title.trim(),
       format: formData.format,
-      targetDate: formData.targetDate || "05/08/2026",
-      caption: formData.caption.trim() || "Aprenda as melhores estratégias no Instagram.",
-      visualIdea: formData.visualIdea.trim() || "Fundo escuro, realce na cor da marca e texto explicativo simples.",
-      imageUrl: formData.imageUrl,
+      targetDate: formData.targetDate || new Date().toLocaleDateString("pt-BR"),
+      caption: formData.caption.trim(),
+      visualIdea: formData.visualIdea.trim(),
+      imageUrl: formData.imageUrl.trim() || undefined,
       status: "pending",
       createdAt: new Date().toISOString()
     };
@@ -243,8 +243,9 @@ export function AdminSuggestContentModal({
               </div>
 
               <div>
-                <label className="text-[11px] font-bold uppercase tracking-wider text-upPink mb-1.5 block">
-                  🎨 Ideia Visual & Dica de Arte (Orientação para o Cliente)
+                <label className="text-[11px] font-bold uppercase tracking-wider text-upPink mb-1.5 flex items-center gap-1.5">
+                  <Palette className="w-3.5 h-3.5" />
+                  <span>Ideia Visual & Dica de Arte (Orientação para o Cliente)</span>
                 </label>
                 <textarea
                   rows={2}

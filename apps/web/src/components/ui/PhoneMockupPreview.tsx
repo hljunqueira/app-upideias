@@ -23,7 +23,7 @@ export const PhoneMockupPreview: React.FC<PhoneMockupPreviewProps> = ({
   comments,
   engagement,
   imageUrl,
-  username = "hlj.dev",
+  username = "perfil",
   profilePictureUrl,
   publishedAt,
   className,

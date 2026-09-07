@@ -84,12 +84,12 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
 
       if (!sessionRes.ok) {
         const errJson = await sessionRes.json();
-        throw new Error(errJson.error || "Falha ao iniciar sessão de conexão com Nango.");
+        throw new Error(errJson.error || "Falha ao iniciar sessão de conexão oficial.");
       }
 
       const sessionData = await sessionRes.json();
       if (!sessionData?.token) {
-        throw new Error("Token de sessão do Nango não gerado pelo servidor.");
+        throw new Error("Token de autorização não gerado pelo servidor.");
       }
 
       // 2. Inicializa o SDK do Nango no frontend com o Connect UI

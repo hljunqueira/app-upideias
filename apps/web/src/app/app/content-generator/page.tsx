@@ -10,7 +10,7 @@ import {
   Save,
   Check
 } from "lucide-react";
-import { generateContentIdeas } from "@up-analytics/lib";
+import { generateContentIdeas, saveToContentLibrary, addContentToCalendar } from "@up-analytics/lib";
 import { ContentIdea } from "@up-analytics/types";
 
 export default function ContentGeneratorPage() {
@@ -20,6 +20,7 @@ export default function ContentGeneratorPage() {
   const [loading, setLoading] = useState(false);
   const [ideas, setIdeas] = useState<ContentIdea[]>([]);
   const [savedStatus, setSavedStatus] = useState<Record<string, boolean>>({});
+  const [calendarStatus, setCalendarStatus] = useState<Record<string, boolean>>({});
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +29,6 @@ export default function ContentGeneratorPage() {
     setLoading(true);
     try {
       const data = await generateContentIdeas(niche, objective);
-      // Let's customize the returned mock data with the inputs from the form
       const customizedData = data.map(item => ({
         ...item,
         niche,
@@ -37,17 +37,51 @@ export default function ContentGeneratorPage() {
       }));
       setIdeas(customizedData);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao gerar ideias:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveToLibrary = (id: string) => {
-    setSavedStatus(prev => ({ ...prev, [id]: true }));
-    setTimeout(() => {
-      setSavedStatus(prev => ({ ...prev, [id]: false }));
-    }, 2000);
+  const handleSaveToLibrary = async (idea: ContentIdea) => {
+    try {
+      await saveToContentLibrary({
+        user_id: idea.user_id,
+        client_id: null,
+        type: idea.format || 'post',
+        title: idea.theme || idea.title || 'Ideia de Conteúdo',
+        content: idea.caption || idea.script || idea.hook || '',
+        tags: idea.hashtags || [],
+      });
+      setSavedStatus(prev => ({ ...prev, [idea.id]: true }));
+      setTimeout(() => {
+        setSavedStatus(prev => ({ ...prev, [idea.id]: false }));
+      }, 3000);
+    } catch (err) {
+      console.error("Erro ao salvar na biblioteca:", err);
+    }
+  };
+
+  const handleAddToCalendar = async (idea: ContentIdea) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await addContentToCalendar({
+        user_id: idea.user_id,
+        client_id: null,
+        content_idea_id: idea.id,
+        instagram_account_id: idea.instagram_account_id || '',
+        planned_date: today,
+        planned_time: '18:00',
+        status: 'planned',
+        notes: `Tema: ${idea.theme || idea.title}. Gancho: ${idea.hook || ''}`,
+      });
+      setCalendarStatus(prev => ({ ...prev, [idea.id]: true }));
+      setTimeout(() => {
+        setCalendarStatus(prev => ({ ...prev, [idea.id]: false }));
+      }, 3000);
+    } catch (err) {
+      console.error("Erro ao agendar no calendário:", err);
+    }
   };
 
   return (
@@ -56,10 +90,10 @@ export default function ContentGeneratorPage() {
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-upWhite flex items-center gap-2">
           <PenTool className="w-8 h-8 text-upPink" />
-          Gerador de Conteúdo
+          Gerador Estratégico de Conteúdo
         </h1>
         <p className="text-sm text-upGray mt-1">
-          Crie ideias estruturadas de posts, scripts de Reels e legendas criativas com Inteligência Artificial.
+          Crie pautas estruturadas, roteiros de Reels e legendas alinhadas aos objetivos da sua marca.
         </p>
       </div>
 
@@ -118,12 +152,12 @@ export default function ContentGeneratorPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Gerando Conteúdo...
+                  Processando Estratégia...
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Gerar com Gemini
+                  Gerar Ideias
                 </>
               )}
             </button>
@@ -146,11 +180,11 @@ export default function ContentGeneratorPage() {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleSaveToLibrary(idea.id)}
+                      onClick={() => handleSaveToLibrary(idea)}
                       className="p-2 bg-upDark hover:bg-upBorder border border-upBorder text-upLightGray hover:text-upWhite rounded-lg transition-all"
                       title="Salvar na Biblioteca"
                     >
-                      {savedStatus[idea.id] ? <Check className="w-4 h-4 text-green-400" /> : <Save className="w-4 h-4" />}
+                      {savedStatus[idea.id] ? <Check className="w-4 h-4 text-emerald-400" /> : <Save className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -193,9 +227,21 @@ export default function ContentGeneratorPage() {
 
                 {/* Footer action */}
                 <div className="flex justify-end gap-3 border-t border-upBorder/30 pt-4 mt-2">
-                  <button className="px-4 py-2 border border-upBorder hover:bg-upDark text-upWhite text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
-                    Enviar ao Calendário
+                  <button 
+                    onClick={() => handleAddToCalendar(idea)}
+                    className="px-4 py-2 border border-upBorder hover:bg-upDark text-upWhite text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+                  >
+                    {calendarStatus[idea.id] ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        Agendado no Calendário
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="w-3.5 h-3.5" />
+                        Enviar ao Calendário
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

@@ -193,67 +193,108 @@ export async function fetchPlansFromDb(): Promise<PlanConfig[]> {
   try {
     const { data, error } = await supabase
       .from("plans")
-      .select("*")
-      .order("sort_order", { ascending: true });
+      .select("*, plan_limits(*)")
+      .eq("is_active", true)
+      .order("monthly_price_cents", { ascending: true });
 
-    if (error || !data || data.length === 0) {
-      return getStoredPlans();
+    if (!error && data && data.length > 0) {
+      const mapped: PlanConfig[] = data.map((p: any) => {
+        const limits = Array.isArray(p.plan_limits) ? p.plan_limits[0] : p.plan_limits;
+        const initialMatch = INITIAL_PLANS.find(
+          (ip) => ip.id.toLowerCase() === (p.slug || "").toLowerCase()
+        );
+
+        return {
+          id: p.slug || p.id,
+          name: p.name,
+          priceMonthly: p.monthly_price_cents ? p.monthly_price_cents / 100 : (initialMatch?.priceMonthly || 0),
+          priceAnnual: p.annual_price_cents ? p.annual_price_cents / 100 : (initialMatch?.priceAnnual || 0),
+          isCustomPrice: p.monthly_price_cents === 0,
+          description: p.description || initialMatch?.description || "",
+          featured: p.is_featured ?? initialMatch?.featured ?? false,
+          aiCreditsMonthly: limits?.max_ai_requests_month ?? initialMatch?.aiCreditsMonthly ?? 100,
+          clientSlotsLimit: limits?.max_clients ?? initialMatch?.clientSlotsLimit ?? 0,
+          featuresList: initialMatch?.featuresList || [
+            "Acesso à plataforma UP Analytics",
+            "Métricas essenciais",
+            "Suporte técnico"
+          ],
+          allowedFeatures: initialMatch?.allowedFeatures || {
+            dashboard: true,
+            posts: true,
+            contentGenerator: true,
+            aiStrategy: true,
+            contentCalendar: true,
+            approvals: true,
+            library: true,
+            whatsappAutomations: true,
+            upCreator: true,
+            clientArea: (limits?.max_clients ?? 0) > 0
+          }
+        };
+      });
+
+      savePlansConfig(mapped);
+      return mapped;
     }
 
-    const mapped: PlanConfig[] = data.map((p: any) => ({
-      id: p.slug || p.id,
-      name: p.name,
-      priceMonthly: p.price_monthly ? p.price_monthly / 100 : (p.price_cents ? p.price_cents / 100 : 0),
-      priceAnnual: p.price_annual ? p.price_annual / 100 : 0,
-      isCustomPrice: p.price_monthly === null || p.price_monthly === 0,
-      description: p.description || "",
-      featured: p.is_featured || false,
-      aiCreditsMonthly: p.max_ai_credits || 100,
-      clientSlotsLimit: p.max_clients || 1,
-      featuresList: p.features || [
-        "1 conta conectada",
-        "Acesso ao UP Analytics",
-        "Gerador de Conteúdo IA"
-      ],
-      allowedFeatures: {
-        dashboard: true,
-        posts: true,
-        contentGenerator: true,
-        aiStrategy: true,
-        contentCalendar: true,
-        approvals: true,
-        library: true,
-        whatsappAutomations: true,
-        upCreator: true,
-        clientArea: p.max_clients > 1
+    // Se a tabela plans estiver vazia no banco, semear com os planos estruturados
+    if (!error && (!data || data.length === 0)) {
+      for (const p of INITIAL_PLANS) {
+        await savePlanToDb(p);
       }
-    }));
+    }
 
-    savePlansConfig(mapped);
-    return mapped;
-  } catch {
+    return getStoredPlans();
+  } catch (err) {
+    console.error("Erro ao buscar planos do banco:", err);
     return getStoredPlans();
   }
 }
 
 export async function savePlanToDb(plan: PlanConfig): Promise<PlanConfig[]> {
   try {
-    await supabase.from("plans").upsert({
-      id: plan.id,
-      slug: plan.id.toLowerCase().replace(/\s+/g, "_"),
+    const slug = plan.id.toLowerCase().replace(/\s+/g, "_");
+    const { data: existing } = await supabase
+      .from("plans")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    const planPayload = {
+      slug,
       name: plan.name,
       description: plan.description,
-      price_monthly: typeof plan.priceMonthly === "number" ? Math.round(plan.priceMonthly * 100) : 0,
-      price_annual: typeof plan.priceAnnual === "number" ? Math.round(plan.priceAnnual * 100) : 0,
+      monthly_price_cents: typeof plan.priceMonthly === "number" ? Math.round(plan.priceMonthly * 100) : 0,
+      annual_price_cents: typeof plan.priceAnnual === "number" ? Math.round(plan.priceAnnual * 100) : 0,
       is_featured: plan.featured,
-      max_ai_credits: plan.aiCreditsMonthly,
-      max_clients: plan.clientSlotsLimit,
-      features: plan.featuresList,
       is_active: true
-    });
+    };
+
+    let planDbId = existing?.id;
+
+    if (existing) {
+      await supabase.from("plans").update(planPayload).eq("id", existing.id);
+    } else {
+      const { data: inserted } = await supabase
+        .from("plans")
+        .insert(planPayload)
+        .select("id")
+        .single();
+      if (inserted) planDbId = inserted.id;
+    }
+
+    if (planDbId) {
+      await supabase.from("plan_limits").upsert({
+        plan_id: planDbId,
+        max_clients: plan.clientSlotsLimit,
+        max_ai_requests_month: plan.aiCreditsMonthly
+      });
+    }
   } catch (e) {
     console.error("Erro ao salvar plano no Supabase:", e);
   }
+
   const current = getStoredPlans();
   const idx = current.findIndex(p => p.id === plan.id);
   const updated = idx >= 0 ? current.map((p, i) => i === idx ? plan : p) : [...current, plan];
@@ -262,7 +303,8 @@ export async function savePlanToDb(plan: PlanConfig): Promise<PlanConfig[]> {
 
 export async function deletePlanFromDb(planId: string): Promise<PlanConfig[]> {
   try {
-    await supabase.from("plans").delete().eq("id", planId);
+    const slug = planId.toLowerCase().replace(/\s+/g, "_");
+    await supabase.from("plans").delete().eq("slug", slug);
   } catch (e) {
     console.error("Erro ao deletar plano no Supabase:", e);
   }

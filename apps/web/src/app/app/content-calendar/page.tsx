@@ -102,17 +102,73 @@ export default function ContentCalendarPage() {
     setIsModalOpen(true);
   };
 
-  const handleSavePost = (savedPost: ScheduledPost) => {
-    const exists = scheduledPosts.some((p) => p.id === savedPost.id);
-    if (exists) {
-      setScheduledPosts(scheduledPosts.map((p) => (p.id === savedPost.id ? savedPost : p)));
-    } else {
-      setScheduledPosts([...scheduledPosts, savedPost]);
+  const handleSavePost = async (savedPost: ScheduledPost) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const exists = scheduledPosts.some((p) => p.id === savedPost.id);
+      
+      if (exists && !savedPost.id.startsWith("post-")) {
+        await supabase
+          .from("content_calendar")
+          .update({
+            title: savedPost.title,
+            type: savedPost.type,
+            status: savedPost.status,
+            time: savedPost.time,
+            day: savedPost.day,
+            month_year: savedPost.monthYear,
+            caption: savedPost.caption,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", savedPost.id);
+      } else {
+        const { data } = await supabase
+          .from("content_calendar")
+          .insert({
+            user_id: user?.id,
+            title: savedPost.title,
+            type: savedPost.type,
+            status: savedPost.status,
+            time: savedPost.time,
+            day: savedPost.day,
+            month_year: savedPost.monthYear,
+            caption: savedPost.caption,
+            planned_date: new Date().toISOString().split("T")[0],
+            planned_time: savedPost.time
+          })
+          .select()
+          .single();
+
+        if (data) {
+          savedPost.id = data.id;
+        }
+      }
+
+      if (exists) {
+        setScheduledPosts(scheduledPosts.map((p) => (p.id === savedPost.id ? savedPost : p)));
+      } else {
+        setScheduledPosts([...scheduledPosts, savedPost]);
+      }
+    } catch (err) {
+      console.error("Erro ao persistir post no calendário:", err);
+      if (scheduledPosts.some((p) => p.id === savedPost.id)) {
+        setScheduledPosts(scheduledPosts.map((p) => (p.id === savedPost.id ? savedPost : p)));
+      } else {
+        setScheduledPosts([...scheduledPosts, savedPost]);
+      }
     }
   };
 
-  const handleDeletePost = (postId: string) => {
-    setScheduledPosts(scheduledPosts.filter((p) => p.id !== postId));
+  const handleDeletePost = async (postId: string) => {
+    try {
+      if (!postId.startsWith("post-")) {
+        await supabase.from("content_calendar").delete().eq("id", postId);
+      }
+      setScheduledPosts(scheduledPosts.filter((p) => p.id !== postId));
+    } catch (err) {
+      console.error("Erro ao excluir post do calendário:", err);
+      setScheduledPosts(scheduledPosts.filter((p) => p.id !== postId));
+    }
   };
 
   return (

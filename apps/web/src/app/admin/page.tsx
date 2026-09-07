@@ -79,7 +79,7 @@ export default function AdminDashboard() {
         if (logsData && logsData.length > 0) {
           setRecentLogs(logsData.map((l: any) => ({
             id: l.id,
-            account: l.account_handle || "@upideias",
+            account: l.account_handle || "Perfil Conectado",
             status: l.status === "success" ? "Sucesso" : "Falha",
             msg: l.message || "Sincronização de métricas realizada",
             time: l.finished_at ? new Date(l.finished_at).toLocaleTimeString("pt-BR") : "Recentemente",
