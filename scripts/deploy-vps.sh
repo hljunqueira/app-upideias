@@ -27,10 +27,8 @@ if [ ! -f ".env" ]; then
 fi
 
 if [ -f ".env" ]; then
-  echo "🧹 Sanitizando arquivo .env (removendo CRLF e aspas residuais)..."
-  tr -d '\r' < .env > .env.clean
-  sed -i -E 's/^([A-Za-z0-9_]+)="?(.*?)"?$/\1=\2/' .env.clean
-  mv .env.clean .env
+  echo "🧹 Sanitizando arquivo .env com sanitize-env.py..."
+  python3 scripts/sanitize-env.py .env || tr -d '\r' < .env > .env.clean && mv .env.clean .env
 fi
 
 # 4. Reconstrução e reinicialização dos containers com Docker Compose
