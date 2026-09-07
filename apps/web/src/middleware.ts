@@ -18,8 +18,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(callbackUrl);
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.upideias.com';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.upideias.com';
+  const supabaseUrl = rawUrl.replace(/^["']|["']$/g, '').trim() || 'https://api.upideias.com';
+  const rawKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+  const supabaseAnonKey = rawKey.replace(/^["']|["']$/g, '').trim();
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {

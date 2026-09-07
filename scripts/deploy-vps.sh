@@ -16,7 +16,7 @@ echo "📥 Atualizando código do repositório (branch: main)..."
 git fetch origin main
 git reset --hard origin/main
 
-# 3. Validar arquivo .env
+# 3. Validar e sanitizar arquivo .env
 if [ ! -f ".env" ]; then
   if [ -f ".env.production" ]; then
     echo "⚠️ Arquivo .env não encontrado, copiando de .env.production..."
@@ -24,6 +24,13 @@ if [ ! -f ".env" ]; then
   else
     echo "⚠️ ATENÇÃO: Arquivo .env não encontrado na raiz da VPS. Certifique-se de configurar as variáveis de ambiente."
   fi
+fi
+
+if [ -f ".env" ]; then
+  echo "🧹 Sanitizando arquivo .env (removendo CRLF e aspas residuais)..."
+  tr -d '\r' < .env > .env.clean
+  sed -i -E 's/^([A-Za-z0-9_]+)="?(.*?)"?$/\1=\2/' .env.clean
+  mv .env.clean .env
 fi
 
 # 4. Reconstrução e reinicialização dos containers com Docker Compose
