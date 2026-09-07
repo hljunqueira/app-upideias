@@ -69,10 +69,13 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
     }
   };
 
+  const [directConnectLink, setDirectConnectLink] = useState<string | null>(null);
+
   const handleConnect = async (preferredPlatform?: string) => {
     setConnecting(true);
     setErrorMessage(null);
     setSuccessPlatform(null);
+    setDirectConnectLink(null);
 
     try {
       // 1. Obtém sessão do Nango Connect
@@ -90,6 +93,10 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
       const sessionData = await sessionRes.json();
       if (!sessionData?.token) {
         throw new Error("Token de autorização não gerado pelo servidor.");
+      }
+
+      if (sessionData?.connectLink) {
+        setDirectConnectLink(sessionData.connectLink);
       }
 
       // 2. Inicializa o SDK do Nango no frontend com o Connect UI
@@ -123,6 +130,7 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
               onClose();
               setSuccessPlatform(null);
               setConnecting(false);
+              setDirectConnectLink(null);
             }, 1200);
           } else if (event.type === "error") {
             setErrorMessage(event.payload?.errorMessage || "Erro na autenticação do Instagram / Meta.");
@@ -236,6 +244,27 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Contingência: Link Direto caso o navegador bloqueie o pop-up */}
+        {directConnectLink && (
+          <div className="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 space-y-2">
+            <p className="font-semibold flex items-center gap-1.5">
+              <span>⚠️ Pop-up travado em "Connecting..."?</span>
+            </p>
+            <p className="text-[11px] text-neutral-300 leading-relaxed">
+              O seu navegador pode ter bloqueado a janela pop-up do Facebook. Clique no botão abaixo para abrir a página oficial de autorização em uma nova aba:
+            </p>
+            <a
+              href={directConnectLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs transition"
+            >
+              <span>Abrir Autorização em Nova Aba</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
           </div>
         )}
 
