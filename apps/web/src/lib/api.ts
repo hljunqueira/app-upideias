@@ -104,11 +104,14 @@ export async function getMe() {
     user.email?.split('@')[0] ||
     'Usuário UP';
 
+  const isRoleAdmin =
+    profile?.role === 'admin' || user.email?.trim().toLowerCase() === 'admin@upideias.com';
+
   return {
     id: user.id,
     email: user.email,
     name: resolvedName,
-    role: profile?.role || 'user',
+    role: isRoleAdmin ? 'admin' : (profile?.role || 'user'),
     user_metadata: user.user_metadata,
   };
 }

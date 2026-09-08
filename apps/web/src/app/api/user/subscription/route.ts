@@ -21,11 +21,57 @@ export async function GET() {
     // 1. Busca perfil no Supabase
     const { data: profile } = await supabase
       .from('profiles')
-      .select('plan, status, has_used_upgrade_discount')
+      .select('role, plan, status, has_used_upgrade_discount')
       .eq('id', user.id)
       .maybeSingle();
 
-    // 2. Busca assinatura ativa mais recente em subscriptions
+    // 2. Checagem de Administrador (Acesso total irrestrito a todas as páginas)
+    const isRoleAdmin = profile?.role === 'admin';
+    const isAdminEmail = user.email?.trim().toLowerCase() === 'admin@upideias.com';
+    const isAdmin = isRoleAdmin || isAdminEmail;
+
+    // 3. Contar contas sociais conectadas no momento
+    const { count: connectedAccountsCount } = await supabase
+      .from('social_accounts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'connected');
+
+    if (isAdmin) {
+      return NextResponse.json({
+        isAuthenticated: true,
+        isAdmin: true,
+        role: 'admin',
+        userId: user.id,
+        email: user.email,
+        plan: 'Administrador',
+        planSlug: 'enterprise',
+        status: 'Ativo',
+        hasUsedUpgradeDiscount: false,
+        subscription: null,
+        limits: {
+          maxInstagramAccounts: -1,
+          historyDays: -1,
+          maxClients: -1,
+          connectedAccountsCount: connectedAccountsCount || 0,
+          canConnectMoreAccounts: true,
+        },
+        allowedFeatures: {
+          dashboard: true,
+          posts: true,
+          exportReports: true,
+          upCreator: true,
+          contentCalendar: true,
+          library: true,
+          approvals: true,
+          clientArea: true,
+          aiStrategy: true,
+          contentGenerator: true,
+        },
+      });
+    }
+
+    // 4. Busca assinatura ativa mais recente em subscriptions (para assinantes regulares)
     const { data: subsData } = await supabase
       .from('subscriptions')
       .select('*')
@@ -60,14 +106,7 @@ export async function GET() {
     const isPro = planSlug === 'pro';
     const isEnterprise = planSlug === 'enterprise';
 
-    // 3. Contar contas sociais conectadas no momento
-    const { count: connectedAccountsCount } = await supabase
-      .from('social_accounts')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .eq('status', 'connected');
-
-    // 4. Limites estritos por plano
+    // 5. Limites estritos por plano
     const maxInstagramAccounts = isIniciante ? 1 : isPremium ? 2 : isPro ? 5 : -1;
     const historyDays = isIniciante ? 30 : isPremium ? 60 : isPro ? 90 : -1;
     const maxClients = isEnterprise ? -1 : isPro ? 1 : 0;

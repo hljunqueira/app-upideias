@@ -76,6 +76,7 @@ export function canUserAccessCourse(userPlanName: string, courseTier?: string): 
   if (normalizedCourse === "Todos os Planos") return true;
 
   const planLower = (userPlanName || "").toLowerCase();
+  if (planLower.includes("admin") || planLower.includes("master")) return true;
   const userScore = planLower.includes("enter") ? 4 : planLower.includes("pro") ? 3 : planLower.includes("premi") ? 2 : planLower.includes("inic") ? 1 : 0;
   const courseScore = normalizedCourse === "Plano Enterprise" ? 4 : normalizedCourse === "Plano Pro" ? 3 : normalizedCourse === "Plano Premium" ? 2 : 1;
 

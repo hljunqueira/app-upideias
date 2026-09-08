@@ -322,7 +322,7 @@ export default function PostsPage() {
     }
   };
 
-  const isSpecialistPlan = ["Premium", "Pro", "Enterprise", "Agência"].includes(userPlan);
+  const isSpecialistPlan = ["Premium", "Pro", "Enterprise", "Agência", "Administrador"].includes(userPlan);
   const isIniciante = userPlan === "Iniciante";
 
   return (

@@ -33,9 +33,25 @@ export function PlanGate({
         }
         const data = await res.json();
         if (isMounted) {
-          const plan = data?.plan;
-          const allowed = plan?.allowedFeatures?.[featureKey] ?? false;
-          setPlanName(plan?.name || "Iniciante");
+          // Conta de Administrador tem acesso irrestrito a todas as páginas e funcionalidades
+          if (data?.isAdmin === true || data?.role === "admin" || data?.plan === "Administrador") {
+            setPlanName("Administrador");
+            setIsAllowed(true);
+            setLoading(false);
+            return;
+          }
+
+          const allowed =
+            data?.allowedFeatures?.[featureKey] ??
+            data?.plan?.allowedFeatures?.[featureKey] ??
+            false;
+
+          const resolvedName =
+            typeof data?.plan === "string"
+              ? data.plan
+              : data?.plan?.name || "Iniciante";
+
+          setPlanName(resolvedName);
           setIsAllowed(Boolean(allowed));
           setLoading(false);
         }

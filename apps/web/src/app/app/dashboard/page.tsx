@@ -200,7 +200,7 @@ export default function Dashboard() {
           {/* Filtro de Período Oficial: 7D, 14D, 30D, 90D */}
           <div className="inline-flex bg-[#12121a] rounded-xl p-1 border border-white/10 shadow-inner">
             {periodsList.map((p) => {
-              const isBlocked = p.id === "90D" && userPlanHistoryLimit < 90;
+              const isBlocked = p.id === "90D" && userPlanHistoryLimit !== -1 && userPlanHistoryLimit < 90;
               return (
                 <button
                   key={p.id}

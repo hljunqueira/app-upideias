@@ -55,34 +55,18 @@ export default function ClientAreaPage() {
   useEffect(() => {
     async function init() {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("plan")
-            .eq("id", user.id)
-            .single();
-
-          if (profile?.plan) {
-            const rawPlan = profile.plan.toLowerCase();
-            if (rawPlan.includes("enter") || rawPlan.includes("ilimit")) {
-              setUserPlan("Enterprise");
-            } else if (rawPlan.includes("agên") || rawPlan.includes("agen")) {
-              setUserPlan("Agência");
-            } else if (rawPlan.includes("premi")) {
-              setUserPlan("Premium");
-            } else if (rawPlan.includes("inic")) {
-              setUserPlan("Iniciante");
-            } else {
-              setUserPlan(profile.plan);
-            }
-          } else {
-            setUserPlan("Iniciante");
+        const res = await fetch("/api/user/subscription");
+        if (res.ok) {
+          const subData = await res.json();
+          if (subData.isAdmin || subData.role === "admin" || subData.plan === "Administrador") {
+            setUserPlan("Administrador");
+          } else if (subData.plan) {
+            const planStr = typeof subData.plan === "string" ? subData.plan : subData.plan.name || "Iniciante";
+            setUserPlan(planStr);
           }
         }
       } catch (err) {
         console.error("Erro ao carregar perfil:", err);
-        setUserPlan("Iniciante");
       }
       loadClients();
     }
