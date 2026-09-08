@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Users,
   Search,
@@ -402,14 +403,13 @@ export default function AdminUsersPage() {
 
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSuggestUser(user)}
+                        <Link
+                          href={`/admin/users/${user.id}/posts`}
                           className="px-3 py-1.5 rounded-xl bg-upPink/20 text-upPink hover:bg-upPink/30 border border-upPink/40 text-xs font-bold transition-all flex items-center gap-1.5"
-                          title="Ver Métricas e Sugerir Conteúdo"
+                          title="Área de Trabalho: Gerenciar Posts do Assinante"
                         >
-                          <Instagram className="w-3.5 h-3.5" />
-                          <span>Sugerir Pauta</span>
-                        </button>
+                          <span>Gerenciar Posts</span>
+                        </Link>
 
                         <button
                           onClick={() => handleOpenEditModal(user)}
