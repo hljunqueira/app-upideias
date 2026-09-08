@@ -21,8 +21,8 @@
   - Senha do usuário `javageral09@gmail.com` resetada e validada via Supabase Auth: `UpIdeias@2026`.
   - Adicionado botão de contingência no modal Nango: "Abrir Autorização em Nova Aba" caso o navegador bloqueie pop-ups.
 - [x] **Deploy de Produção**:
-  - **Vercel**: Ativo e operando normalmente em `https://www.upideias.com` (commit `22c2f4d`).
-  - **VPS Docker**: Ativo e sincronizado em `http://184.107.141.97:3000` e `https://api.upideias.com`.
+  - **Vercel**: Ativo e operando normalmente em `https://www.upideias.com` (commit `e79d257` - `● Ready`).
+  - **VPS Docker**: Ativo e sincronizado em `http://184.107.141.97:3000` e `https://api.upideias.com` (container `up-analytics-web` recriado com sucesso).
 
 ## Planejamento em Andamento
 - [x] **Auditoria Global de Gaps e Inconsistências**:
