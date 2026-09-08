@@ -37,6 +37,8 @@ interface UserItem {
   status: "Ativo" | "Suspenso" | "Pendente";
   instagramHandle: string;
   role: "user" | "admin";
+  connectedAccountsCount?: number;
+  pendingApprovalsCount?: number;
   createdAt: string;
 }
 
@@ -55,19 +57,10 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
-      if (!error && data && data.length > 0) {
-        const mapped: UserItem[] = data.map((p: any) => ({
-          id: p.id,
-          name: p.name || p.full_name || (p.email ? p.email.split("@")[0] : "Usuário"),
-          email: p.email || "Sem e-mail",
-          plan: p.plan || "Pro",
-          status: p.status === "Suspenso" ? "Suspenso" : p.status === "Pendente" ? "Pendente" : "Ativo",
-          instagramHandle: p.instagram_handle || "-",
-          role: p.role === "admin" ? "admin" : "user",
-          createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString("pt-BR") : new Date().toLocaleDateString("pt-BR")
-        }));
-        setUsers(mapped);
+      const res = await fetch("/api/admin/subscribers");
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.subscribers || []);
       } else {
         setUsers([]);
       }
@@ -163,12 +156,13 @@ export default function AdminUsersPage() {
     );
 
     try {
-      await supabase
-        .from("profiles")
-        .update({ status: targetStatus })
-        .eq("id", userId);
+      await fetch("/api/admin/subscribers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userId, status: targetStatus }),
+      });
     } catch (e) {
-      console.error("Erro ao alterar status no Supabase:", e);
+      console.error("Erro ao alterar status no servidor:", e);
     }
   };
 
@@ -184,51 +178,37 @@ export default function AdminUsersPage() {
 
     try {
       if (editingUser) {
-        // Atualização em profiles no Supabase
-        await supabase
-          .from("profiles")
-          .update({
+        const res = await fetch("/api/admin/subscribers", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingUser.id,
             name: formData.name,
             email: formData.email,
             plan: formData.plan,
             status: formData.status,
-            instagram_handle: formData.instagramHandle,
-            role: formData.role
-          })
-          .eq("id", editingUser.id);
-
-        setUsers((prev) =>
-          prev.map((u) => (u.id === editingUser.id ? { ...u, ...formData } : u))
-        );
-      } else {
-        // Criação/Upsert no Supabase
-        const newId = crypto.randomUUID();
-        const newUser: UserItem = {
-          id: newId,
-          name: formData.name,
-          email: formData.email,
-          plan: formData.plan,
-          status: formData.status,
-          instagramHandle: formData.instagramHandle,
-          role: formData.role,
-          createdAt: new Date().toLocaleDateString("pt-BR"),
-        };
-
-        await supabase.from("profiles").upsert({
-          id: newId,
-          name: formData.name,
-          email: formData.email,
-          plan: formData.plan,
-          status: formData.status,
-          instagram_handle: formData.instagramHandle,
-          role: formData.role
+            instagramHandle: formData.instagramHandle,
+            role: formData.role,
+          }),
         });
-
-        setUsers((prev) => [newUser, ...prev]);
+        if (res.ok) {
+          setUsers((prev) =>
+            prev.map((u) => (u.id === editingUser.id ? { ...u, ...formData } : u))
+          );
+        }
+      } else {
+        const res = await fetch("/api/admin/subscribers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          await loadUsers();
+        }
       }
       setIsModalOpen(false);
     } catch (err) {
-      console.error("Erro ao salvar cliente no Supabase:", err);
+      console.error("Erro ao salvar cliente:", err);
     } finally {
       setSaving(false);
     }
@@ -373,15 +353,27 @@ export default function AdminUsersPage() {
                     </td>
 
                     <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${
-                        user.plan === "Agência"
-                          ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                          : user.plan === "Pro"
-                          ? "bg-upPink/10 text-upPink border border-upPink/20"
-                          : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                      }`}>
-                        {user.plan}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className={`px-2.5 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider ${
+                          user.plan === "Enterprise" || user.plan === "Agência"
+                            ? "bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                            : user.plan === "Pro" || user.plan === "Premium"
+                            ? "bg-upPink/10 text-upPink border border-upPink/20"
+                            : "bg-zinc-800 text-zinc-300 border border-white/10"
+                        }`}>
+                          {user.plan}
+                        </span>
+                        {["Premium", "Pro", "Enterprise", "Agência"].includes(user.plan) && (
+                          <span className="text-[9px] text-zinc-400 font-mono">
+                            Especialista Dedicado
+                          </span>
+                        )}
+                        {user.pendingApprovalsCount !== undefined && user.pendingApprovalsCount > 0 && (
+                          <span className="text-[9px] text-upPink font-mono font-semibold">
+                            {user.pendingApprovalsCount} na fila
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-6 py-4">

@@ -141,3 +141,84 @@ Regras estritas:
 
   throw lastError || new Error('Não foi possível gerar a análise visual no momento.');
 }
+
+export interface PostChatOptions {
+  userMessage: string;
+  postCaption?: string;
+  imageUrl?: string;
+  history?: { role: 'user' | 'assistant'; content: string }[];
+}
+
+export async function chatAboutPostWithGemini(
+  options: PostChatOptions
+): Promise<string> {
+  const modelsToTry = [
+    'gemini-flash-latest',
+    'gemini-3.1-flash-lite',
+    'gemini-flash-lite-latest',
+  ];
+
+  const systemPrompt = `
+Você é o Agente UP Ideias, estrategista e consultor de criativos e comunicação para Instagram.
+Seu objetivo é auxiliar o assinante a lapidar sua publicação, gerando ganchos mais fortes, variações de copy, chamadas para ação (CTA) e sugestões práticas de retenção e posicionamento.
+
+Regras de Conduta:
+1. Responda em português direto, profissional, caloroso e encorajador.
+2. Seja conciso e prático. Use listas curtas ou tópicos quando sugerir opções.
+3. JAMAIS use termos robóticos ou de IA genérica (ex: "como modelo de linguagem", "fui treinado"). Você é o Agente UP Ideias, parte do ecossistema de aceleração de perfis.
+4. O post em análise possui a seguinte legenda original: "${options.postCaption || 'Sem legenda informada'}".
+`.trim();
+
+  const conversationParts: any[] = [{ text: systemPrompt }];
+
+  if (options.history && options.history.length > 0) {
+    for (const msg of options.history) {
+      conversationParts.push({
+        text: `${msg.role === 'user' ? 'Assinante' : 'Agente UP Ideias'}: ${msg.content}`,
+      });
+    }
+  }
+
+  conversationParts.push({
+    text: `Pergunta do Assinante: ${options.userMessage}`,
+  });
+
+  const payload = {
+    contents: [{ parts: conversationParts }],
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 600,
+    },
+  };
+
+  let lastError: any = null;
+
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': GEMINI_API_KEY,
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return data.candidates[0].content.parts[0].text.trim();
+      } else {
+        lastError = new Error(
+          `Erro Gemini (${model}): HTTP ${res.status} - ${data.error?.message || 'Sem resposta'}`
+        );
+      }
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('O Agente está ocupado no momento. Tente novamente em instantes.');
+}
+

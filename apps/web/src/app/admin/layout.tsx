@@ -20,7 +20,8 @@ import {
   LogOut,
   Search,
   Bell,
-  Layout
+  Layout,
+  CheckSquare
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { fetchNotificationsFromDatabase, getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
@@ -83,6 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const primaryNavItems = [
     { name: "Painel Geral", href: "/admin", icon: LayoutDashboard, exact: true },
     { name: "Usuários", href: "/admin/users", icon: Users },
+    { name: "Fila de Análise", href: "/admin/analysis", icon: CheckSquare },
     { name: "Equipe Interna", href: "/admin/team", icon: Shield },
     { name: "Contas Instagram", href: "/admin/accounts", icon: Instagram },
     { name: "UP Creator", href: "/admin/up-creator", icon: GraduationCap },
