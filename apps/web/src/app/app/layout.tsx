@@ -135,8 +135,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { name: "Calendário", href: "/app/content-calendar", icon: Calendar },
   ];
 
-  const toolsItems = [
-    { name: "Aprovações", href: "/app/approvals", icon: CheckSquare, badge: 3 },
+  const toolsItems: { name: string; href: string; icon: any; badge?: number }[] = [
+    { name: "Aprovações", href: "/app/approvals", icon: CheckSquare },
     { name: "Biblioteca", href: "/app/library", icon: Library },
     { name: "UP Creator", href: "/app/up-creator", icon: GraduationCap },
     { name: "Área do Cliente", href: "/app/client-area", icon: Users },
