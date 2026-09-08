@@ -35,7 +35,8 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
     xpReward: 350,
     isLandingPageFeatured: true,
     isRecommendedFirst: false,
-    accessTier: "Grátis",
+    accessTier: "Todos os Planos",
+    showAsTeaser: true,
     status: "published",
     modulesCount: 1,
     lessonsCount: 4
@@ -67,7 +68,8 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
           xpReward: 350,
           isLandingPageFeatured: true,
           isRecommendedFirst: false,
-          accessTier: "Grátis",
+          accessTier: "Todos os Planos",
+          showAsTeaser: true,
           status: "published",
           modulesCount: 1,
           lessonsCount: 4
@@ -201,7 +203,8 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
         xpReward: Number(formData.xpReward) || 350,
         isLandingPageFeatured: formData.isLandingPageFeatured ?? true,
         isRecommendedFirst: formData.isRecommendedFirst ?? false,
-        accessTier: (formData.accessTier as any) || "Grátis",
+        accessTier: (formData.accessTier as any) || "Todos os Planos",
+        showAsTeaser: formData.showAsTeaser ?? true,
         orderIndex: initialCourse?.orderIndex || 1,
         status: (formData.status as any) || "published",
         modulesCount: Number(formData.modulesCount) || 1,
@@ -334,16 +337,17 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
 
               <div>
                 <label className="block text-xs font-semibold text-neutral-300 mb-1">
-                  Acesso
+                  Plano Exigido para Acesso
                 </label>
                 <select
-                  value={formData.accessTier || "Grátis"}
+                  value={formData.accessTier || "Todos os Planos"}
                   onChange={(e) => setFormData((prev) => ({ ...prev, accessTier: e.target.value as any }))}
                   className="w-full bg-[#12121a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500/80 transition cursor-pointer"
                 >
-                  <option value="Grátis">Grátis</option>
-                  <option value="Plano Pro">Plano Pro</option>
-                  <option value="VIP Exclusivo">VIP Exclusivo</option>
+                  <option value="Todos os Planos">Todos os Planos (Livre para qualquer assinante)</option>
+                  <option value="Plano Premium">Plano Premium (A partir de Premium)</option>
+                  <option value="Plano Pro">Plano Pro (A partir de Pro)</option>
+                  <option value="Plano Enterprise">Plano Enterprise (Exclusivo Enterprise)</option>
                 </select>
               </div>
             </div>
@@ -489,7 +493,7 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
               )}
             </div>
 
-            {/* Vídeo Teaser & XP */}
+            {/* Vídeo Teaser & Carga Horária */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-neutral-300 mb-1">
@@ -506,11 +510,11 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
 
               <div>
                 <label className="block text-xs font-semibold text-neutral-300 mb-1">
-                  Recompensa em XP
+                  Carga Horária Estimada (horas)
                 </label>
                 <input
                   type="number"
-                  value={formData.xpReward || 350}
+                  value={formData.xpReward || 4}
                   onChange={(e) => setFormData((prev) => ({ ...prev, xpReward: Number(e.target.value) }))}
                   className="w-full bg-[#12121a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500/80 transition"
                 />
@@ -570,6 +574,16 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
                 />
                 <span>Marcar como "Começar por aqui" (Primeiro da Trilha)</span>
               </label>
+
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-neutral-300">
+                <input
+                  type="checkbox"
+                  checked={formData.showAsTeaser ?? true}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, showAsTeaser: e.target.checked }))}
+                  className="rounded border-white/20 bg-neutral-800 text-rose-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                />
+                <span>Exibir na trilha de planos inferiores como vitrine (bloqueado com botão de upgrade)</span>
+              </label>
             </div>
 
             {/* Botões de Ação */}
@@ -621,8 +635,8 @@ export function CourseModal({ isOpen, onClose, onSave, initialCourse, tracks }: 
                 <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[9px] font-bold text-white uppercase">
                   {formData.tag || "Geral"}
                 </span>
-                <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-rose-500/80 text-[9px] font-bold text-white">
-                  +{formData.xpReward || 350} XP
+                <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-white/10 text-[9px] font-semibold text-white">
+                  {formData.xpReward || 4}h Duração
                 </span>
               </div>
               <div className="p-4 space-y-2">

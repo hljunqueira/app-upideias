@@ -18,8 +18,9 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
+  const [subLimits, setSubLimits] = useState<{ maxAccounts: number; canConnect: boolean; planName: string } | null>(null);
 
-  // Carrega contas conectadas ao abrir o modal
+  // Carrega contas conectadas e limites do plano ao abrir o modal
   const loadAccounts = async () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -34,6 +35,20 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
       }
     } catch (err) {
       console.warn("[NangoConnectModal] Erro ao buscar contas:", err);
+    }
+
+    try {
+      const res = await fetch("/api/user/subscription");
+      if (res.ok) {
+        const json = await res.json();
+        setSubLimits({
+          maxAccounts: json?.limits?.maxInstagramAccounts ?? 1,
+          canConnect: json?.limits?.canConnectMoreAccounts ?? true,
+          planName: json?.plan?.name ?? "Iniciante",
+        });
+      }
+    } catch {
+      // ignore
     }
   };
 
@@ -270,35 +285,45 @@ export function NangoConnectModal({ isOpen, onClose, onSuccess }: NangoConnectMo
 
         {/* Botões de Ação */}
         <div className="mt-6 space-y-3">
-          {/* Botão Oficial Meta Graph para Instagram */}
-          <button
-            onClick={() => handleConnect("facebook")}
-            disabled={connecting}
-            className="w-full group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-[#12121a] via-[#1a0f1c] to-rose-950/40 border border-rose-500/40 hover:border-rose-500/90 transition-all duration-300 shadow-md hover:shadow-[0_0_25px_rgba(244,63,94,0.3)] cursor-pointer disabled:opacity-60"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md">
-                IG
-              </div>
+          {subLimits && !subLimits.canConnect ? (
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center space-y-3">
+              <p className="text-xs text-white/80 font-medium leading-relaxed">
+                Limite atingido: seu Plano {subLimits.planName} permite conectar até {subLimits.maxAccounts} conta{subLimits.maxAccounts > 1 ? "s" : ""}.
+              </p>
+              <a
+                href="/pricing"
+                className="inline-block px-5 py-2.5 bg-upPink hover:bg-upPink/90 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition"
+              >
+                Fazer Upgrade para Mais Contas
+              </a>
+            </div>
+          ) : (
+            /* Botão Oficial Meta Graph para Instagram */
+            <button
+              onClick={() => handleConnect("facebook")}
+              disabled={connecting}
+              className="w-full group flex items-center justify-between p-4 rounded-2xl bg-[#12121a] border border-white/10 hover:border-white/20 transition-all cursor-pointer disabled:opacity-60"
+            >
               <div className="text-left">
-                <p className="text-sm font-bold text-white font-display flex items-center gap-1.5">
-                  <span>Conectar Instagram Profissional</span>
-                  <Plus className="w-3.5 h-3.5 text-rose-400" />
+                <p className="text-sm font-semibold text-white">
+                  Conectar Instagram Profissional
                 </p>
-                <p className="text-xs text-neutral-400 mt-0.5">Autorização oficial Meta Graph API • Sincroniza métricas</p>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                  Autorização oficial Meta Graph API • Sincroniza métricas
+                </p>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              {connecting ? (
-                <RefreshCw className="h-4 w-4 text-rose-400 animate-spin" />
-              ) : (
-                <div className="p-2.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-all">
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-          </button>
+              <div className="flex items-center gap-2">
+                {connecting ? (
+                  <RefreshCw className="h-4 w-4 text-white/60 animate-spin" />
+                ) : (
+                  <span className="text-xs font-semibold text-white/70 group-hover:text-white transition">
+                    Conectar →
+                  </span>
+                )}
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Rodapé de Segurança */}

@@ -17,6 +17,43 @@ export async function POST(request: Request) {
       );
     }
 
+    // 1. Busca perfil para identificar limite de contas do plano contratado
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const planLower = (profile?.plan || 'iniciante').toLowerCase();
+    const maxAccountsAllowed = planLower.includes('enter')
+      ? -1
+      : planLower.includes('pro')
+      ? 5
+      : planLower.includes('premi')
+      ? 2
+      : 1;
+
+    // 2. Verifica se o usuário atingiu o teto de contas
+    if (maxAccountsAllowed !== -1) {
+      const { count } = await supabase
+        .from('social_accounts')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'connected');
+
+      if ((count || 0) >= maxAccountsAllowed) {
+        return NextResponse.json(
+          {
+            error: `Limite de contas atingido para seu plano (${count}/${maxAccountsAllowed}). Faça upgrade para conectar mais perfis do Instagram.`,
+            limitReached: true,
+            currentCount: count,
+            maxAllowed: maxAccountsAllowed,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     const userName =
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||

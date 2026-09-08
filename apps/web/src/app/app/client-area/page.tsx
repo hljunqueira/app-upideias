@@ -36,7 +36,7 @@ interface ClientRecord {
 }
 
 export default function ClientAreaPage() {
-  const [userPlan, setUserPlan] = useState<string>("Pro");
+  const [userPlan, setUserPlan] = useState<string>("Iniciante");
   const [clients, setClients] = useState<ClientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,16 +69,20 @@ export default function ClientAreaPage() {
               setUserPlan("Enterprise");
             } else if (rawPlan.includes("agên") || rawPlan.includes("agen")) {
               setUserPlan("Agência");
+            } else if (rawPlan.includes("premi")) {
+              setUserPlan("Premium");
+            } else if (rawPlan.includes("inic")) {
+              setUserPlan("Iniciante");
             } else {
-              setUserPlan("Pro");
+              setUserPlan(profile.plan);
             }
           } else {
-            setUserPlan(getActiveUserPlan());
+            setUserPlan("Iniciante");
           }
         }
       } catch (err) {
         console.error("Erro ao carregar perfil:", err);
-        setUserPlan(getActiveUserPlan());
+        setUserPlan("Iniciante");
       }
       loadClients();
     }

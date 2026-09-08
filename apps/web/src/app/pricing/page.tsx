@@ -30,7 +30,7 @@ export default function Pricing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch max-w-7xl mx-auto">
           {plansList.map((plan) => {
             const priceDisplay = typeof plan.priceMonthly === "number" ? `R$ ${plan.priceMonthly}` : plan.priceMonthly;
             const periodDisplay = plan.isCustomPrice ? "" : "/mês";

@@ -18,7 +18,7 @@ import {
   FastForward,
   GraduationCap
 } from "lucide-react";
-import { Course, Lesson, Module, fetchCoursesFromDb, fetchModulesFromDb } from "@/lib/coursesStore";
+import { Course, Lesson, Module, fetchCoursesFromDb, fetchModulesFromDb, canUserAccessCourse } from "@/lib/coursesStore";
 import { CertificateModal } from "@/components/creator/CertificateModal";
 import { ProtectedVideoPlayer } from "@/components/creator/ProtectedVideoPlayer";
 import { getMe } from "@/lib/api";
@@ -37,6 +37,7 @@ export default function StudentCoursePlayerPage() {
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [isCopiedPrompt, setIsCopiedPrompt] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "prompts" | "materials" | "notes" | "comments">("overview");
+  const [userPlan, setUserPlan] = useState<string>("Iniciante");
 
   const [notes, setNotes] = useState<{ id: string; timestamp: string; text: string }[]>([]);
   const [newNoteText, setNewNoteText] = useState("");
@@ -48,6 +49,18 @@ export default function StudentCoursePlayerPage() {
       if (!courseId) return;
       try {
         setLoading(true);
+
+        // Carrega plano do usuário
+        try {
+          const subRes = await fetch("/api/user/subscription");
+          if (subRes.ok) {
+            const subData = await subRes.json();
+            if (subData.plan) setUserPlan(subData.plan);
+          }
+        } catch {
+          /* ignore */
+        }
+
         const [u, allCourses, loadedModules] = await Promise.all([
           getMe().catch(() => null),
           fetchCoursesFromDb(),
@@ -159,19 +172,59 @@ export default function StudentCoursePlayerPage() {
   if (!course) {
     return (
       <div className="min-h-screen bg-[#08080c] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-neutral-400 mb-4">
-          <GraduationCap className="w-8 h-8" />
-        </div>
         <h2 className="text-xl font-bold text-white mb-2">Curso não encontrado</h2>
         <p className="text-xs text-neutral-400 mb-6 max-w-sm">
           Este curso pode ter sido movido ou ainda está em preparação.
         </p>
         <Link
           href="/app/up-creator"
-          className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition"
+          className="px-5 py-2.5 bg-white hover:bg-neutral-200 text-black rounded-xl text-xs font-bold transition"
         >
-          Voltar para o Roadmap
+          Voltar para as Trilhas
         </Link>
+      </div>
+    );
+  }
+
+  const isAllowed = course ? canUserAccessCourse(userPlan, course.accessTier) : true;
+
+  if (course && !isAllowed) {
+    const targetSlug = course.accessTier.toLowerCase().includes("pro")
+      ? "pro"
+      : course.accessTier.toLowerCase().includes("premi")
+      ? "premium"
+      : "enterprise";
+
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center p-6">
+        <div className="w-full max-w-xl bg-[#0e0e14] border border-white/10 rounded-2xl p-8 sm:p-12 text-center space-y-6 shadow-2xl">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded">
+            Exclusivo {course.accessTier}
+          </span>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            {course.title}
+          </h1>
+          <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
+            As aulas práticas e certificados deste curso são exclusivos para assinantes do{" "}
+            <strong className="text-white">{course.accessTier}</strong>. Seu plano atual é o{" "}
+            <strong className="text-white">{userPlan}</strong>. Faça upgrade para desbloquear o treinamento completo.
+          </p>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/app/up-creator"
+              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white hover:bg-white/5 transition"
+            >
+              Voltar para as Trilhas
+            </Link>
+            <Link
+              href={`/checkout?plan=${targetSlug}`}
+              className="px-6 py-2.5 rounded-xl text-xs font-bold bg-white hover:bg-neutral-200 text-black transition"
+            >
+              Fazer Upgrade para o {course.accessTier}
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -275,7 +328,7 @@ export default function StudentCoursePlayerPage() {
                   <span>
                     {completedLessonIds.includes(activeLesson.id)
                       ? "Aula Concluída!"
-                      : "Concluir Aula (+50 XP)"}
+                      : "Concluir Aula"}
                   </span>
                 </button>
               )}

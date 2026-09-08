@@ -1,7 +1,7 @@
 "use client";
 import { motion, useInView, useScroll, useTransform, animate } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { BrainCircuit, CalendarDays, MessageCircle, Wand2 } from "lucide-react";
+import { BrainCircuit, CalendarDays, FileText, Wand2 } from "lucide-react";
 
 function useCountUp(target: number, start: boolean, decimals = 0) {
   const [val, setVal] = useState(0);
@@ -14,10 +14,10 @@ function useCountUp(target: number, start: boolean, decimals = 0) {
 }
 
 const features = [
-  { icon: BrainCircuit, title: "Diagnóstico estratégico de métricas", desc: "Análise completa de 30 dias de dados do Instagram que mostra o que funcionou e onde focar." },
-  { icon: Wand2, title: "Gerador de conteúdo", desc: "Ideias completas com gancho, legenda, roteiro, CTA e hashtags — prontas para publicar." },
+  { icon: BrainCircuit, title: "Diagnóstico estratégico de métricas", desc: "Análise completa de dados oficiais do Instagram que mostra o que funcionou e onde focar." },
+  { icon: Wand2, title: "Planejamento estruturado de conteúdo", desc: "Estruturação completa de posts com gancho, legenda, proposta de valor e chamadas estratégicas." },
   { icon: CalendarDays, title: "Calendário editorial", desc: "Planeje a semana inteira em minutos e mantenha consistência sem esforço." },
-  { icon: MessageCircle, title: "Relatórios no WhatsApp", desc: "Resumo semanal do desempenho direto no seu celular. Sem abrir dashboard." },
+  { icon: FileText, title: "Relatórios Executivos em PDF", desc: "Exporte resumos consolidados em alta qualidade prontos para reuniões e clientes." },
 ];
 
 const bars = [42, 68, 55, 80, 62, 92, 74];

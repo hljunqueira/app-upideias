@@ -30,7 +30,7 @@ interface SubscriptionRecord {
 }
 
 export default function BillingPage() {
-  const [activePlanName, setActivePlanName] = useState<string>("Pro");
+  const [activePlanName, setActivePlanName] = useState<string>("Iniciante");
   const [plans, setPlans] = useState<any[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionRecord | null>(null);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -41,6 +41,8 @@ export default function BillingPage() {
   const [selectedPlanForLink, setSelectedPlanForLink] = useState("Pro");
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const [hasUsedUpgradeDiscount, setHasUsedUpgradeDiscount] = useState(false);
+
   useEffect(() => {
     async function loadBillingData() {
       setLoading(true);
@@ -50,21 +52,25 @@ export default function BillingPage() {
 
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // 1. Carregar perfil para identificar plano
+          // 1. Carregar perfil para identificar plano e desconto de upgrade
           const { data: profile } = await supabase
             .from("profiles")
-            .select("plan")
+            .select("plan, has_used_upgrade_discount")
             .eq("id", user.id)
             .single();
 
           if (profile?.plan) {
             const raw = profile.plan.toLowerCase();
             if (raw.includes("enter")) setActivePlanName("Enterprise");
-            else if (raw.includes("agen") || raw.includes("agên")) setActivePlanName("Agência");
-            else setActivePlanName("Pro");
+            else if (raw.includes("premi")) setActivePlanName("Premium");
+            else if (raw.includes("inic")) setActivePlanName("Iniciante");
+            else setActivePlanName(profile.plan || "Iniciante");
           } else {
-            setActivePlanName(getActiveUserPlan());
+            setActivePlanName("Iniciante");
           }
+
+          // Verifica se desconto já foi utilizado diretamente no banco
+          setHasUsedUpgradeDiscount(profile?.has_used_upgrade_discount === true);
 
           // 2. Carregar assinatura real do usuário
           const { data: subsData } = await supabase
@@ -103,9 +109,34 @@ export default function BillingPage() {
 
   const currentPlanObj = plans.find((p) => p.name.toLowerCase() === activePlanName.toLowerCase()) || {
     name: activePlanName,
-    priceMonthly: activePlanName === "Enterprise" ? 699 : activePlanName === "Agência" ? 299 : 129,
-    aiCreditsMonthly: activePlanName === "Enterprise" ? 2500 : activePlanName === "Agência" ? 1200 : 500
+    priceMonthly: activePlanName === "Enterprise" ? "Sob consulta" : activePlanName === "Premium" ? 79.9 : activePlanName === "Iniciante" ? 54.9 : 179.9
   };
+
+  // Motor de Upgrade para o 1º Ciclo (Iniciante -> Pro 50%, Iniciante -> Premium 25%, Premium -> Pro 35%)
+  const upgradeTarget = (() => {
+    if (hasUsedUpgradeDiscount) return null;
+    if (activePlanName === "Iniciante") {
+      return {
+        targetPlan: "Pro",
+        targetPlanId: "pro",
+        discountPercent: 50,
+        originalPrice: 179.90,
+        promoPrice: 89.95,
+        targetFeatures: ["5 Contas de Instagram Conectadas", "90 dias de histórico de dados", "Módulo completo de aprovações", "Exportação de relatórios executivos em PDF"]
+      };
+    }
+    if (activePlanName === "Premium") {
+      return {
+        targetPlan: "Pro",
+        targetPlanId: "pro",
+        discountPercent: 35,
+        originalPrice: 179.90,
+        promoPrice: 116.90,
+        targetFeatures: ["5 Contas de Instagram Conectadas", "90 dias de histórico de dados", "Módulo de aprovações e relatórios executivos em PDF"]
+      };
+    }
+    return null;
+  })();
 
   const getNextBillingDate = () => {
     if (subscription?.current_period_end) {
@@ -161,6 +192,38 @@ export default function BillingPage() {
           <span>Alterar Plano / Assinar</span>
         </button>
       </div>
+
+      {/* Card Limpo Monocromático de Upgrade com Desconto no 1º Ciclo */}
+      {upgradeTarget && !loading && (
+        <div className="bg-[#0e0e14] border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="space-y-2 max-w-xl">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider bg-white/10 text-white px-2.5 py-0.5 rounded">
+                Oportunidade de Upgrade
+              </span>
+              <span className="text-[10px] font-bold text-upPink">
+                {upgradeTarget.discountPercent}% OFF no 1º mês
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Faça upgrade para o Plano {upgradeTarget.targetPlan}
+            </h2>
+            <p className="text-xs text-upGray leading-relaxed">
+              Desbloqueie {upgradeTarget.targetFeatures.join(", ")}. Pague apenas{" "}
+              <strong className="text-white">R$ {upgradeTarget.promoPrice.toFixed(2).replace(".", ",")}</strong> no primeiro mês (depois R$ {upgradeTarget.originalPrice.toFixed(2).replace(".", ",")}/mês).
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto shrink-0">
+            <a
+              href={`/checkout?plan=${upgradeTarget.targetPlanId}&upgrade=true`}
+              className="px-6 py-3.5 bg-upPink hover:bg-upPinkDark text-white text-xs font-bold rounded-2xl transition-all shadow-[0_0_25px_rgba(255,83,104,0.35)] text-center cursor-pointer"
+            >
+              Ativar Upgrade por R$ {upgradeTarget.promoPrice.toFixed(2).replace(".", ",")}
+            </a>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="py-24 text-center text-upGray flex flex-col items-center justify-center gap-3">

@@ -4,9 +4,9 @@ import { useRef } from "react";
 import { GraduationCap, Zap, BarChart3, TrendingUp } from "lucide-react";
 
 const steps = [
-  { icon: GraduationCap, title: "Aprenda", desc: "Domine estratégia com as trilhas do UP Creator." },
-  { icon: Zap, title: "Aplique", desc: "Gere ideias, roteiros e legendas estruturadas em segundos." },
-  { icon: BarChart3, title: "Analise métricas", desc: "Acompanhe dados reais do seu perfil sem adivinhar." },
+  { icon: GraduationCap, title: "Aprenda", desc: "Domine estratégia com as trilhas práticas do UP Creator." },
+  { icon: Zap, title: "Planeje", desc: "Estruture calendários editoriais e fluxo de aprovação com agilidade." },
+  { icon: BarChart3, title: "Analise métricas", desc: "Acompanhe dados oficiais do seu perfil sem adivinhar." },
   { icon: TrendingUp, title: "Cresça", desc: "Repita o ciclo e escale com direção, não com sorte." },
 ];
 

@@ -284,8 +284,8 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
                               <span className="text-[11px] font-bold text-upGray">#{idx + 1}</span>
                               <h5 className="text-xs font-bold text-white">{lesson.title}</h5>
                               {lesson.isFreePreview && (
-                                <span className="text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
-                                  Degustação Grátis
+                                <span className="text-[9px] font-semibold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
+                                  Aula Demonstrativa
                                 </span>
                               )}
                             </div>
@@ -310,9 +310,6 @@ export function ModuleLessonBuilder({ courses }: { courses: Course[] }) {
                         <div className="flex items-center gap-4 text-xs text-upGray self-end sm:self-center">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-upGray" /> {lesson.durationMinutes} min
-                          </span>
-                          <span className="flex items-center gap-1 text-amber-400 font-semibold">
-                            <Award className="w-3 h-3" /> +{lesson.xpPoints} XP
                           </span>
 
                           <div className="flex items-center gap-1.5 ml-2 border-l border-upBorder/40 pl-3">

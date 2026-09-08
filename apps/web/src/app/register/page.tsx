@@ -87,7 +87,7 @@ function RegisterContent() {
       )}
 
       {/* Plan selector */}
-      <div className="grid grid-cols-3 gap-2.5 mt-7">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-7">
         {plansList.map((p) => {
           const priceDisplay = typeof p.priceMonthly === "number" ? `R$ ${p.priceMonthly}` : p.priceMonthly;
           const isSelected = plan.toLowerCase() === p.id.toLowerCase() || plan.toLowerCase() === p.name.toLowerCase();
@@ -106,7 +106,9 @@ function RegisterContent() {
                 <span className="absolute -top-2 right-2 text-[9px] bg-upPink text-white font-bold uppercase px-2 py-0.5 rounded-full">Top</span>
               )}
               <span className="block text-xs font-bold text-white font-display">{p.name}</span>
-              <span className="block text-[11px] text-upGray mt-0.5">{priceDisplay}/mês</span>
+              <span className="block text-[11px] text-upGray mt-0.5">
+                {p.isCustomPrice ? "Sob consulta" : `${priceDisplay}/mês`}
+              </span>
               {isSelected && <Check className="absolute bottom-2.5 right-2.5 w-3.5 h-3.5 text-upPink" />}
             </button>
           );

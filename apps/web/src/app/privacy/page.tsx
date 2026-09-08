@@ -26,9 +26,9 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-upWhite mb-3">3. Integração com WhatsApp</h2>
+            <h2 className="text-lg font-bold text-upWhite mb-3">3. Comunicações e Notificações do Sistema</h2>
             <p>
-              As mensagens automáticas e relatórios são enviados ao usuário por canais de mensageria com base na autorização (opt-in) que pode ser desabilitada a qualquer momento através do painel de configurações de automações.
+              Notificações de sistema, faturamento e relatórios executivos solicitados são enviados diretamente através de canais seguros da plataforma e e-mail transacional, com base nas preferências configuradas no painel do usuário.
             </p>
           </section>
 

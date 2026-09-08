@@ -165,11 +165,9 @@ export default function AdminPlansPage() {
   };
 
   const screenItems = [
-    { key: "aiStrategy", label: "Estratégias IA" },
     { key: "contentCalendar", label: "Calendário Editorial" },
     { key: "approvals", label: "Aprovações Pendentes" },
     { key: "library", label: "Biblioteca de Assets" },
-    { key: "whatsappAutomations", label: "WhatsApp Notificações" },
     { key: "clientArea", label: "Gestão de Clientes" }
   ];
 
@@ -392,13 +390,39 @@ export default function AdminPlansPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-upGray mb-1.5 block">
+                    Contas de Instagram (-1 Ilimitado)
+                  </label>
+                  <input
+                    type="number"
+                    value={editingPlan.instagramAccountsLimit ?? 1}
+                    onChange={(e) => setEditingPlan({ ...editingPlan, instagramAccountsLimit: parseInt(e.target.value, 10) })}
+                    className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-upGray mb-1.5 block">
+                    Dias de Histórico (-1 Ilimitado)
+                  </label>
+                  <input
+                    type="number"
+                    value={editingPlan.historyDaysLimit ?? 30}
+                    onChange={(e) => setEditingPlan({ ...editingPlan, historyDaysLimit: parseInt(e.target.value, 10) })}
+                    className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition font-mono"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="text-[11px] font-bold uppercase tracking-wider text-upGray mb-1.5 block">
-                  Limite de Slots de Clientes (-1 Ilimitado, 0 para bloquear)
+                  Limite de Slots de Marcas / Clientes (-1 Ilimitado, 0 para bloquear)
                 </label>
                 <input
                   type="number"
-                  value={editingPlan.clientSlotsLimit}
+                  value={editingPlan.clientSlotsLimit ?? 1}
                   onChange={(e) => setEditingPlan({ ...editingPlan, clientSlotsLimit: parseInt(e.target.value, 10) })}
                   className="w-full bg-upDark border border-upBorder/80 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-upPink transition font-mono"
                 />

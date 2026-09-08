@@ -90,3 +90,4 @@ credentials.json
 .env*
 
 *.tsbuildinfo
+supabase/.temp/

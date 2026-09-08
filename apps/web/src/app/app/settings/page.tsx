@@ -18,7 +18,6 @@ import {
   EyeOff
 } from "lucide-react";
 import Link from "next/link";
-import { getActiveUserPlan } from "@/lib/plansStore";
 import { supabase } from "@up-analytics/lib";
 
 export default function SettingsPage() {
@@ -51,8 +50,7 @@ export default function SettingsPage() {
   const [prefSuccess, setPrefSuccess] = useState(false);
 
   // Active Plan State
-  const [activePlan, setActivePlan] = useState<string>("Pro");
-  const [userCredits, setUserCredits] = useState(500);
+  const [activePlan, setActivePlan] = useState<string>("Iniciante");
 
   useEffect(() => {
     async function loadUserData() {
@@ -78,8 +76,11 @@ export default function SettingsPage() {
             if (profile.plan) {
               const raw = profile.plan.toLowerCase();
               if (raw.includes("enter")) setActivePlan("Enterprise");
-              else if (raw.includes("agen") || raw.includes("agên")) setActivePlan("Agência");
-              else setActivePlan("Pro");
+              else if (raw.includes("premi")) setActivePlan("Premium");
+              else if (raw.includes("inic")) setActivePlan("Iniciante");
+              else setActivePlan(profile.plan);
+            } else {
+              setActivePlan("Iniciante");
             }
           }
 
@@ -523,9 +524,11 @@ export default function SettingsPage() {
                         <h3 className="text-2xl font-extrabold text-white mt-2">{activePlan}</h3>
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] font-extrabold text-upGray uppercase">Créditos de Análise IA</span>
-                        <p className="text-xl font-black text-upWhite mt-1">
-                          {userCredits} <span className="text-xs text-upGray font-normal">/mês</span>
+                        <span className="text-[10px] font-extrabold text-emerald-400 uppercase bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                          Assinatura Ativa
+                        </span>
+                        <p className="text-xs text-upGray mt-1.5">
+                          Acesso completo aos recursos contratados
                         </p>
                       </div>
                     </div>

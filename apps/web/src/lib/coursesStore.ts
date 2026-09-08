@@ -53,12 +53,33 @@ export interface Course {
   xpReward: number;
   isLandingPageFeatured: boolean;
   isRecommendedFirst: boolean;
-  accessTier: "Grátis" | "Plano Pro" | "VIP Exclusivo";
+  accessTier: "Todos os Planos" | "Plano Premium" | "Plano Pro" | "Plano Enterprise";
+  showAsTeaser?: boolean;
   orderIndex: number;
   status: "published" | "draft";
   modulesCount: number;
   lessonsCount: number;
   createdAt: string;
+}
+
+export function normalizeCoursePlanTier(raw?: string): "Todos os Planos" | "Plano Premium" | "Plano Pro" | "Plano Enterprise" {
+  if (!raw) return "Todos os Planos";
+  const lower = raw.toLowerCase();
+  if (lower.includes("enter")) return "Plano Enterprise";
+  if (lower.includes("pro")) return "Plano Pro";
+  if (lower.includes("premi")) return "Plano Premium";
+  return "Todos os Planos";
+}
+
+export function canUserAccessCourse(userPlanName: string, courseTier?: string): boolean {
+  const normalizedCourse = normalizeCoursePlanTier(courseTier);
+  if (normalizedCourse === "Todos os Planos") return true;
+
+  const planLower = (userPlanName || "").toLowerCase();
+  const userScore = planLower.includes("enter") ? 4 : planLower.includes("pro") ? 3 : planLower.includes("premi") ? 2 : planLower.includes("inic") ? 1 : 0;
+  const courseScore = normalizedCourse === "Plano Enterprise" ? 4 : normalizedCourse === "Plano Pro" ? 3 : normalizedCourse === "Plano Premium" ? 2 : 1;
+
+  return userScore >= courseScore;
 }
 
 export interface StudentWatchLog {
@@ -98,7 +119,8 @@ export async function fetchCoursesFromDb(): Promise<Course[]> {
       xpReward: c.xp_reward || 350,
       isLandingPageFeatured: c.is_landing_page_featured ?? true,
       isRecommendedFirst: c.is_recommended_first ?? false,
-      accessTier: (c.access_tier as any) || "Grátis",
+      accessTier: normalizeCoursePlanTier(c.access_tier),
+      showAsTeaser: c.show_as_teaser !== false,
       orderIndex: c.order_index || 1,
       status: (c.status as any) || "published",
       modulesCount: c.modules_count || 1,

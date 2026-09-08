@@ -60,10 +60,13 @@ function SpotlightCard({ p, i, annual }: { p: PlanConfig; i: number; annual: boo
             </div>
           </div>
 
-          {/* Badge de Créditos IA (Sem Ícone e Cor Rosa Tema) */}
-          <div className="mt-3 inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-upPink/15 text-upPink border border-upPink/30">
-            <span>
-              {p.aiCreditsMonthly === -1 ? "Créditos IA Ilimitados" : `${p.aiCreditsMonthly} Créditos IA /mês`}
+          {/* Badges de Limite do Plano */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-upPink/15 text-upPink border border-upPink/30">
+              {p.instagramAccountsLimit ? (p.instagramAccountsLimit === -1 ? "Contas Ilimitadas" : `${p.instagramAccountsLimit} Conta${p.instagramAccountsLimit > 1 ? "s" : ""} IG`) : "1 Conta IG"}
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/5 text-upLightGray border border-white/10">
+              {p.historyDaysLimit ? (p.historyDaysLimit === -1 ? "Histórico Ilimitado" : `${p.historyDaysLimit}d Histórico`) : "30d Histórico"}
             </span>
           </div>
 
@@ -188,7 +191,7 @@ export default function Pricing() {
             data-testid="billing-annual-btn"
             className={`text-xs font-bold px-5 py-2 rounded-full transition-all duration-300 cursor-pointer ${annual ? "bg-upPink text-white shadow-md" : "text-upGray hover:text-white"}`}
           >
-            Anual <span className={annual ? "text-white/80" : "text-upPink"}>(2 meses grátis)</span>
+            Anual <span className={annual ? "text-white/80" : "text-upPink"}>(Economia anual)</span>
           </button>
         </motion.div>
 

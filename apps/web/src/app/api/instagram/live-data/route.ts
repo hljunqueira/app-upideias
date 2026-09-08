@@ -17,14 +17,33 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const period = searchParams.get('period') || '30D';
 
-    // Determina número de dias com base no período solicitado
+    // Determina número de dias com base no plano contratado no banco
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const planLower = (profile?.plan || 'iniciante').toLowerCase();
+    const maxDaysAllowed =
+      planLower.includes('enter') || planLower.includes('pro')
+        ? 90
+        : planLower.includes('premi')
+        ? 60
+        : 30;
+
     const daysMap: Record<string, number> = {
       '7D': 7,
       '14D': 14,
       '30D': 30,
+      '60D': 60,
       '90D': 90,
     };
-    const days = daysMap[period] || 30;
+    let requestedDays = daysMap[period] || 30;
+    if (requestedDays > maxDaysAllowed) {
+      requestedDays = maxDaysAllowed;
+    }
+    const days = requestedDays;
 
     const nowSeconds = Math.floor(Date.now() / 1000);
     const until = nowSeconds;

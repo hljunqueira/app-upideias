@@ -80,7 +80,44 @@ export async function getFeatureLimit(featureKey: string): Promise<number | null
 }
 
 export async function checkPlanLimit(limitKey: keyof PlanLimits): Promise<boolean> {
-  return true;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const planLower = (profile?.plan || 'iniciante').toLowerCase();
+
+    if (limitKey === 'max_instagram_accounts') {
+      const maxAccounts = planLower.includes('enter') ? -1 : planLower.includes('pro') ? 5 : planLower.includes('premi') ? 2 : 1;
+      if (maxAccounts === -1) return true;
+      const { count } = await supabase
+        .from('social_accounts')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'connected');
+      return (count || 0) < maxAccounts;
+    }
+
+    if (limitKey === 'max_clients') {
+      const maxClients = planLower.includes('enter') ? -1 : planLower.includes('pro') ? 1 : 0;
+      if (maxClients === -1) return true;
+      if (maxClients === 0) return false;
+      const { count } = await supabase
+        .from('clients')
+        .select('*', { count: 'exact', head: true })
+        .eq('owner_user_id', user.id);
+      return (count || 0) < maxClients;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function canConnectInstagramAccount(): Promise<boolean> {
@@ -88,7 +125,7 @@ export async function canConnectInstagramAccount(): Promise<boolean> {
 }
 
 export async function canUseAi(): Promise<boolean> {
-  return hasFeature('ai_insights') || hasFeature('content_generator');
+  return false;
 }
 
 export async function canAccessUpCreatorLesson(lessonFeatureKey: string): Promise<boolean> {
@@ -96,24 +133,37 @@ export async function canAccessUpCreatorLesson(lessonFeatureKey: string): Promis
 }
 
 export async function canUseWhatsappAutomation(): Promise<boolean> {
-  return hasFeature('whatsapp_weekly_report') || hasFeature('whatsapp_alerts');
+  return false;
 }
 
 export async function canAccessClientArea(): Promise<boolean> {
-  return hasFeature('client_area');
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).maybeSingle();
+    const planLower = (profile?.plan || '').toLowerCase();
+    return planLower.includes('enter');
+  } catch {
+    return false;
+  }
 }
 
 export async function canUseApprovals(): Promise<boolean> {
-  return hasFeature('approvals_workflow');
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+    const { data: profile } = await supabase.from('profiles').select('plan').eq('id', user.id).maybeSingle();
+    const planLower = (profile?.plan || '').toLowerCase();
+    return planLower.includes('pro') || planLower.includes('enter');
+  } catch {
+    return false;
+  }
 }
 
 export async function incrementAiUsage(): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-  try {
-    await supabase.rpc('increment_ai_usage', { p_user_id: user.id });
-  } catch {}
+  // Descontinuado
 }
+
 
 export async function getMonthlyAiUsage(): Promise<number> {
   const { data: { user } } = await supabase.auth.getUser();

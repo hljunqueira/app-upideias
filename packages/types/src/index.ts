@@ -9,6 +9,10 @@ export interface Profile {
   whatsapp_opt_in: boolean;
   whatsapp_opt_in_at: string | null;
   whatsapp_opt_out_at: string | null;
+  plan?: string;
+  status?: string;
+  instagram_handle?: string | null;
+  has_used_upgrade_discount?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -36,22 +40,26 @@ export interface PlanConfig {
   description?: string;
   featured?: boolean;
   isCustomPrice?: boolean;
-  aiCreditsMonthly: number;
+  aiCreditsMonthly?: number;
   clientSlotsLimit: number;
+  instagramAccountsLimit?: number;
+  historyDaysLimit?: number;
   featuresList?: string[];
   allowedFeatures: {
     dashboard: boolean;
     posts: boolean;
-    contentGenerator: boolean;
-    aiStrategy: boolean;
+    exportReports?: boolean;
+    contentGenerator?: boolean;
+    aiStrategy?: boolean;
     contentCalendar: boolean;
     approvals: boolean;
     library: boolean;
-    whatsappAutomations: boolean;
+    whatsappAutomations?: boolean;
     upCreator: boolean;
     clientArea: boolean;
   };
 }
+
 
 export interface PlanLimits {
   id: string;

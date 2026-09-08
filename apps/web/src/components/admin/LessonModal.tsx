@@ -155,37 +155,23 @@ export function LessonModal({ isOpen, onClose, onSave, initialLesson, moduleId }
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-neutral-300 mb-1">
-                Duração (Minutos)
-              </label>
-              <input
-                type="number"
-                value={formData.durationMinutes ?? 10}
-                onChange={(e) => setFormData((prev) => ({ ...prev, durationMinutes: Number(e.target.value) }))}
-                className="w-full bg-[#12121a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-upPink/80 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-neutral-300 mb-1">
-                XP para o Aluno
-              </label>
-              <input
-                type="number"
-                value={formData.xpPoints ?? 50}
-                onChange={(e) => setFormData((prev) => ({ ...prev, xpPoints: Number(e.target.value) }))}
-                className="w-full bg-[#12121a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-upPink/80 transition"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-neutral-300 mb-1">
+              Duração Estimada (Minutos)
+            </label>
+            <input
+              type="number"
+              value={formData.durationMinutes ?? 10}
+              onChange={(e) => setFormData((prev) => ({ ...prev, durationMinutes: Number(e.target.value) }))}
+              className="w-full bg-[#12121a] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-upPink/80 transition"
+            />
           </div>
 
-          {/* Toggle Degustação */}
+          {/* Toggle Aula Demonstrativa */}
           <div className="p-3 bg-[#12121a] border border-white/5 rounded-xl flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-white">Aula de Degustação Grátis</p>
-              <p className="text-[11px] text-neutral-400">Permite assistir sem plano pago ativado</p>
+              <p className="text-xs font-medium text-white">Aula Demonstrativa (Acesso Aberto)</p>
+              <p className="text-[11px] text-neutral-400">Permite assistir a esta aula como demonstração do conteúdo</p>
             </div>
             <input
               type="checkbox"

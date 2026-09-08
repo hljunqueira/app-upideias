@@ -211,7 +211,7 @@ export function TrailRoadmapView({
                           <span>•</span>
                           <span>{course.lessonsCount} Aulas</span>
                           <span>•</span>
-                          <span className="text-amber-400 font-semibold">+{course.xpReward} XP</span>
+                          <span className="text-white/70 font-medium">Certificado Incluso</span>
                         </div>
                       </div>
                     </div>

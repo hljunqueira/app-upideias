@@ -1,6 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
 import { cn } from "../../utils/cn";
-import { Download, Check, Loader2 } from "lucide-react";
 
 interface ExportButtonProps {
   onExport?: () => void;
@@ -13,50 +14,34 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ onExport, className 
   const handleClick = () => {
     if (status !== "idle") return;
     setStatus("loading");
-    
-    // Simulate export/download duration
+
     setTimeout(() => {
       setStatus("success");
       if (onExport) onExport();
-      
-      // Reset back to idle
+
       setTimeout(() => {
         setStatus("idle");
       }, 2000);
-    }, 1800);
+    }, 1200);
   };
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       disabled={status === "loading"}
       className={cn(
-        "relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 select-none cursor-pointer border",
-        status === "idle" && "bg-upPink hover:bg-upPinkDark text-upWhite border-upPink/20 hover:scale-[1.02]",
-        status === "loading" && "bg-upCard text-upGray border-upBorder cursor-not-allowed",
-        status === "success" && "bg-green-500 text-upWhite border-green-400/20 scale-[1.02]",
+        "relative inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all select-none cursor-pointer border",
+        status === "idle" && "bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-white/20",
+        status === "loading" && "bg-white/5 text-white/50 border-white/10 cursor-not-allowed",
+        status === "success" && "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
         className
       )}
     >
-      <span className="flex items-center gap-2">
-        {status === "idle" && (
-          <>
-            <Download className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
-            <span>Exportar Relatório</span>
-          </>
-        )}
-        {status === "loading" && (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin text-upPink" />
-            <span>Gerando PDF...</span>
-          </>
-        )}
-        {status === "success" && (
-          <>
-            <Check className="w-4 h-4 text-upWhite" />
-            <span>Download Concluído!</span>
-          </>
-        )}
+      <span>
+        {status === "idle" && "Exportar Relatório"}
+        {status === "loading" && "Gerando Arquivo..."}
+        {status === "success" && "Download Pronto"}
       </span>
     </button>
   );

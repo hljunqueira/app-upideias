@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import { PhoneMockupPreview } from "../../../components/ui/PhoneMockupPreview";
 import { NangoConnectModal } from "../../../components/common/NangoConnectModal";
+import { ExportButton } from "../../../components/ui/ExportButton";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,22 @@ export default function Dashboard() {
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [isNangoModalOpen, setIsNangoModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState("Seg");
+  const [userPlanHistoryLimit, setUserPlanHistoryLimit] = useState<number>(30);
+
+  useEffect(() => {
+    async function loadPlanLimits() {
+      try {
+        const res = await fetch("/api/user/subscription");
+        if (res.ok) {
+          const data = await res.json();
+          setUserPlanHistoryLimit(data?.limits?.historyDays ?? 30);
+        }
+      } catch {
+        setUserPlanHistoryLimit(30);
+      }
+    }
+    loadPlanLimits();
+  }, []);
 
   const periodsList = [
     { id: "7D", label: "7 dias", fullLabel: "Últimos 7 dias" },
@@ -107,33 +124,33 @@ export default function Dashboard() {
     );
   }
 
-  // Estatísticas calculadas 100% da Meta API oficial
-  const followersCount = account?.followers_count ?? 109;
-  const followingCount = account?.following_count ?? 464;
-  const mediaCount = posts.length || (account?.media_count ?? 3);
-  const totalViews = summary?.views ?? 246;
-  const totalReach = summary?.reach ?? 96;
-  const totalInteractions = summary?.interactions ?? 10;
-  const accountsEngaged = summary?.accounts_engaged ?? 6;
-  const profileViews = summary?.profile_views ?? 38;
-  const engagementRate = summary?.engagement_rate ?? "9.2";
+  // Estatísticas calculadas 100% da Meta API oficial (sem dados falsos de demonstração)
+  const followersCount = account?.followers_count ?? 0;
+  const followingCount = account?.following_count ?? 0;
+  const mediaCount = posts.length || (account?.media_count ?? 0);
+  const totalViews = summary?.views ?? 0;
+  const totalReach = summary?.reach ?? 0;
+  const totalInteractions = summary?.interactions ?? 0;
+  const accountsEngaged = summary?.accounts_engaged ?? 0;
+  const profileViews = summary?.profile_views ?? 0;
+  const engagementRate = summary?.engagement_rate ?? "0.0";
 
   // Breakdowns
-  const storiesPct = summary?.breakdowns?.stories_views_pct ?? 97.6;
-  const postsPct = summary?.breakdowns?.posts_views_pct ?? 2.4;
-  const storiesViews = summary?.breakdowns?.stories_views ?? 240;
-  const postsViews = summary?.breakdowns?.posts_views ?? 6;
+  const storiesPct = summary?.breakdowns?.stories_views_pct ?? 0;
+  const postsPct = summary?.breakdowns?.posts_views_pct ?? 0;
+  const storiesViews = summary?.breakdowns?.stories_views ?? 0;
+  const postsViews = summary?.breakdowns?.posts_views ?? 0;
 
-  const followersReachPct = summary?.breakdowns?.followers_reach_pct ?? 71.7;
-  const nonFollowersReachPct = summary?.breakdowns?.non_followers_reach_pct ?? 28.3;
+  const followersReachPct = summary?.breakdowns?.followers_reach_pct ?? 0;
+  const nonFollowersReachPct = summary?.breakdowns?.non_followers_reach_pct ?? 0;
 
   // Horários mais ativos
   const activeDayFactor = daysOfWeek.find((d) => d.id === selectedDay)?.factor || 1.0;
   const rawHoursMap = summary?.online_followers || {};
   const hourKeys = ["0", "3", "6", "9", "12", "15", "18", "21"];
   const hourlyData = hourKeys.map((h) => {
-    const rawVal = Number(rawHoursMap[h] || 0) || Math.round(Number(rawHoursMap[String(Number(h) + 1)] || 15));
-    const val = Math.max(2, Math.round(rawVal * activeDayFactor));
+    const rawVal = Number(rawHoursMap[h] || 0);
+    const val = Math.round(rawVal * activeDayFactor);
     return {
       hour: `${h}h`,
       count: val,
@@ -171,6 +188,8 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+          <ExportButton onExport={() => window.print()} />
+
           <button
             onClick={() => setIsNangoModalOpen(true)}
             className="text-xs font-medium text-neutral-300 hover:text-white px-3.5 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition cursor-pointer"
@@ -180,20 +199,32 @@ export default function Dashboard() {
 
           {/* Filtro de Período Oficial: 7D, 14D, 30D, 90D */}
           <div className="inline-flex bg-[#12121a] rounded-xl p-1 border border-white/10 shadow-inner">
-            {periodsList.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setPeriod(p.id)}
-                title={p.fullLabel}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                  period === p.id
-                    ? "bg-gradient-to-r from-rose-500/20 to-pink-500/20 text-white border border-rose-500/30 shadow-sm"
-                    : "text-neutral-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+            {periodsList.map((p) => {
+              const isBlocked = p.id === "90D" && userPlanHistoryLimit < 90;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    if (isBlocked) {
+                      alert("O período de 90 dias é exclusivo para assinantes dos planos Pro e Enterprise.");
+                      return;
+                    }
+                    setPeriod(p.id);
+                  }}
+                  title={isBlocked ? "Exclusivo Planos Pro / Enterprise" : p.fullLabel}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    period === p.id
+                      ? "bg-gradient-to-r from-rose-500/20 to-pink-500/20 text-white border border-rose-500/30 shadow-sm"
+                      : isBlocked
+                      ? "text-neutral-500 opacity-60 hover:text-neutral-400"
+                      : "text-neutral-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {p.label}
+                  {isBlocked && " (Pro)"}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

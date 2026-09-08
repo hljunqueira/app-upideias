@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { ArrowLeft, Check, ShieldCheck, Lock, CreditCard, QrCode, Barcode } from "lucide-react";
-import { PlanConfig, fetchPlansFromDb, getStoredPlans, setActiveUserPlan } from "@/lib/plansStore";
+import { PlanConfig, fetchPlansFromDb, getStoredPlans } from "@/lib/plansStore";
 import { getSupportWhatsAppUrl } from "@/lib/config";
 
 import { supabase } from "@up-analytics/lib";
@@ -13,6 +13,8 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planSlug = searchParams.get("plan") || "pro";
+
+  const isUpgrade = searchParams.get("upgrade") === "true";
 
   const [storedPlans, setStoredPlans] = useState<PlanConfig[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<"card" | "pix" | "boleto">("card");
@@ -23,21 +25,57 @@ function CheckoutContent() {
   }, []);
 
   const foundPlan = storedPlans.find(
-    (p) => p.id.toLowerCase() === planSlug.toLowerCase() || p.name.toLowerCase() === planSlug.toLowerCase()
-  ) || storedPlans.find((p) => p.id === "pro") || getStoredPlans()[1];
+    (p) =>
+      p.id.toLowerCase() === planSlug.toLowerCase() ||
+      p.name.toLowerCase().includes(planSlug.toLowerCase())
+  ) || storedPlans[2] || {
+    id: "pro",
+    name: "Plano Pro",
+    priceMonthly: 297,
+    priceAnnual: 237,
+    isCustomPrice: false,
+    description: "Para agências e creators profissionais",
+    featured: true,
+    clientSlotsLimit: 1,
+    instagramAccountsLimit: 5,
+    historyDaysLimit: 90,
+    featuresList: [
+      "5 Contas de Instagram (5 usuários)",
+      "90 Dias de Histórico",
+      "Exportação de Relatórios Oficiais",
+      "Suporte Prioritário"
+    ],
+    allowedFeatures: {
+      dashboard: true,
+      posts: true,
+      contentGenerator: false,
+      aiStrategy: false,
+      contentCalendar: true,
+      approvals: true,
+      library: true,
+      upCreator: true,
+      clientArea: true,
+      exportReports: true
+    }
+  };
+
+  const originalPrice = typeof foundPlan.priceMonthly === "number" ? foundPlan.priceMonthly : 297;
+  const finalPrice = isUpgrade ? originalPrice * 0.7 : originalPrice;
 
   const plan = {
-    name: foundPlan ? foundPlan.name : "Pro",
-    price: foundPlan
-      ? (typeof foundPlan.priceMonthly === "number" ? `R$ ${foundPlan.priceMonthly}` : foundPlan.priceMonthly)
-      : "R$ 129",
-    period: foundPlan?.isCustomPrice ? "" : "/mês",
-    features: foundPlan?.featuresList && foundPlan.featuresList.length > 0
+    name: foundPlan.name,
+    price: foundPlan.isCustomPrice
+      ? "Sob consulta"
+      : `R$ ${finalPrice.toFixed(2).replace(".", ",")}`,
+    originalPrice: `R$ ${originalPrice.toFixed(2).replace(".", ",")}`,
+    period: foundPlan.isCustomPrice ? "" : "/mês",
+    features: foundPlan.featuresList && foundPlan.featuresList.length > 0
       ? foundPlan.featuresList
       : [
           "Acesso à plataforma UP Analytics",
           "Acompanhamento de métricas e diagnósticos",
           "Acesso ao módulo UP Creator",
+          "Exportação de Relatórios Oficiais",
           "Suporte especializado"
         ],
   };
@@ -45,14 +83,22 @@ function CheckoutContent() {
   const handleFinish = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (foundPlan) {
-      setActiveUserPlan(foundPlan.name);
-    }
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user && foundPlan) {
-        const numericAmount = typeof foundPlan.priceMonthly === "number" ? foundPlan.priceMonthly : 0;
-        await supabase.from("profiles").update({ plan: foundPlan.name, status: "Ativo" }).eq("id", user.id);
+        const numericAmount = finalPrice;
+        
+        // Atualiza perfil marcando desconto como usado se foi upgrade
+        try {
+          const profileUpdate: any = { plan: foundPlan.name, status: "Ativo" };
+          if (isUpgrade) {
+            profileUpdate.has_used_upgrade_discount = true;
+          }
+          await supabase.from("profiles").update(profileUpdate).eq("id", user.id);
+        } catch (profileErr) {
+          console.warn("Falha ao atualizar coluna has_used_upgrade_discount no perfil:", profileErr);
+        }
+
         await supabase.from("subscriptions").insert({
           user_id: user.id,
           plan_name: foundPlan.name,
@@ -262,6 +308,17 @@ function CheckoutContent() {
 
               <div className="my-6 border-t border-upBorder/60" />
 
+              {isUpgrade && (
+                <div className="mb-6 p-3.5 bg-upPink/15 border border-upPink/30 rounded-2xl">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-upPink block mb-1">
+                    Condição Especial de Upgrade
+                  </span>
+                  <p className="text-xs text-white leading-relaxed">
+                    Você está pagando {plan.price} no 1º mês. As próximas renovações ocorrerão pelo valor padrão de {plan.originalPrice}/mês.
+                  </p>
+                </div>
+              )}
+
               <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">O que está incluído:</h4>
               <ul className="space-y-3">
                 {plan.features.map((f) => (
@@ -275,9 +332,14 @@ function CheckoutContent() {
 
             <div className="mt-8 pt-6 border-t border-upBorder/60 text-center">
               <p className="text-xs text-upGray">
-                Precisa de ajuda ou tirou dúvidas? <br />
-                <a href="https://hljdev.com.br" target="_blank" rel="noopener noreferrer" className="text-upPink font-semibold hover:underline">
-                  Suporte HLJDEV
+                Dúvidas sobre o plano ou pagamento? <br />
+                <a
+                  href={getSupportWhatsAppUrl(`Olá! Tenho uma dúvida sobre a assinatura do plano ${plan.name} no UP Ideias.`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-upPink font-semibold hover:underline"
+                >
+                  Falar com o Suporte Oficial UP Ideias
                 </a>
               </p>
             </div>

@@ -48,12 +48,12 @@ export default function HorizontalWorld() {
                   UP <span className="text-upPink">ANALYTICS</span>
                 </h2>
                 <p className="mt-8 text-lg text-upLightGray/70 max-w-md leading-relaxed">
-                  Métricas reais do Instagram, organização estratégica de dados e relatórios
-                  no WhatsApp. Pare de adivinhar, meça, entenda e aja.
+                  Métricas oficiais do Instagram, organização estratégica de dados e relatórios
+                  executivos consolidados em PDF. Pare de adivinhar: meça, entenda e aja.
                 </p>
               </div>
               <div className="hidden lg:flex flex-col gap-4">
-                {["Análise de 30 dias de métricas e relatório de desempenho", "Ideias de post com gancho, roteiro e hashtags", "Resumo semanal direto no seu WhatsApp"].map((t, i) => (
+                {["Análise profunda de métricas e relatório de desempenho oficial", "Calendário editorial e fluxo de aprovação de posts", "Relatórios executivos consolidados em PDF"].map((t, i) => (
                   <div key={i} className="bg-upCard/70 backdrop-blur-xl border border-upBorder rounded-2xl px-6 py-5 flex items-center gap-4" style={{ marginLeft: i * 40 }}>
                     <span className="font-display text-upPink font-bold">0{i + 1}</span>
                     <p className="text-upLightGray text-sm">{t}</p>

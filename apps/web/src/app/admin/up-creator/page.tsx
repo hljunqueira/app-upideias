@@ -478,7 +478,7 @@ export default function AdminUpCreatorPage() {
                       <th className="py-3.5 px-6">Curso</th>
                       <th className="py-3.5 px-6">Trilha & Tag</th>
                       <th className="py-3.5 px-6">Acesso</th>
-                      <th className="py-3.5 px-6">XP</th>
+                      <th className="py-3.5 px-6">Certificado</th>
                       <th className="py-3.5 px-6 text-center">Landing Page</th>
                       <th className="py-3.5 px-6 text-right">Ações</th>
                     </tr>
@@ -506,12 +506,27 @@ export default function AdminUpCreatorPage() {
                         </td>
 
                         <td className="py-4 px-6">
-                          <span className="bg-white/5 border border-white/10 px-2.5 py-1 rounded-full text-[10px] text-white font-medium">
+                          <span
+                            className={`border px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                              c.accessTier === "Plano Pro"
+                                ? "bg-rose-500/20 text-rose-300 border-rose-500/30"
+                                : c.accessTier === "Plano Enterprise"
+                                ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                                : c.accessTier === "Plano Premium"
+                                ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                                : "bg-white/5 text-white border-white/10"
+                            }`}
+                          >
                             {c.accessTier}
                           </span>
+                          {c.showAsTeaser && c.accessTier !== "Todos os Planos" && (
+                            <span className="block text-[9px] text-emerald-400 font-semibold mt-1">
+                              ● Vitrine Ativa
+                            </span>
+                          )}
                         </td>
 
-                        <td className="py-4 px-6 font-bold text-amber-400">+{c.xpReward} XP</td>
+                        <td className="py-4 px-6 font-semibold text-emerald-400">Incluso</td>
 
                         <td className="py-4 px-6 text-center">
                           <button

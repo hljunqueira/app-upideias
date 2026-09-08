@@ -50,13 +50,13 @@ export const DEFAULT_LANDING_DATA: LandingData = {
   heroTitle1: "IDEIAS QUE",
   heroTitle2: "SOBEM DE",
   heroTitle3: "NÍVEL",
-  heroSubtitle: "Análise de métricas do Instagram, gerador de conteúdo e uma plataforma de cursos estilo streaming. Transforme métricas em estratégia.",
+  heroSubtitle: "Analytics oficial do Instagram, calendário editorial e uma plataforma de cursos estilo streaming. Transforme métricas em estratégia.",
   primaryCtaText: "Criar conta",
   secondaryCtaText: "Entrar no mundo UP",
   heroVideoUrl: "https://assets.mixkit.co/videos/18140/18140-720.mp4",
   heroStats: [
     { value: "Instagram", label: "métricas em tempo real" },
-    { value: "30 dias", label: "de métricas analisadas" },
+    { value: "Oficial", label: "conexão direta com Meta" },
     { value: "6+ trilhas", label: "no UP Creator" },
     { value: "100%", label: "plataforma online" }
   ],
@@ -72,19 +72,19 @@ export const DEFAULT_LANDING_DATA: LandingData = {
   marqueeWords: ["ESTRATÉGIA", "MÉTRICAS", "DESEMPENHO", "CONTEÚDO", "INSTAGRAM", "CURSOS", "CRESCIMENTO"],
 
   creatorTitle: "Cursos e Trilhas no Estilo Streaming",
-  creatorSubtitle: "Aprenda com aulas práticas de roteiro, edição, inteligência artificial e estratégias avançadas de engajamento.",
+  creatorSubtitle: "Aprenda com aulas práticas de roteiro, edição, design e estratégias avançadas de engajamento.",
   creatorVideoUrl: "https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-41400-large.mp4",
 
   cycleSteps: [
-    { step: "01", title: "Inspiração & Ideia", desc: "IA analisa seu nicho e sugere os temas com maior potencial de viralização." },
-    { step: "02", title: "Criação de Conteúdo", desc: "Roteiros, legendas e ganchos gerados em segundos." },
-    { step: "03", title: "Publicação & Validação", desc: "Acompanhe métricas reais de alcance e retenção." },
-    { step: "04", title: "Evolução Contínua", desc: "Aprenda nas aulas do UP Creator para aperfeiçoar cada novo post." }
+    { step: "01", title: "Diagnóstico & Inteligência", desc: "Análise estratégica dos indicadores oficiais da sua conta no Instagram." },
+    { step: "02", title: "Planejamento Editorial", desc: "Estruture postagens, roteiros e fluxo de aprovação com clareza." },
+    { step: "03", title: "Publicação & Validação", desc: "Acompanhe métricas consolidadas de alcance e engajamento." },
+    { step: "04", title: "Evolução Contínua", desc: "Aprenda nas aulas do UP Creator para aperfeiçoar cada nova etapa." }
   ],
 
   pricingTitle: "Escolha o Plano Ideal para o Seu Momento",
   finalCtaTitle: "Pronto para Subir o Nível do Seu Instagram?",
-  finalCtaButtonText: "Criar Minha Conta Grátis",
+  finalCtaButtonText: "Criar Minha Conta",
 
   footerCopyText: "© 2026 UP Ideias. Todos os direitos reservados.",
   footerContactEmail: "contato@upideias.com"

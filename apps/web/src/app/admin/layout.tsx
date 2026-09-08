@@ -274,30 +274,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                   <div className="border-t border-upBorder/40 pt-1 space-y-1">
                     <Link
-                      href="/admin/whatsapp-logs"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upCard/60 transition-all"
-                    >
-                      <MessageSquare className="w-4 h-4 text-emerald-400" />
-                      <span>Histórico de WhatsApp</span>
-                    </Link>
-
-                    <Link
                       href="/admin/sync-logs"
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upCard/60 transition-all"
                     >
                       <RefreshCw className="w-4 h-4 text-blue-400" />
                       <span>Sincronizações</span>
-                    </Link>
-
-                    <Link
-                      href="/admin/ai-usage"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-upLightGray hover:text-white hover:bg-upCard/60 transition-all"
-                    >
-                      <Cpu className="w-4 h-4 text-amber-400" />
-                      <span>Faturamento de IA</span>
                     </Link>
                   </div>
 
@@ -368,9 +350,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <CreditCard className="w-4 h-4 text-emerald-400" />
                 <span>Assinaturas</span>
               </Link>
-              <Link href="/admin/whatsapp-logs" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 p-3 rounded-xl bg-upCard/40 border border-upBorder/60 text-xs font-semibold text-white">
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
-                <span>WhatsApp</span>
+              <Link href="/admin/sync-logs" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 p-3 rounded-xl bg-upCard/40 border border-upBorder/60 text-xs font-semibold text-white">
+                <RefreshCw className="w-4 h-4 text-blue-400" />
+                <span>Sincronizações</span>
               </Link>
             </div>
           </div>

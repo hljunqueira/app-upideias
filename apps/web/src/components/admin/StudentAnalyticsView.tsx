@@ -12,7 +12,7 @@ interface StudentAnalyticsViewProps {
 
 export function StudentAnalyticsView({ logs = [], totalStudents = 0 }: StudentAnalyticsViewProps) {
   const [activeStudentsCount, setActiveStudentsCount] = useState<number>(totalStudents);
-  const [totalXpDistributed, setTotalXpDistributed] = useState<number>(0);
+  const [totalCompletedLessons, setTotalCompletedLessons] = useState<number>(0);
   const [completionRate, setCompletionRate] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
@@ -25,17 +25,21 @@ export function StudentAnalyticsView({ logs = [], totalStudents = 0 }: StudentAn
           .select("*", { count: "exact", head: true });
         setActiveStudentsCount(count || totalStudents || 0);
 
+        const { count: completedCount } = await supabase
+          .from("user_lesson_progress")
+          .select("*", { count: "exact", head: true })
+          .eq("completed", true);
+
+        setTotalCompletedLessons(completedCount || 0);
+
         const { data: progressData } = await supabase
           .from("user_course_progress")
-          .select("progress_percent, total_xp_earned");
+          .select("progress_percent");
 
         if (progressData && progressData.length > 0) {
-          const sumXp = progressData.reduce((acc, curr) => acc + (curr.total_xp_earned || 0), 0);
           const sumProgress = progressData.reduce((acc, curr) => acc + (curr.progress_percent || 0), 0);
-          setTotalXpDistributed(sumXp);
           setCompletionRate(Math.round(sumProgress / progressData.length));
         } else {
-          setTotalXpDistributed(0);
           setCompletionRate(0);
         }
       } catch {
@@ -77,12 +81,12 @@ export function StudentAnalyticsView({ logs = [], totalStudents = 0 }: StudentAn
 
         <div className="bg-upCard/40 border border-upBorder/60 rounded-3xl p-5 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-2xl">
-              <Award className="w-5 h-5" />
+            <div className="p-3 bg-white/10 text-white rounded-2xl">
+              <PlayCircle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-upGray uppercase tracking-wider font-semibold">XP Distribuído</p>
-              <h3 className="text-xl font-bold text-white">{totalXpDistributed.toLocaleString("pt-BR")} XP</h3>
+              <p className="text-xs text-upGray uppercase tracking-wider font-semibold">Aulas Concluídas</p>
+              <h3 className="text-xl font-bold text-white">{totalCompletedLessons.toLocaleString("pt-BR")} aulas</h3>
             </div>
           </div>
         </div>

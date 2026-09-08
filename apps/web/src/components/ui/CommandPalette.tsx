@@ -41,12 +41,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const appItems = [
     { label: "Visão Geral (Dashboard)", href: "/app/dashboard", category: "App", icon: LayoutDashboard },
     { label: "Publicações & Mídia", href: "/app/posts", category: "App", icon: FileText },
-    { label: "Estratégias de Conteúdo IA", href: "/app/ai-strategy", category: "App", icon: BrainCircuit },
-    { label: "Gerador de Roteiros & Posts", href: "/app/content-generator", category: "App", icon: PenTool },
     { label: "Calendário Editorial", href: "/app/content-calendar", category: "App", icon: Calendar },
     { label: "Aprovações Pendentes", href: "/app/approvals", category: "Ferramentas", icon: CheckSquare },
     { label: "Biblioteca de Assets", href: "/app/library", category: "Ferramentas", icon: Library },
-    { label: "Mensagens & Notificações WhatsApp", href: "/app/automations", category: "Ferramentas", icon: MessageSquare },
     { label: "UP Creator (Cursos & Trilhas)", href: "/app/up-creator", category: "Ferramentas", icon: GraduationCap },
     { label: "Gestão de Clientes", href: "/app/client-area", category: "Ferramentas", icon: Users },
     { label: "Configurações da Conta", href: "/app/settings", category: "Conta", icon: Settings },
@@ -62,8 +59,6 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     { label: "Contas Sociais (APIs)", href: "/admin/accounts", category: "Admin", icon: RefreshCw },
     { label: "Gestão UP Creator (Cursos)", href: "/admin/up-creator", category: "Admin", icon: GraduationCap },
     { label: "Logs de Sincronização", href: "/admin/sync-logs", category: "Admin", icon: Activity },
-    { label: "Uso de Créditos IA", href: "/admin/ai-usage", category: "Admin", icon: Sparkles },
-    { label: "Logs do WhatsApp", href: "/admin/whatsapp-logs", category: "Admin", icon: MessageSquare },
     { label: "Configurações Master", href: "/admin/settings", category: "Admin", icon: Settings },
   ];
 

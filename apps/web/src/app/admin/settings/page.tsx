@@ -82,11 +82,11 @@ export default function AdminSettingsPage() {
   const [panel1VideoUrl, setPanel1VideoUrl] = useState("https://assets.mixkit.co/videos/44820/44820-720.mp4");
   // Painel 2 (UP Analytics)
   const [panel2Title, setPanel2Title] = useState("UP ANALYTICS");
-  const [panel2Subtitle, setPanel2Subtitle] = useState("Métricas reais do Instagram, organização estratégica de dados e relatórios no WhatsApp.");
+  const [panel2Subtitle, setPanel2Subtitle] = useState("Métricas oficiais do Instagram, organização estratégica de dados e relatórios consolidados em PDF.");
   const [panel2Bullets, setPanel2Bullets] = useState([
-    "Análise de 30 dias de métricas e relatório de desempenho",
-    "Ideias de post com gancho, roteiro e hashtags",
-    "Resumo semanal direto no seu WhatsApp"
+    "Análise profunda de métricas e relatório de desempenho oficial",
+    "Calendário editorial e fluxo de aprovação de posts",
+    "Relatórios executivos consolidados em PDF"
   ]);
   // Painel 3 (UP Creator)
   const [panel3Title, setPanel3Title] = useState("UP CREATOR");
@@ -99,8 +99,8 @@ export default function AdminSettingsPage() {
   const [analyticsImageUrl, setAnalyticsImageUrl] = useState("https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop");
   const [analyticsHighlights, setAnalyticsHighlights] = useState([
     { title: "Dashboard em Tempo Real", desc: "Monitore impressões, alcance e novos seguidores em um só lugar." },
-    { title: "Relatórios Inteligentes", desc: "Resumos resumidos com sugestões práticas enviadas para seu WhatsApp." },
-    { title: "Análise de Retenção de Vídeos", desc: "Descubra os primeiros 3 segundos que mais prendem a atenção do público." }
+    { title: "Relatórios Executivos", desc: "Resumos consolidados de alto impacto exportáveis em PDF." },
+    { title: "Análise de Retenção de Vídeos", desc: "Descubra as mídias e formatos que mais prendem a atenção do público." }
   ]);
 
   // 4. GIANT MARQUEE
@@ -116,17 +116,17 @@ export default function AdminSettingsPage() {
 
   // 6. CICLO DE CRESCIMENTO
   const [cycleSteps, setCycleSteps] = useState([
-    { step: "01", title: "Inspiração & Ideia", desc: "IA analisa seu nicho e sugere os temas com maior potencial de viralização." },
-    { step: "02", title: "Criação de Conteúdo", desc: "Roteiros, legendas e ganchos gerados em segundos." },
-    { step: "03", title: "Publicação & Validação", desc: "Acompanhe métricas reais de alcance e retenção." },
-    { step: "04", title: "Evolução Contínua", desc: "Aprenda nas aulas do UP Creator para aperfeiçoar cada novo post." }
+    { step: "01", title: "Diagnóstico & Inteligência", desc: "Análise estratégica dos indicadores oficiais da sua conta no Instagram." },
+    { step: "02", title: "Planejamento Editorial", desc: "Estruture postagens, roteiros e fluxo de aprovação com clareza." },
+    { step: "03", title: "Publicação & Validação", desc: "Acompanhe métricas consolidadas de alcance e engajamento." },
+    { step: "04", title: "Evolução Contínua", desc: "Aprenda nas aulas do UP Creator para aperfeiçoar cada nova etapa." }
   ]);
 
   // 7. PRICING & FINAL CTA
   const [pricingTitle, setPricingTitle] = useState("Escolha o Plano Ideal para o Seu Momento");
   const [finalCtaTitle, setFinalCtaTitle] = useState("Pronto para Subir o Nível do Seu Instagram?");
   const [finalCtaSubtitle, setFinalCtaSubtitle] = useState("Junte-se aos criadores que transformaram métricas em crescimento real.");
-  const [finalCtaButtonText, setFinalCtaButtonText] = useState("Criar Minha Conta Grátis");
+  const [finalCtaButtonText, setFinalCtaButtonText] = useState("Criar Minha Conta");
 
   // 8. FOOTER
   const [footerCopyText, setFooterCopyText] = useState("© 2026 UP Ideias. Todos os direitos reservados.");

@@ -1,31 +1,83 @@
 # Scratchpad & Histórico de Sessões
 
-## Tarefa Atual
-- [x] Mapeamento e substituição de todos os dados falsos/mocks por conexões reais com o banco de dados (Supabase) e APIs oficiais.
-- [x] Erradicação total de emojis soltos de IA e revisão da comunicação visual para estética executiva/SaaS B2B premium.
-- [x] Auditoria global profunda em todas as páginas, modais e componentes: remoção definitiva de fotos Unsplash, fallbacks estáticos de valores e emails, e integração com Supabase.
-- [x] Validação de integridade: linter e build do Next.js sem erros (44/44 rotas geradas).
+## Tarefas Concluídas nesta Sessão
+- [x] **Submissão e Preparação do Meta App Review**:
+  - Permissões submetidas com sucesso: `instagram_business_basic`, `instagram_business_content_publish`, `instagram_business_manage_insights`, `pages_show_list`, `pages_read_engagement`, `public_profile`, `email`.
+  - Configuração do usuário de teste oficial para a Meta: `usuario@upideias.com` / `MetaReview@2026`.
+- [x] **Novo Preloader com Chroma Key em Canvas 60fps**:
+  - Vídeo `LOGO BRANCA - FUNDO VERDE.MP4` integrado em `apps/web/public/logo-preloader.mp4`.
+  - Remoção em tempo real de verde em canvas matemático (`Preloader.tsx`), anti-aliasing e transição Framer Motion.
+- [x] **Painel Profissional do Instagram com Dados Reais da Meta Graph API**:
+  - Seletores oficiais de período: `7 dias` (`7D`), `14 dias` (`14D`), `30 dias` (`30D` - padrão) e `90 dias` (`90D`).
+  - Cabeçalho do perfil sincronizado: `464 Seguindo` (`follows_count`), `109 Seguidores`, `3 Publicações`, `38 Visitas ao Perfil`, bio e foto oficiais.
+  - Cartão de Visualizações com 246 visualizações (+25,1%), 96 contas alcançadas, proporção de seguidores vs não-seguidores (71,7% vs 28,3%) e formato (97,6% stories vs 2,4% posts).
+  - Cartão de Interações com 10 interações (+150%), 6 contas com engajamento, proporção 90% seguidores.
+  - Cartão de Horários Mais Ativos por faixa horária (0h a 21h) e dias da semana (Seg a Dom).
+  - Conteúdo Principal com as 3 publicações reais e integração interativa ao Phone Mockup Preview.
+- [x] **Isolamento Estrito de Contas por Usuário**:
+  - Correção em `packages/lib/src/services/instagramService.ts`: `getInstagramAccounts(userId)` agora filtra estritamente por `user_id`.
+  - `apps/web/src/app/app/layout.tsx` e `apps/web/src/app/api/instagram/live-data/route.ts` protegidos contra vazamento de contas entre usuários.
+- [x] **Acesso e Contingência para o Usuário James (`@up_ideias`)**:
+  - Senha do usuário `javageral09@gmail.com` resetada e validada via Supabase Auth: `UpIdeias@2026`.
+  - Adicionado botão de contingência no modal Nango: "Abrir Autorização em Nova Aba" caso o navegador bloqueie pop-ups.
+- [x] **Deploy de Produção**:
+  - **Vercel**: Ativo e operando normalmente em `https://www.upideias.com` (commit `22c2f4d`).
+  - **VPS Docker**: Ativo e sincronizado em `http://184.107.141.97:3000` e `https://api.upideias.com`.
 
-## Status Atual: VPS Deploy Concluído com Sucesso
-- **Vercel Deploy:** Ativo em produção (https://www.upideias.com).
-- **VPS Deploy (Docker):** Concluído e ativo em `http://184.107.141.97:3000`.
-  - Imagem: `app-upideias-web` (Node.js 22-alpine).
-  - Container: `up-analytics-web` (Up e respondendo 200 OK na porta 3000).
-  - Script automatizado de deploy: `scripts/deploy-vps.sh` + `npm run deploy:vps`.
-  - Normalizador de variáveis: `scripts/sanitize-env.py`.
+## Planejamento em Andamento
+- [x] **Auditoria Global de Gaps e Inconsistências**:
+  - [x] Mapeada falha de detecção dos planos Iniciante e Premium em `settings/page.tsx`, `billing/page.tsx` e `client-area/page.tsx`.
+  - [x] Mapeada seção residual de WhatsApp em `privacy/page.tsx`.
+  - [x] Mapeadas referências padrão de IA e WhatsApp em `landingStore.ts`, `admin/settings/page.tsx` e `Cycle.tsx`.
+  - [x] Mapeado layout `grid-cols-3` em `register/page.tsx` para acomodar os 4 planos.
+  - [x] Mapeados redirecionamentos para rotas descontinuadas (`/app/automations`, `/admin/whatsapp-logs`, `/admin/ai-usage`).
+  - [x] **Auditoria Direta no Banco via Node.js**:
+    - `plans`: Encontrados 3 planos legados com preços antigos (R$ 29, R$ 79, R$ 199); Premium e Enterprise não existiam no banco.
+    - `plan_limits`: Contas de IG fixadas em 1 e histórico defasado.
+    - `profiles`: Confirmado que `has_used_upgrade_discount` ainda não existe no schema cache do Supabase (exige update defensivo com fallback duplo).
+    - `user_lesson_progress`: Confirmado que XP nunca foi coluna de banco (apenas cálculo visual no client).
+  - [x] **Diretriz de Conexão Real**:
+    - Remoção de `INITIAL_PLANS`, mocks e seeds estáticos em `plansStore.ts`.
+    - Conexão 100% real de leitura e edição via rota `/api/admin/plans` contra o PostgreSQL da VPS.
+- [x] **Execução das Alterações Concluída com Sucesso**:
+  - [x] Banco de Dados & Tipos (`packages/types`, migration SQL).
+  - [x] Backend API & Store (`api/admin/plans/route.ts`, `plansStore.ts`, `planService.ts` com sincronização automática e zero mocks).
+  - [x] Limpeza de Menus, Layouts e Command Palette (`app/layout.tsx`, `admin/layout.tsx`, `CommandPalette.tsx`).
+  - [x] Redirecionamento das Rotas Descontinuadas (`/app/automations`, `/admin/whatsapp-logs`, `/admin/ai-usage`).
+  - [x] Limpeza da Landing Page (`HorizontalWorld.tsx`, `AnalyticsShowcase.tsx`, `Cycle.tsx`, `Pricing.tsx`, `pricing/page.tsx`, `landingStore.ts`, `privacy/page.tsx`).
+  - [x] Limpeza de XP no UP Creator (`up-creator/page.tsx`, `course/[id]/page.tsx`, `admin/up-creator/page.tsx`, `CourseModal.tsx`, `ModuleLessonBuilder.tsx`, `LessonModal.tsx`).
+  - [x] Correção de telas internas (`settings/page.tsx`, `client-area/page.tsx`, `register/page.tsx`).
+  - [x] Motor de Upgrade de 1º Ciclo e Checkout Seguro (`billing/page.tsx`, `checkout/page.tsx`, suporte UP Ideias oficial).
+  - [x] Validação Total: `next build` (44/44 páginas estáticas e dinâmicas geradas com sucesso, exit code 0) e `npx tsc --noEmit` (0 erros).
 
-## Log de Modificações Recentes
-- **Auditoria Global & Conexões Reais ao Banco de Dados**:
-  - `admin/ai-usage`: Conectado à tabela `ai_requests` com cálculo dinâmico de tokens e custos em tempo real; persistência de provedores sob `up_ai_providers_config`; remoção de textos legados ("Phyllo").
-  - `OnboardingConnectModal`: Eliminada simulação com `setTimeout` e IDs fake; integrado ao modal oficial de conexão de redes sociais (`open-nango-modal`) e listener reativo `social-account-changed`.
-  - `components/landing/Pricing`: Sincronização direta com `fetchPlansFromDb()`, garantindo que os planos da landing page reflitam sempre a tabela `plans` do Supabase.
-  - `app/automations`: Carregamento e gravação do número de celular e consentimento na tabela `profiles` (`phone` e `whatsapp_opt_in`).
-  - `admin/team` & `teamStore`: Remoção de foto fixa da Unsplash (`photo-1534528741775...`), fallbacks fixos de email (`equipe@upideias.com`) e sincronização de permissões com a coluna `role` de `profiles`.
-  - `app/billing`: Planos carregados via `fetchPlansFromDb()`; eliminado fallback arbitrário `"R$ 129,00"` para faturas sem valor explícito.
-  - `AdminSuggestContentModal` & `app/approvals`: Removida URL estática da Unsplash e textos fictícios de posts; quando não há imagem, é renderizado um preview visual nativo sofisticado do design system.
-  - `app/library`: Removida injeção forçada de URL da Unsplash como fallback ao salvar item do tipo imagem sem URL.
-  - `NangoConnectModal` & `admin/accounts`: Limpeza de textos e mensagens técnicas com marcas terceiras ("Phyllo", "Nango"), garantindo conformidade white-label estrita.
-  - `up-creator` & `coursesStore`: Substituído fallback da Unsplash no catálogo de cursos e leaderboard por avatares dinâmicos com iniciais estilizadas e asset local da marca.
-- **Validação de Integridade**:
-  - `npx next lint`: **0 erros** (Exit code 0).
-  - `npm run build --workspace=apps/web`: **Exit code 0** (44/44 páginas estáticas geradas).
+- [x] **Nova Fase Concluída: Aplicação Estrita dos Planos, Remoção de Mocks/Fallbacks/LocalStorage e Conexão Real com Banco**:
+  - [x] **Rota Central de Assinatura**: Criada `apps/web/src/app/api/user/subscription/route.ts` autenticada via Supabase, cruzando `profiles`, `subscriptions` e `social_accounts` com fail-closed estrito.
+  - [x] **Backend Limits Enforced**:
+    - `/api/instagram/live-data`: Limita o período de histórico (`history_days`) rigorosamente conforme o plano (30d para Iniciante, 60d para Premium, 90d para Pro/Enterprise).
+    - `/api/integrations/nango/session`: Bloqueia criação de sessão se `connected_accounts >= max_instagram_accounts` (HTTP 403).
+    - `planService.ts`: Validações 100% integradas ao banco.
+  - [x] **Substituição de VIP Exclusivo & Teaser nos Cursos**:
+    - `CourseModal.tsx`: Substituído "Grátis" / "VIP Exclusivo" pelo seletor oficial de planos (`Todos os Planos`, `Plano Premium`, `Plano Pro`, `Plano Enterprise`) + checkbox de Vitrine/Teaser.
+    - `admin/up-creator/page.tsx`: Tabela exibe plano requerido e indicador de vitrine ativa.
+    - `up-creator/page.tsx`: Design limpo, sem ícones decorativos, catálogo dinâmico com modal minimalista de teaser/upsell.
+    - `up-creator/course/[id]/page.tsx`: Player bloqueia reprodução sem plano requerido e oferece CTA limpo de upgrade.
+  - [x] **Exportação Universal de Relatórios**:
+    - `exportReports: true` para os 4 planos.
+    - `ExportButton.tsx`: Redesenhado sem ícones, minimalista e integrado no cabeçalho do Dashboard ao lado de Gerenciar Conexão.
+  - [x] **Eliminação de Mocks & Fallbacks**:
+    - `plansStore.ts`: Removido fallback `"Pro"` (inicia fail-closed em `"Iniciante"`), removidas chaves e funções de créditos/localStorage.
+    - `PlanGate.tsx`: Redesenhado sem ícones, sem simulador de bypass, consumindo `/api/user/subscription`.
+    - `dashboard/page.tsx`: Removidos números falsos de demonstração (`?? 109`, `?? 464`, `?? 246`, `?? 96`, `?? 9.2`), substituídos por 0 / "0.0".
+    - `NangoConnectModal.tsx`: Trava quando o limite de contas do plano é atingido com aviso claro e link para upgrade.
+    - `billing/page.tsx`, `settings/page.tsx`, `client-area/page.tsx`, `checkout/page.tsx`: Mocks, créditos e `localStorage` eliminados.
+    - Rotas legadas `(dashboard)` redirecionadas para rotas ativas em `/app`.
+  - [x] **Limpeza Residual Total de VIP, GRÁTIS e XP**:
+    - `coursesStore.ts`: Removidos "Grátis" e "VIP Exclusivo" da tipagem e normalização.
+    - `landingStore.ts` & `admin/settings/page.tsx`: CTA final alterado para "Criar Minha Conta".
+    - `Pricing.tsx`: Toggle de período alterado para "Anual (Economia anual)".
+    - `ModuleLessonBuilder.tsx` & `LessonModal.tsx`: Selo e toggle alterados para "Aula Demonstrativa".
+    - `TrailRoadmapView.tsx`: Substituído "+X XP" por "Certificado Incluso".
+    - `StudentAnalyticsView.tsx`: Métrica "XP Distribuído" substituída por "Aulas Concluídas".
+    - `CourseModal.tsx`: Substituídos comentário e preview de XP por carga horária.
+    - Grep global confirma 0 ocorrências de VIP, XP, Grátis/Gratis em todo o código.
+  - [x] **Validação**: `npx tsc --noEmit` executado com 0 erros.

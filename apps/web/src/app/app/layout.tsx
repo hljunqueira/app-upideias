@@ -138,10 +138,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const toolsItems = [
     { name: "Aprovações", href: "/app/approvals", icon: CheckSquare, badge: 3 },
     { name: "Biblioteca", href: "/app/library", icon: Library },
-    { name: "Mensagens Automáticas", href: "/app/automations", icon: MessageSquare },
     { name: "UP Creator", href: "/app/up-creator", icon: GraduationCap },
     { name: "Área do Cliente", href: "/app/client-area", icon: Users },
   ];
+
 
   const handleLogout = async () => {
     try {

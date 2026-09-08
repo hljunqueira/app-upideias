@@ -1,13 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lock, Crown, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
-import { 
-  PlanConfig, 
-  getActiveUserPlan, 
-  getStoredPlans, 
-  setActiveUserPlan 
-} from "@/lib/plansStore";
+import Link from "next/link";
+import { PlanConfig } from "@up-analytics/types";
 
 interface PlanGateProps {
   featureKey: keyof PlanConfig["allowedFeatures"];
@@ -20,84 +15,78 @@ export function PlanGate({
   featureTitle,
   children
 }: PlanGateProps) {
-  const [activePlan, setActivePlan] = useState<string>("Pro");
-  const [plans, setPlans] = useState<PlanConfig[]>([]);
-
-  const loadData = () => {
-    setActivePlan(getActiveUserPlan());
-    setPlans(getStoredPlans());
-  };
+  const [loading, setLoading] = useState(true);
+  const [isAllowed, setIsAllowed] = useState(false);
+  const [planName, setPlanName] = useState<string>("Iniciante");
 
   useEffect(() => {
-    loadData();
-    const handleUpdate = () => loadData();
-    window.addEventListener("up_plans_updated", handleUpdate);
-    return () => window.removeEventListener("up_plans_updated", handleUpdate);
-  }, []);
+    let isMounted = true;
+    async function checkAccess() {
+      try {
+        const res = await fetch("/api/user/subscription", { cache: "no-store" });
+        if (!res.ok) {
+          if (isMounted) {
+            setIsAllowed(false);
+            setLoading(false);
+          }
+          return;
+        }
+        const data = await res.json();
+        if (isMounted) {
+          const plan = data?.plan;
+          const allowed = plan?.allowedFeatures?.[featureKey] ?? false;
+          setPlanName(plan?.name || "Iniciante");
+          setIsAllowed(Boolean(allowed));
+          setLoading(false);
+        }
+      } catch {
+        if (isMounted) {
+          setIsAllowed(false);
+          setLoading(false);
+        }
+      }
+    }
 
-  const currentPlanConfig = plans.find((p) => p.name === activePlan);
-  const isAllowed = currentPlanConfig?.allowedFeatures[featureKey] ?? true;
+    checkAccess();
+    return () => {
+      isMounted = false;
+    };
+  }, [featureKey]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12 text-xs text-white/40 tracking-wider">
+        Verificando permissões do plano...
+      </div>
+    );
+  }
 
   if (isAllowed) {
     return <>{children}</>;
   }
 
-  // Se o recurso estiver bloqueado para o plano ativo
+  // Se o recurso estiver bloqueado: design limpo, sem ícones
   return (
-    <div className="bg-[#0b0b10] border border-upBorder/60 rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-2xl relative overflow-hidden max-w-4xl mx-auto my-6 animate-fadeIn text-upLightGray">
-      
-      {/* Glow Effect */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-upPink/10 blur-[100px] pointer-events-none" />
-
-      {/* Header Icon */}
-      <div className="w-16 h-16 rounded-3xl bg-upPink/15 text-upPink border border-upPink/30 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(255,83,104,0.2)]">
-        <Lock className="w-8 h-8" />
-      </div>
-
-      {/* Text Info */}
-      <div className="max-w-md mx-auto space-y-2">
-        <span className="text-[10px] font-extrabold uppercase tracking-widest text-upPink bg-upPink/10 px-3 py-1 rounded-md border border-upPink/20">
-          Recurso Bloqueado no Plano {activePlan}
+    <div className="bg-[#0B0B0F] border border-white/10 rounded-2xl p-8 sm:p-12 text-center space-y-5 max-w-xl mx-auto my-8 text-upLightGray">
+      <div className="space-y-2">
+        <span className="inline-block text-[11px] font-semibold uppercase tracking-widest text-upPink bg-upPink/10 px-3 py-1 rounded border border-upPink/20">
+          Plano {planName}
         </span>
-        <h2 className="text-2xl font-extrabold text-white">
-          Acesse o recurso {featureTitle}
+        <h2 className="text-xl font-bold text-white tracking-tight">
+          Acesso Restrito: {featureTitle}
         </h2>
-        <p className="text-xs text-upGray leading-relaxed">
-          Esta funcionalidade exige um plano superior com mais poder de automação e recursos avançados para o seu negócio.
+        <p className="text-xs text-white/60 leading-relaxed max-w-md mx-auto">
+          Esta funcionalidade não está inclusa na sua assinatura atual. Faça upgrade do seu plano para liberar este módulo.
         </p>
       </div>
 
-      {/* Plan Switcher de Teste Live */}
-      <div className="p-4 bg-upDark/60 border border-upBorder/50 rounded-2xl max-w-md mx-auto space-y-3">
-        <p className="text-[11px] font-bold text-white uppercase tracking-wider">
-          Simular Outro Plano para Testar esta Tela:
-        </p>
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {plans.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setActiveUserPlan(p.name)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                activePlan === p.name
-                  ? "bg-upPink text-white shadow-md"
-                  : "bg-upDark text-upGray hover:text-white border border-upBorder/40"
-              }`}
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA Button */}
       <div className="pt-2">
-        <button
-          onClick={() => setActiveUserPlan("Pro")}
-          className="px-8 py-3.5 bg-upPink hover:bg-upPink/90 text-white rounded-2xl text-xs font-extrabold shadow-[0_0_25px_rgba(255,83,104,0.4)] transition flex items-center justify-center gap-2 mx-auto cursor-pointer"
+        <Link
+          href="/pricing"
+          className="inline-block px-6 py-3 bg-upPink hover:bg-upPink/90 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition"
         >
-          <Crown className="w-4 h-4" />
-          <span>Fazer Upgrade para o Plano Pro</span>
-        </button>
+          Ver Planos e Fazer Upgrade
+        </Link>
       </div>
     </div>
   );
