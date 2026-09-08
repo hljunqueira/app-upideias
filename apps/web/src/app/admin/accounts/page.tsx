@@ -1,35 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Instagram,
-  Search,
-  RefreshCw,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  X,
-  User,
-  Activity,
-  Layers,
-  ShieldCheck,
-  Info,
-  Eye,
-  Trash2
-} from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { supabase, syncInstagramMetrics, disconnectInstagramAccount } from "@up-analytics/lib";
+import { syncInstagramMetrics } from "@up-analytics/lib";
 
 interface AccountItem {
   id: string;
   handle: string;
   ownerName: string;
   ownerEmail: string;
+  ownerPlan?: string;
   followers: string;
-  status: "Conectado" | "Token Expirado" | "Erro Meta API";
+  status: "Conectado";
   lastSync: string;
+  connectedAt?: string;
   nangoConnectionId?: string;
   platform?: string;
+  avatarUrl?: string | null;
 }
 
 export default function AdminAccountsPage() {
@@ -37,35 +24,21 @@ export default function AdminAccountsPage() {
   const [loading, setLoading] = useState(true);
   const [syncingAll, setSyncingAll] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("todos");
-  
-  // Modal de Detalhes de Conexão Nango
+  const [filterPlan, setFilterPlan] = useState<string>("todos");
+
+  // Modal de Detalhes de Conexão
   const [selectedDetailsAccount, setSelectedDetailsAccount] = useState<AccountItem | null>(null);
-  
+
   // Modal de Confirmação de Revogação
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
 
   const loadAccounts = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase.from("social_accounts").select("*");
-      if (data && data.length > 0) {
-        const mapped: AccountItem[] = data.map((a: any) => {
-          const rawHandle = a.username || a.platform_username || a.handle;
-          const handle = rawHandle ? (rawHandle.startsWith("@") ? rawHandle : `@${rawHandle}`) : "-";
-          return {
-            id: a.id,
-            handle,
-            ownerName: a.name || a.account_name || "Perfil Conectado",
-            ownerEmail: a.owner_email || a.email || "-",
-            followers: (a.followers_count ?? 0).toLocaleString("pt-BR"),
-            status: a.status === "active" || a.status === "connected" ? "Conectado" : "Token Expirado",
-            lastSync: a.updated_at ? new Date(a.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "Sem sincronização recente",
-            nangoConnectionId: a.external_account_id || a.nango_connection_id || `conn_${a.id.substring(0, 8)}`,
-            platform: a.platform || "instagram"
-          };
-        });
-        setAccounts(mapped);
+      const res = await fetch("/api/admin/accounts");
+      if (res.ok) {
+        const data = await res.json();
+        setAccounts(data.accounts || []);
       } else {
         setAccounts([]);
       }
@@ -96,16 +69,21 @@ export default function AdminAccountsPage() {
     await syncInstagramMetrics(id);
     setAccounts((prev) =>
       prev.map((a) =>
-        a.id === id ? { ...a, lastSync: "Agora mesmo", status: "Conectado" } : a
+        a.id === id ? { ...a, lastSync: "Agora mesmo" } : a
       )
     );
   };
 
   const handleConfirmRevokeAccount = async () => {
     if (!deletingAccountId) return;
-    await disconnectInstagramAccount(deletingAccountId);
-    setAccounts((prev) => prev.filter((a) => a.id !== deletingAccountId));
-    setDeletingAccountId(null);
+    try {
+      await fetch(`/api/admin/accounts?id=${deletingAccountId}`, { method: "DELETE" });
+      setAccounts((prev) => prev.filter((a) => a.id !== deletingAccountId));
+    } catch (e) {
+      console.error("Erro ao desconectar conta:", e);
+    } finally {
+      setDeletingAccountId(null);
+    }
   };
 
   const filteredAccounts = accounts.filter((a) => {
@@ -114,152 +92,139 @@ export default function AdminAccountsPage() {
       (a.handle?.toLowerCase() ?? "").includes(term) ||
       (a.ownerName?.toLowerCase() ?? "").includes(term) ||
       (a.ownerEmail?.toLowerCase() ?? "").includes(term);
-    const matchesStatus =
-      filterStatus === "todos" || a.status.toLowerCase() === filterStatus.toLowerCase();
-    return matchesSearch && matchesStatus;
+    const matchesPlan =
+      filterPlan === "todos" ||
+      (a.ownerPlan?.toLowerCase() ?? "") === filterPlan.toLowerCase();
+    return matchesSearch && matchesPlan;
   });
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in">
-      {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="flex flex-col gap-6 animate-fade-in text-zinc-200">
+      {/* Header Bar Executivo */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-            <Instagram className="w-8 h-8 text-upPink" />
-            Contas de Redes Sociais
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">
+            Conexões Sociais
+          </span>
+          <h1 className="text-2xl font-bold text-white tracking-tight mt-1">
+            Contas de Redes Sociais Conectadas
           </h1>
-          <p className="text-sm text-upGray mt-1">
-            Monitore a saúde das conexões sociais, force sincronizações de métricas e audite perfis vinculados.
+          <p className="text-xs text-zinc-400 mt-0.5">
+            Monitoramento de contas autênticas integradas via API oficial e histórico de sincronizações ativas.
           </p>
         </div>
 
         <button
           onClick={handleGlobalSync}
-          disabled={syncingAll}
-          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-upPink hover:bg-upPinkDark text-white font-bold text-sm transition-all shadow-[0_0_25px_rgba(255,83,104,0.3)] hover:scale-[1.02] shrink-0 disabled:opacity-50"
+          disabled={syncingAll || accounts.length === 0}
+          className="px-4 py-2 rounded-lg bg-upPink hover:bg-upPinkDark text-white text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50 shrink-0"
         >
-          <RefreshCw className={`w-4 h-4 ${syncingAll ? "animate-spin" : ""}`} />
           {syncingAll ? "Sincronizando..." : "Sincronizar Todas as Contas"}
         </button>
       </div>
 
-      {/* Banner Informativo de Conexão Autêntica */}
-      <div className="bg-upCard/40 border border-upBorder/60 rounded-2xl p-5 flex items-start gap-4 shadow-lg">
-        <div className="p-3 rounded-xl bg-upPink/10 text-upPink border border-upPink/20 shrink-0">
-          <Info className="w-6 h-6" />
+      {/* KPI Cards Sóbrios */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="p-4 rounded-xl border border-white/10 bg-zinc-950">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+            Total de Perfis Ativos
+          </span>
+          <span className="text-2xl font-bold text-white tracking-tight mt-1 block">
+            {accounts.length}
+          </span>
         </div>
-        <div className="space-y-1">
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            Integração Autêntica de Redes Sociais
-          </h4>
-          <p className="text-xs text-upGray leading-relaxed max-w-3xl">
-            As contas de redes sociais são vinculadas diretamente pelos próprios <strong>clientes assinantes</strong> no painel do aplicativo (<code className="text-upPink font-mono">/app</code>) através da conexão oficial da API social. O painel Admin é responsável pelo monitoramento das conexões e disparos de sincronização.
-          </p>
+
+        <div className="p-4 rounded-xl border border-white/10 bg-zinc-950">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+            Sincronização Operacional
+          </span>
+          <span className="text-2xl font-bold text-emerald-400 tracking-tight mt-1 block">
+            {accounts.length}
+          </span>
+        </div>
+
+        <div className="p-4 rounded-xl border border-white/10 bg-zinc-950">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 block">
+            Alertas de Conexão
+          </span>
+          <span className="text-2xl font-bold text-zinc-400 tracking-tight mt-1 block">
+            0
+          </span>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-upGray font-bold uppercase tracking-wider">Total de Perfis Conectados</p>
-            <p className="text-2xl font-black text-white mt-1">{accounts.length}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-upPink/10 text-upPink flex items-center justify-center border border-upPink/20">
-            <Instagram className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-upGray font-bold uppercase tracking-wider">Sincronização Ativa</p>
-            <p className="text-2xl font-black text-emerald-400 mt-1">
-              {accounts.filter((a) => a.status === "Conectado").length}
-            </p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-upCard/60 border border-upBorder rounded-2xl p-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-upGray font-bold uppercase tracking-wider">Tokens com Alertas</p>
-            <p className="text-2xl font-black text-amber-400 mt-1">
-              {accounts.filter((a) => a.status !== "Conectado").length}
-            </p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
-      {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-upCard/40 border border-upBorder/60 p-4 rounded-2xl">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-upPink absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* Barra de Filtros */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-xl border border-white/10 bg-zinc-950/60">
+        <div className="w-full sm:w-80">
           <input
             type="text"
-            placeholder="Buscar por @handle, cliente ou e-mail..."
+            placeholder="Buscar por @perfil, cliente ou e-mail..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-upDark border border-upBorder/80 rounded-xl text-white placeholder-upGray text-xs focus:outline-none focus:border-upPink transition-all"
+            className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-upPink transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-upGray font-semibold shrink-0">Filtrar Status:</span>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span className="text-xs text-zinc-400 font-mono">Filtrar Plano:</span>
           <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 bg-upDark border border-upBorder/80 rounded-xl text-xs text-white focus:outline-none focus:border-upPink transition-all"
+            value={filterPlan}
+            onChange={(e) => setFilterPlan(e.target.value)}
+            className="bg-zinc-900 border border-white/10 text-xs rounded-lg px-2.5 py-1 text-zinc-200 outline-none"
           >
-            <option value="todos">Todos os Status</option>
-            <option value="conectado">Conectados</option>
-            <option value="token expirado">Token Expirado</option>
+            <option value="todos">Todos os Planos</option>
+            <option value="Iniciante">Iniciante</option>
+            <option value="Premium">Premium</option>
+            <option value="Pro">Pro</option>
+            <option value="Enterprise">Enterprise</option>
           </select>
         </div>
       </div>
 
-      {/* Accounts Table */}
-      <div className="bg-upCard/60 border border-upBorder/80 rounded-2xl overflow-hidden shadow-xl">
+      {/* Tabela de Contas Reais */}
+      <div className="border border-white/10 rounded-2xl bg-zinc-950 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-upLightGray">
-            <thead className="bg-upDark/90 border-b border-upBorder/60 text-upGray uppercase tracking-wider text-[10px]">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-zinc-900/80 text-[10px] uppercase font-mono tracking-wider text-zinc-400 border-b border-white/10">
               <tr>
-                <th className="px-6 py-4">Perfil Conectado</th>
-                <th className="px-6 py-4">Assinante Proprietário</th>
-                <th className="px-6 py-4">Seguidores</th>
-                <th className="px-6 py-4">Status Conexão Meta</th>
-                <th className="px-6 py-4">Última Sync</th>
-                <th className="px-6 py-4 text-right">Ações</th>
+                <th className="px-6 py-3.5">Perfil Conectado</th>
+                <th className="px-6 py-3.5">Assinante Proprietário</th>
+                <th className="px-6 py-3.5">Seguidores</th>
+                <th className="px-6 py-3.5">Status da Conexão</th>
+                <th className="px-6 py-3.5">Última Sincronização</th>
+                <th className="px-6 py-3.5 text-right">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-upBorder/40">
+            <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-upGray">
-                    Carregando contas conectadas...
+                  <td colSpan={6} className="text-center py-12 text-zinc-500 font-mono">
+                    Carregando conexões oficiais do banco...
                   </td>
                 </tr>
               ) : filteredAccounts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-12 text-upGray">
-                    Nenhuma conta social encontrada no banco.
+                  <td colSpan={6} className="text-center py-12 text-zinc-400">
+                    Nenhuma conta social conectada encontrada no momento.
                   </td>
                 </tr>
               ) : (
                 filteredAccounts.map((acc) => (
-                  <tr key={acc.id} className="hover:bg-upCard/80 transition-colors group">
+                  <tr key={acc.id} className="hover:bg-zinc-900/40 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-500 via-upPink to-purple-600 p-[1.5px] shrink-0">
-                          <div className="w-full h-full rounded-full bg-upDark flex items-center justify-center font-bold text-upPink text-xs">
-                            <Instagram className="w-4 h-4" />
+                        {acc.avatarUrl ? (
+                          <img
+                            src={acc.avatarUrl}
+                            alt={acc.handle}
+                            className="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center font-mono font-bold text-upPink text-[10px] shrink-0">
+                            IG
                           </div>
-                        </div>
-                        <span className="font-mono font-bold text-white group-hover:text-upPink transition-colors text-sm">
+                        )}
+                        <span className="font-mono font-bold text-white text-xs">
                           {acc.handle}
                         </span>
                       </div>
@@ -268,28 +233,22 @@ export default function AdminAccountsPage() {
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-semibold text-white">{acc.ownerName}</span>
-                        <span className="text-[11px] text-upGray">{acc.ownerEmail}</span>
+                        <span className="text-[11px] text-zinc-400 font-mono">{acc.ownerEmail}</span>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 font-bold text-white">
+                    <td className="px-6 py-4 font-mono font-bold text-zinc-200">
                       {acc.followers}
                     </td>
 
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        acc.status === "Conectado"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          acc.status === "Conectado" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
-                        }`} />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         {acc.status}
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 text-upGray text-[11px]">
+                    <td className="px-6 py-4 text-zinc-400 font-mono text-[11px]">
                       {acc.lastSync}
                     </td>
 
@@ -297,27 +256,26 @@ export default function AdminAccountsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleSyncAccount(acc.id)}
-                          className="px-2.5 py-1.5 rounded-xl bg-upDark hover:bg-emerald-500/20 hover:text-emerald-400 border border-upBorder/60 transition-all text-xs font-semibold flex items-center gap-1"
-                          title="Forçar Sincronização Oficial"
+                          className="px-2.5 py-1 rounded-lg border border-white/10 hover:border-white/20 bg-zinc-900 text-xs font-medium text-zinc-200 hover:text-white transition-colors"
+                          title="Sincronizar Métricas"
                         >
-                          <RefreshCw className="w-3.5 h-3.5" />
-                          <span>Sync</span>
+                          Sincronizar
                         </button>
-                        
+
                         <button
                           onClick={() => setSelectedDetailsAccount(acc)}
-                          className="p-2 rounded-xl bg-upDark hover:bg-upPink/20 hover:text-upPink border border-upBorder/60 transition-all text-upGray"
-                          title="Ver Detalhes da Conexão"
+                          className="px-2.5 py-1 rounded-lg border border-white/10 hover:border-white/20 bg-zinc-900 text-xs text-zinc-300 hover:text-white transition-colors"
+                          title="Ver Detalhes"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          Detalhes
                         </button>
 
                         <button
                           onClick={() => setDeletingAccountId(acc.id)}
-                          className="p-2 rounded-xl bg-upDark hover:bg-rose-500/20 hover:text-rose-400 border border-upBorder/60 transition-all text-upGray"
-                          title="Revogar Conexão"
+                          className="px-2.5 py-1 rounded-lg border border-rose-500/20 bg-rose-500/10 text-xs text-rose-300 hover:bg-rose-500/20 transition-colors"
+                          title="Desconectar"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          Desconectar
                         </button>
                       </div>
                     </td>
@@ -329,57 +287,50 @@ export default function AdminAccountsPage() {
         </div>
       </div>
 
-      {/* Modal de Detalhes da Conexão Oficial */}
+      {/* Modal de Detalhes da Conexão */}
       {selectedDetailsAccount && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-[#0e0e14] border border-upBorder/80 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-6 relative">
-            <div className="flex items-center justify-between border-b border-upBorder/60 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-upPink/20 text-upPink border border-upPink/30 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Detalhes da Conexão Oficial</h3>
-                  <p className="text-xs text-upGray">{selectedDetailsAccount.handle}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedDetailsAccount(null)}
-                className="p-1.5 text-upGray hover:text-white rounded-xl hover:bg-white/5 transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-4">
+            <div className="border-b border-white/10 pb-3">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-upPink">
+                Integração Oficial
+              </span>
+              <h3 className="text-base font-bold text-white mt-0.5">
+                Detalhes da Conexão Social
+              </h3>
+              <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                {selectedDetailsAccount.handle}
+              </p>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-upCard/40 border border-upBorder/60 space-y-1">
-                <p className="text-upGray font-semibold">ID da Conexão Oficial</p>
-                <p className="font-mono text-white text-[11px]">{selectedDetailsAccount.nangoConnectionId || selectedDetailsAccount.id}</p>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between py-1.5 border-b border-white/5">
+                <span className="text-zinc-400">Assinante:</span>
+                <span className="text-white font-medium">{selectedDetailsAccount.ownerName}</span>
               </div>
-
-              <div className="p-3 rounded-xl bg-upCard/40 border border-upBorder/60 space-y-1">
-                <p className="text-upGray font-semibold">Assinante Proprietário</p>
-                <p className="text-white font-bold">{selectedDetailsAccount.ownerName}</p>
-                <p className="text-upGray text-[11px]">{selectedDetailsAccount.ownerEmail}</p>
+              <div className="flex justify-between py-1.5 border-b border-white/5">
+                <span className="text-zinc-400">E-mail:</span>
+                <span className="text-white font-mono">{selectedDetailsAccount.ownerEmail}</span>
               </div>
-
-              <div className="p-3 rounded-xl bg-upCard/40 border border-upBorder/60 flex items-center justify-between">
-                <div>
-                  <p className="text-upGray font-semibold">Plataforma</p>
-                  <p className="text-upPink font-bold uppercase">{selectedDetailsAccount.platform || "Instagram"}</p>
-                </div>
-                <div>
-                  <p className="text-upGray font-semibold">Seguidores</p>
-                  <p className="text-white font-bold">{selectedDetailsAccount.followers}</p>
-                </div>
+              <div className="flex justify-between py-1.5 border-b border-white/5">
+                <span className="text-zinc-400">ID da Conta Meta:</span>
+                <span className="text-zinc-300 font-mono">{selectedDetailsAccount.nangoConnectionId}</span>
+              </div>
+              <div className="flex justify-between py-1.5 border-b border-white/5">
+                <span className="text-zinc-400">Data de Vinculação:</span>
+                <span className="text-white font-mono">{selectedDetailsAccount.connectedAt}</span>
+              </div>
+              <div className="flex justify-between py-1.5">
+                <span className="text-zinc-400">Status do Token:</span>
+                <span className="text-emerald-400 font-mono font-bold">Ativo & Válido</span>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-upBorder/60 flex justify-end">
+            <div className="pt-2 border-t border-white/10 flex justify-end">
               <button
+                type="button"
                 onClick={() => setSelectedDetailsAccount(null)}
-                className="px-5 py-2.5 bg-upCard hover:bg-upCard/80 text-white rounded-xl text-xs font-bold transition-all"
+                className="px-4 py-2 rounded-lg bg-zinc-900 border border-white/10 text-xs text-white hover:bg-zinc-800 transition-colors"
               >
                 Fechar
               </button>
@@ -391,10 +342,11 @@ export default function AdminAccountsPage() {
       {/* Modal de Confirmação de Revogação */}
       <ConfirmModal
         isOpen={!!deletingAccountId}
-        title="Revogar Conexão Social"
-        description="Tem certeza que deseja revogar o token de acesso desta conta social? O cliente precisará autorizar a reconexão pelo painel."
-        confirmText="Sim, Revogar Conexão"
+        title="Desconectar Perfil do Instagram"
+        description="Tem certeza de que deseja revogar o acesso a esta conta? O assinante precisará reconectar para sincronizar novos dados."
+        confirmText="Confirmar Desconexão"
         cancelText="Cancelar"
+        variant="danger"
         onConfirm={handleConfirmRevokeAccount}
         onClose={() => setDeletingAccountId(null)}
       />

@@ -37,58 +37,20 @@ export default function AdminDashboard() {
     async function loadDashboardStats() {
       setLoading(true);
       try {
-        // 1. Usuários Totais
-        const { count: usersCount } = await supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true });
-        setTotalUsers(usersCount || 0);
+        const [subsRes, accsRes] = await Promise.all([
+          fetch("/api/admin/subscribers"),
+          fetch("/api/admin/accounts"),
+        ]);
 
-        // 2. Perfis Conectados
-        const { count: profilesCount } = await supabase
-          .from("social_accounts")
-          .select("*", { count: "exact", head: true });
-        setConnectedProfiles(profilesCount || 0);
-
-        // 3. Faturamento Estimado (Recorrente de Assinaturas Ativas)
-        const { data: subs } = await supabase
-          .from("subscriptions")
-          .select("amount")
-          .eq("status", "active");
-
-        let totalRevCents = 0;
-        if (subs && subs.length > 0) {
-          totalRevCents = subs.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0);
-          setEstimatedRevenue(`R$ ${totalRevCents.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`);
-        } else {
-          setEstimatedRevenue("R$ 0,00");
+        if (subsRes.ok) {
+          const subsData = await subsRes.json();
+          setTotalUsers(subsData.total || 0);
         }
 
-        // 4. Créditos IA Consumidos
-        const { count: aiCount } = await supabase
-          .from("ai_insights")
-          .select("*", { count: "exact", head: true });
-        setAiGenerations(aiCount || 0);
-
-        // 5. Logs Recentes do Banco (sync_logs)
-        const { data: logsData } = await supabase
-          .from("sync_logs")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(4);
-
-        if (logsData && logsData.length > 0) {
-          setRecentLogs(logsData.map((l: any) => ({
-            id: l.id,
-            account: l.account_handle || "Perfil Conectado",
-            status: l.status === "success" ? "Sucesso" : "Falha",
-            msg: l.message || "Sincronização de métricas realizada",
-            time: l.finished_at ? new Date(l.finished_at).toLocaleTimeString("pt-BR") : "Recentemente",
-            alert: l.status !== "success"
-          })));
-        } else {
-          setRecentLogs([]);
+        if (accsRes.ok) {
+          const accsData = await accsRes.json();
+          setConnectedProfiles(accsData.total || 0);
         }
-
       } catch {
         /* ignore */
       } finally {
