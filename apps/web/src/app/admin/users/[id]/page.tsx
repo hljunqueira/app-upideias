@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { supabase } from "@up-analytics/lib";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
@@ -56,9 +57,10 @@ interface ApprovalItem {
 export default function AdminSubscriberProfilePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params?: { id: string };
 }) {
-  const { id: subscriberId } = use(params);
+  const routeParams = useParams();
+  const subscriberId = (routeParams?.id as string) || params?.id || "";
 
   const [subscriber, setSubscriber] = useState<Subscriber | null>(null);
   const [account, setAccount] = useState<SocialAccount | null>(null);

@@ -21,16 +21,19 @@ export async function GET(req: NextRequest) {
     const period = searchParams.get('period') || '30D';
     const requestedAccountId = searchParams.get('accountId');
 
+    const adminClient = createAdminClient();
+
     // 1. Determina número de dias com base no plano contratado no banco (fail-closed em Iniciante)
-    const { data: profile } = await supabase
+    const { data: profile } = await adminClient
       .from('profiles')
-      .select('plan')
+      .select('plan, role')
       .eq('id', user.id)
       .maybeSingle();
 
+    const isAdmin = profile?.role === 'admin' || user.email?.trim().toLowerCase() === 'admin@upideias.com';
     const planLower = (profile?.plan || 'iniciante').toLowerCase();
     const maxDaysAllowed =
-      planLower.includes('enter') || planLower.includes('pro')
+      isAdmin || planLower.includes('enter') || planLower.includes('pro')
         ? 90
         : planLower.includes('premi')
         ? 60
@@ -53,8 +56,6 @@ export async function GET(req: NextRequest) {
     const startDateObj = new Date(now.getTime() - days * 86400000);
     const startDateStr = startDateObj.toISOString().split('T')[0];
     const endDateStr = now.toISOString().split('T')[0];
-
-    const adminClient = createAdminClient();
 
     // 2. Busca a conta social conectada do usuário logado (respeitando isolamento estrito)
     let accountQuery = adminClient

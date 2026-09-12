@@ -70,7 +70,7 @@ export async function GET() {
         email: p.email || "Sem e-mail",
         plan: p.plan || "Iniciante",
         status: p.status === "Suspenso" ? "Suspenso" : p.status === "Pendente" ? "Pendente" : "Ativo",
-        instagramHandle: p.instagram_handle ? `@${p.instagram_handle}` : userAccounts[0]?.username ? `@${userAccounts[0]?.username}` : "-",
+        instagramHandle: p.instagram_handle ? `@${p.instagram_handle.replace(/^@+/, "")}` : userAccounts[0]?.username ? `@${userAccounts[0]?.username.replace(/^@+/, "")}` : "-",
         connectedAccountsCount: userAccounts.length,
         pendingApprovalsCount: userApprovals.length,
         role: p.role === "admin" ? "admin" : "user",

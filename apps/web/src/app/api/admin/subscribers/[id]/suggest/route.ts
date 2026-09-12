@@ -6,10 +6,11 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
-    const { id: subscriberId } = await params;
+    const resolvedParams = await params;
+    const subscriberId = resolvedParams?.id;
     const supabase = await createClient();
     const {
       data: { user },
@@ -20,13 +21,18 @@ export async function POST(
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
-    const { data: adminProfile } = await supabase
+    const adminClient = createAdminClient();
+
+    const { data: adminProfile } = await adminClient
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .maybeSingle();
 
-    if (adminProfile?.role !== 'admin') {
+    const isRoleAdmin = adminProfile?.role === 'admin';
+    const isAdminEmail = user.email?.trim().toLowerCase() === 'admin@upideias.com';
+
+    if (!isRoleAdmin && !isAdminEmail) {
       return NextResponse.json({ error: 'Acesso restrito a administradores' }, { status: 403 });
     }
 
@@ -47,8 +53,6 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    const adminClient = createAdminClient();
 
     const { data: approval, error: insertErr } = await adminClient
       .from('content_approvals')

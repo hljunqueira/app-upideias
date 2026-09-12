@@ -6,10 +6,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
-    const { id: subscriberId } = await params;
+    const resolvedParams = await params;
+    const subscriberId = resolvedParams?.id;
     const supabase = await createClient();
     const {
       data: { user },
@@ -20,18 +21,21 @@ export async function GET(
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
+    const adminClient = createAdminClient();
+
     // Checa permissão admin
-    const { data: adminProfile } = await supabase
+    const { data: adminProfile } = await adminClient
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .maybeSingle();
 
-    if (adminProfile?.role !== 'admin') {
+    const isRoleAdmin = adminProfile?.role === 'admin';
+    const isAdminEmail = user.email?.trim().toLowerCase() === 'admin@upideias.com';
+
+    if (!isRoleAdmin && !isAdminEmail) {
       return NextResponse.json({ error: 'Acesso restrito a administradores' }, { status: 403 });
     }
-
-    const adminClient = createAdminClient();
 
     // 1. Perfil do assinante
     const { data: subscriber, error: subErr } = await adminClient
@@ -80,7 +84,11 @@ export async function GET(
         email: subscriber.email,
         plan: subscriber.plan || 'Iniciante',
         status: subscriber.status || 'Ativo',
-        instagramHandle: subscriber.instagram_handle || account?.username || '-',
+        instagramHandle: subscriber.instagram_handle
+          ? `@${subscriber.instagram_handle.replace(/^@+/, '')}`
+          : account?.username
+          ? `@${account.username.replace(/^@+/, '')}`
+          : '-',
         createdAt: subscriber.created_at,
       },
       account,

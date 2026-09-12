@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { supabase } from "@up-analytics/lib";
 
 interface Subscriber {
@@ -12,6 +13,18 @@ interface Subscriber {
   status: string;
   instagramHandle: string;
   createdAt?: string;
+}
+
+interface SocialAccount {
+  id: string;
+  username: string;
+  platform?: string;
+  followers_count?: number;
+  following_count?: number;
+  media_count?: number;
+  profile_picture_url?: string;
+  connected_at?: string;
+  status?: string;
 }
 
 interface PostItem {
@@ -35,8 +48,9 @@ interface ApprovalItem {
   caption: string;
   image_url?: string;
   status: "pending" | "approved" | "rejected" | "adjusted";
+  client_comment?: string;
   specialist_notes?: string;
-  visual_diagnosis?: {
+  ai_feedback?: {
     gancho_visual?: string;
     legibilidade_e_contraste?: string;
     sugestao_legenda?: string;
@@ -48,9 +62,10 @@ interface ApprovalItem {
 export default function AdminSubscriberPostsPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params?: { id: string };
 }) {
-  const { id: subscriberId } = use(params);
+  const routeParams = useParams();
+  const subscriberId = (routeParams?.id as string) || params?.id || "";
 
   const [subscriber, setSubscriber] = useState<Subscriber | null>(null);
   const [posts, setPosts] = useState<PostItem[]>([]);

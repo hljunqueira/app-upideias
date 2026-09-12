@@ -112,6 +112,7 @@ export async function getMe() {
     email: user.email,
     name: resolvedName,
     role: isRoleAdmin ? 'admin' : (profile?.role || 'user'),
+    plan: profile?.plan || 'Iniciante',
     user_metadata: user.user_metadata,
   };
 }

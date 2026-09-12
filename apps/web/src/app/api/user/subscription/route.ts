@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +19,10 @@ export async function GET() {
       );
     }
 
-    // 1. Busca perfil no Supabase
-    const { data: profile } = await supabase
+    const adminClient = createAdminClient();
+
+    // 1. Busca perfil no Supabase com adminClient garantindo leitura do plano real
+    const { data: profile } = await adminClient
       .from('profiles')
       .select('role, plan, status, has_used_upgrade_discount')
       .eq('id', user.id)
@@ -31,7 +34,7 @@ export async function GET() {
     const isAdmin = isRoleAdmin || isAdminEmail;
 
     // 3. Contar contas sociais conectadas no momento
-    const { count: connectedAccountsCount } = await supabase
+    const { count: connectedAccountsCount } = await adminClient
       .from('social_accounts')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
@@ -72,18 +75,19 @@ export async function GET() {
     }
 
     // 4. Busca assinatura ativa mais recente em subscriptions (para assinantes regulares)
-    const { data: subsData } = await supabase
+    const { data: subsData } = await adminClient
       .from('subscriptions')
-      .select('*')
+      .select('*, plans(*)')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1);
 
     const activeSub = subsData?.[0] || null;
+    const subPlanName = (activeSub?.plans as any)?.name || (activeSub as any)?.plan_name || null;
 
-    // Normaliza nome do plano contratado
-    const rawPlan = (activeSub?.plan_name || profile?.plan || 'Iniciante').trim().toLowerCase();
+    // Normaliza nome do plano contratado (do perfil do banco ou da assinatura ativa)
+    const rawPlan = (subPlanName || profile?.plan || 'Iniciante').trim().toLowerCase();
     let planSlug = 'iniciante';
     let planName = 'Iniciante';
 
