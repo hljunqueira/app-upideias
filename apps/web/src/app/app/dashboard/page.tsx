@@ -14,7 +14,9 @@ import {
   Cell,
 } from "recharts";
 import { PhoneMockupPreview } from "../../../components/ui/PhoneMockupPreview";
-import { NangoConnectModal } from "../../../components/common/NangoConnectModal";
+import { SocialConnectModal } from "../../../components/common/SocialConnectModal";
+import { AudienceDemographicsCard } from "../../../components/dashboard/AudienceDemographicsCard";
+import { FollowerHistoryCard } from "../../../components/dashboard/FollowerHistoryCard";
 import { ExportButton } from "../../../components/ui/ExportButton";
 
 export default function Dashboard() {
@@ -25,7 +27,9 @@ export default function Dashboard() {
   const [metrics, setMetrics] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [selectedPost, setSelectedPost] = useState<any>(null);
-  const [isNangoModalOpen, setIsNangoModalOpen] = useState(false);
+  const [demographics, setDemographics] = useState<any>(null);
+  const [followerHistory, setFollowerHistory] = useState<any>(null);
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState("Seg");
   const [userPlanHistoryLimit, setUserPlanHistoryLimit] = useState<number>(30);
 
@@ -72,12 +76,16 @@ export default function Dashboard() {
         setSelectedPost(data.posts?.[0] || null);
         setMetrics(data.metrics || []);
         setSummary(data.summary || null);
+        setDemographics(data.demographics || null);
+        setFollowerHistory(data.follower_history || null);
       } else {
         setAccount(null);
         setPosts([]);
         setSelectedPost(null);
         setMetrics([]);
         setSummary(null);
+        setDemographics(null);
+        setFollowerHistory(null);
       }
     } catch (e) {
       console.warn("Erro ao buscar dados em tempo real:", e);
@@ -86,6 +94,8 @@ export default function Dashboard() {
       setSelectedPost(null);
       setMetrics([]);
       setSummary(null);
+      setDemographics(null);
+      setFollowerHistory(null);
     } finally {
       setLoading(false);
     }
@@ -191,7 +201,7 @@ export default function Dashboard() {
           <ExportButton onExport={() => window.print()} />
 
           <button
-            onClick={() => setIsNangoModalOpen(true)}
+            onClick={() => setIsSocialModalOpen(true)}
             className="text-xs font-medium text-neutral-300 hover:text-white px-3.5 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition cursor-pointer"
           >
             Gerenciar Conexão
@@ -240,7 +250,7 @@ export default function Dashboard() {
             Conecte sua conta do Instagram Profissional para sincronizar métricas de alcance, seguidores, engajamento e publicações oficiais em tempo real.
           </p>
           <button
-            onClick={() => setIsNangoModalOpen(true)}
+            onClick={() => setIsSocialModalOpen(true)}
             className="mt-6 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs shadow-lg hover:shadow-rose-500/30 transition cursor-pointer"
           >
             Conectar Instagram Agora
@@ -552,6 +562,12 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Demografia e Evolução de Seguidores */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FollowerHistoryCard data={followerHistory} currentFollowers={followersCount} />
+                <AudienceDemographicsCard demographics={demographics} followersCount={followersCount} />
+              </div>
+
               {/* Grade de Conteúdo Principal (Publicações Oficiais) */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -649,10 +665,10 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* Modal de Conexão Nango */}
-      <NangoConnectModal
-        isOpen={isNangoModalOpen}
-        onClose={() => setIsNangoModalOpen(false)}
+      {/* Modal de Conexão Oficial do Instagram */}
+      <SocialConnectModal
+        isOpen={isSocialModalOpen}
+        onClose={() => setIsSocialModalOpen(false)}
         onSuccess={() => fetchLiveData(period)}
       />
     </div>

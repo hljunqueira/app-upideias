@@ -87,7 +87,7 @@ export async function GET() {
         connectedAt: a.connected_at
           ? new Date(a.connected_at).toLocaleDateString("pt-BR")
           : "-",
-        nangoConnectionId: a.external_account_id || `acc_${a.id.substring(0, 8)}`,
+        externalAccountId: a.external_account_id || `acc_${a.id.substring(0, 8)}`,
         platform: a.platform || "instagram",
         avatarUrl: a.profile_picture_url || null,
       };

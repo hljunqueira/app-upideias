@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
-  BrainCircuit,
   PenTool,
   Calendar,
   CheckSquare,
@@ -22,14 +21,13 @@ import {
   ChevronDown,
   Menu,
   X,
-  Sparkles,
   Shield,
   Instagram
 } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { getMe, apiLogout } from "@/lib/api";
 import { getInstagramAccounts } from "@up-analytics/lib";
-import { NangoConnectModal } from "@/components/common/NangoConnectModal";
+import { SocialConnectModal } from "@/components/common/SocialConnectModal";
 import { fetchNotificationsFromDatabase, getNotifications, markAllNotificationsAsRead, NotificationItem } from "@/lib/notificationsStore";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -103,14 +101,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
 
     window.addEventListener("social-account-changed", handleAccountChanged);
-    window.addEventListener("open-nango-modal", handleOpenModal);
-    window.addEventListener("open-phyllo-modal", handleOpenModal);
+    window.addEventListener("open-social-modal", handleOpenModal);
     window.addEventListener("open-connect-modal", handleOpenModal);
 
     return () => {
       window.removeEventListener("social-account-changed", handleAccountChanged);
-      window.removeEventListener("open-nango-modal", handleOpenModal);
-      window.removeEventListener("open-phyllo-modal", handleOpenModal);
+      window.removeEventListener("open-social-modal", handleOpenModal);
       window.removeEventListener("open-connect-modal", handleOpenModal);
     };
   }, []);
@@ -127,18 +123,36 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+
+  useEffect(() => {
+    const loadPendingCount = () => {
+      fetch("/api/posts/approvals")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.approvals) {
+            const pending = data.approvals.filter((a: any) => a.status === "pending").length;
+            setPendingApprovalsCount(pending);
+          }
+        })
+        .catch(() => {});
+    };
+    loadPendingCount();
+    window.addEventListener("up_approvals_updated", loadPendingCount);
+    return () => window.removeEventListener("up_approvals_updated", loadPendingCount);
+  }, [pathname]);
+
   const primaryNavItems = [
     { name: "Visão Geral", href: "/app/dashboard", icon: LayoutDashboard },
     { name: "Publicações", href: "/app/posts", icon: FileText },
-    { name: "Estratégias", href: "/app/ai-strategy", icon: BrainCircuit },
-    { name: "Gerador", href: "/app/content-generator", icon: PenTool },
+    { name: "Aprovações", href: "/app/approvals", icon: CheckSquare, badge: pendingApprovalsCount },
     { name: "Calendário", href: "/app/content-calendar", icon: Calendar },
+    { name: "UP Creator", href: "/app/up-creator", icon: GraduationCap },
   ];
 
   const toolsItems: { name: string; href: string; icon: any; badge?: number }[] = [
-    { name: "Aprovações", href: "/app/approvals", icon: CheckSquare },
+    { name: "Roteiros de Conteúdo", href: "/app/content-generator", icon: PenTool },
     { name: "Biblioteca", href: "/app/library", icon: Library },
-    { name: "UP Creator", href: "/app/up-creator", icon: GraduationCap },
     { name: "Área do Cliente", href: "/app/client-area", icon: Users },
   ];
 
@@ -182,7 +196,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </span>
             </Link>
 
-            {/* Status Chip Instagram com Nango Connect */}
+            {/* Status Chip Instagram Oficial */}
             <button
               onClick={() => setIsConnectModalOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-upCard/80 border border-upBorder hover:border-upPink/60 text-xs text-upLightGray hover:text-white shrink-0 transition-all cursor-pointer shadow-sm hover:shadow-[0_0_15px_rgba(255,83,104,0.2)]"
@@ -219,6 +233,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span>{item.name}</span>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-upPink text-white shadow-sm">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -430,10 +449,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 p-3 rounded-xl bg-upCard/40 border border-upBorder/60 text-xs font-semibold text-white"
+                    className="flex items-center justify-between p-3 rounded-xl bg-upCard/40 border border-upBorder/60 text-xs font-semibold text-white"
                   >
-                    <Icon className="w-4 h-4 text-upPink" />
-                    <span>{item.name}</span>
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-4 h-4 text-upPink" />
+                      <span>{item.name}</span>
+                    </div>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-upPink text-white">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -468,8 +494,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Modal Command Palette (Ctrl+K) */}
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
 
-      {/* Modal de Conexão de Redes Sociais via Nango Connect */}
-      <NangoConnectModal
+      {/* Modal de Conexão Oficial do Instagram */}
+      <SocialConnectModal
         isOpen={isConnectModalOpen}
         onClose={() => setIsConnectModalOpen(false)}
         onSuccess={() => {

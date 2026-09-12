@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { syncInstagramMetrics } from "@up-analytics/lib";
 
@@ -14,7 +15,7 @@ interface AccountItem {
   status: "Conectado";
   lastSync: string;
   connectedAt?: string;
-  nangoConnectionId?: string;
+  externalAccountId?: string;
   platform?: string;
   avatarUrl?: string | null;
 }
@@ -100,6 +101,19 @@ export default function AdminAccountsPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in text-zinc-200">
+      {/* Banner Informativo de Unificação */}
+      <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <span className="text-zinc-300">
+          A gestão de conexões sociais e postagens agora está unificada na área de <strong>Assinantes</strong> através da <strong>Ficha Completa</strong> de cada cliente.
+        </span>
+        <Link
+          href="/admin/users"
+          className="px-3 py-1.5 rounded-lg bg-upPink hover:bg-upPinkDark text-white font-semibold text-xs whitespace-nowrap text-center transition-colors shrink-0 uppercase tracking-wider"
+        >
+          Ir para Assinantes
+        </Link>
+      </div>
+
       {/* Header Bar Executivo */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>
@@ -313,8 +327,8 @@ export default function AdminAccountsPage() {
                 <span className="text-white font-mono">{selectedDetailsAccount.ownerEmail}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-white/5">
-                <span className="text-zinc-400">ID da Conta Meta:</span>
-                <span className="text-zinc-300 font-mono">{selectedDetailsAccount.nangoConnectionId}</span>
+                <span className="text-zinc-400">ID da Conexão Social:</span>
+                <span className="text-zinc-300 font-mono">{selectedDetailsAccount.externalAccountId || "-"}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-white/5">
                 <span className="text-zinc-400">Data de Vinculação:</span>

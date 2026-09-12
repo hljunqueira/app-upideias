@@ -20,27 +20,34 @@
 - **Configurador e CRUD Completo de Planos (`/admin/plans`):** Permite **Criar Novos Planos** e **Excluir Planos** com confirmação (`ConfirmModal`). O campo de preço aceita e formata decimais com vírgula ou ponto (ex: `79,90` $\rightarrow$ `R$ 79,90`), exibindo o valor formatado nos cartões, landing page e checkout. Cada cartão de plano renderiza de forma sincronizada os Benefícios Textuais e as Permissões de Telas do App.
 - **Notificações Reais via Supabase (`notificationsStore.ts` & `public.notifications`):** É estritamente proibido utilizar listas de mocks estáticos hardcoded para alertas do sistema. O `notificationsStore.ts` consulta em tempo real o PostgreSQL gerenciado via Supabase (`notifications`, `subscriptions`, `sync_logs`, `instagram_accounts`).
 - **Seletor Dinâmico de Contas Sociais no Dashboard (`/app/dashboard`):** Quando um cliente possui mais de uma conta conectada (planos Pro/Agência), o cabeçalho do Dashboard renderiza um **Dropdown de Seleção de Conta** (`<select>`). O chaveamento busca e recarrega dinamicamente as métricas diárias, gráficos e publicações filtrados exclusivamente para a conta selecionada.
-- **Higienização White-Label nas Interfaces:** É estritamente proibido exibir o nome de fornecedores de infraestrutura (ex: Phyllo) nos botões ou textos do usuário. Todos os botões devem utilizar nomenclaturas proprietárias (ex: **"Sincronizar Todas as Contas"**, **"Detalhes da Conexão Social"**).
-- **Arquitetura Social Phyllo API (`SocialProvider`):** É estritamente proibido criar formulários manuais no Admin (`/admin/accounts`) para digitar handles ou números fictícios de seguidores. As contas sociais são vinculadas exclusivamente pelo **próprio cliente assinante** no aplicativo (`/app`) via widget oficial **Phyllo Connect SDK** (`<PhylloConnectModal />`).
-- **Papel da Tela de Contas no Admin (`/admin/accounts`):** O painel `/admin/accounts` atua exclusivamente para monitoramento de saúde de tokens, exibição de detalhes da conexão social, execução de sincronizações globais (`mockSyncInstagramMetrics`) e revogação de permissões com `ConfirmModal`.
-- **Separacão de Escopos de Usuários no Admin:** O caminho `/admin/users` é estritamente dedicado à **Gestão de Clientes Assinantes da Plataforma** (Nome, E-mail, Instagram, Plano de Assinatura, Status). A **Equipe Interna e Administradores** continuam gerenciados separadamente na página `/admin/team`.
-- **Desativação em vez de Exclusão (Soft-Delete):** É proibido deletar fisicamente clientes assinantes da tabela `profiles`. A remoção de acesso deve ser realizada via alteração do campo `status` para `'Suspenso'` (**Desativar Conta**), permitindo a **Reativação** a qualquer momento com o botão **Reativar Conta** (`status = 'Ativo'`).
-- **Bloqueio de Contas Suspensas:** O `middleware.ts` valida o campo `status` da tabela `profiles` e redireciona usuários suspensos que tentem acessar `/app/*` para `/login?error=account_suspended`.
-- **Proteção Contra Erros de Objeto Nulo (`Optional Chaining` em `previewPost`):** Qualquer componente visual que consuma seleções de posts ou mídias (ex: `PhoneMockupPreview`) deve obrigatoriamente utilizar a sintaxe de encadeamento opcional (`previewPost?.caption`, `previewPost?.id`) e fornecer valores limpos de fallback. Isso garante que perfis recém-criados ou sem publicações sincronizadas carreguem a interface sem lançar exceções do tipo `TypeError: Cannot read properties of null`.
-- **Nomenclatura do Schema Relacional PostgreSQL (`social_accounts`, `social_account_metrics`, `social_content`):**
-  - A coluna de relacionamento chave estrangeira em `social_account_metrics` e `social_content` chama-se **`account_id`** (NÃO `social_account_id`).
-  - A tabela de publicações no PostgreSQL Supabase chama-se **`social_content`** (singular, NÃO `social_contents`).
-  - A tabela `social_accounts` armazena as colunas de reputação viva: `followers_count`, `following_count`, `media_count`, `profile_picture_url` e `bio`.
-- **Regra de Ouro: Proibição Absoluta de Dados Falsos ou Hardcoded:**
-  - É estritamente proibido utilizar datasets fictícios ou números hardcoded para métricas de reputação. Todos os dados (`followers_count`, `following_count`, `media_count`, `profile_picture_url`, `bio`) devem vir 100% ao vivo da API oficial.
-- **Higienização White-Label Estrita (Sem Menção à Phyllo na UI):**
-  - É estritamente proibido exibir o nome "Phyllo" ou qualquer fornecedor de infraestrutura nas telas do usuário final. O badge de status do perfil exibe unicamente **`CONECTADO`** (white-label).
-- **Ciclo de Atualização de Reputação e Filtro Padrão `24h`:**
-  - Como a API oficial atualiza os contadores de reputação em lotes agendados (*batch sync* a cada 24h), o filtro padrão do painel é **`24h`** e inclui um ícone `(i)` com tooltip explicativo informando o ciclo de atualização da API.
-- **Sincronização Sob Demanda (Force Refresh):**
-  - O botão **"Atualizar dados"** no cabeçalho do Dashboard invoca `POST /api/integrations/phyllo/sync-account` com `forceRefresh: true`, atualizando os registros no PostgreSQL Supabase e recarregando os estados do React instantaneamente em memória sem exigir recarga da página (F5).
+- **Higienização White-Label Estrita nas Interfaces (Regra de Ouro):**
+  - É estritamente proibido exibir o nome de fornecedores de infraestrutura (Zernio, Nango, Phyllo) em qualquer tela, botão, título, modal ou mensagem de erro visível ao usuário final ou administradores.
+  - Toda a comunicação textual utiliza exclusivamente termos proprietários e oficiais da plataforma: **"Conexão do Instagram"**, **"Instagram Profissional"**, **"Meta Graph API"**, **"ID da Conexão Social"**, **"Sincronizar Todas as Contas"**.
+- **Arquitetura de Conexão Oficial do Instagram:**
+  - As contas sociais são vinculadas exclusivamente pelo próprio assinante no aplicativo (`/app`) via modal oficial (`<SocialConnectModal />`), utilizando autenticação oficial direta em pop-up seguro com `loginMethod=instagram_login`.
+- **Papel da Tela de Contas no Admin (`/admin/accounts`):**
+  - Monitoramento de conexões ativas, visualização do ID da conexão social, execução de sincronizações reais via `/api/integrations/zernio/sync` e revogação de acessos com `ConfirmModal`.
+- **Sincronização Imediata Pós-Conexão:**
+  - No momento em que o Instagram é autorizado, o callback dispara a busca e a persistência imediata de perfil (`social_accounts`), métricas dos últimos 30 dias (`social_account_metrics`) e publicações recentes (`social_content`). O Dashboard é atualizado em tempo real via eventos do navegador sem exigir recarga de página (F5).
+- **Sincronização Sob Demanda:**
+  - O painel de logs do admin (`/admin/sync-logs`) e as telas de contas disparam `POST /api/integrations/zernio/sync`, atualizando os registros no PostgreSQL Supabase e gravando o log com duração de execução em `sync_logs`.
 - **Favicon e Ícones com Fundo Transparente:**
   - O favicon principal da aplicação e a propriedade `metadata.icons` utilizam a logo oficial com fundo transparente (`/UP-Logo-removebg-preview.png`).
+
+## Integração Oficial Zernio (Independência da Meta)
+- **Provedor de Conexão Social:** Zernio API (`https://zernio.com/api/v1`).
+- **Autenticação Direta sem App Review:** Utiliza o App ID oficial da Zernio aprovado com Advanced Access pela Meta (`1387147079198980`). O assinante não precisa de verificação de empresa ou criação de app no Meta for Developers.
+- **Padrão de Conexão:** `loginMethod=instagram_login` (conexão direta em 1 etapa via popup seguro).
+- **Diretrizes Estritas de Design:**
+  - Zero ícones decorativos (sem troféus, sparkles, escudos ou estrelas).
+  - Apenas o glifo oficial do Instagram é permitido exclusivamente nos botões de conexão para identificação de rede social.
+  - Zero menções a IA ("Inteligência Artificial", robôs, etc.) nas telas e relatórios da integração.
+- **Fail-Closed em Limites de Contas por Plano:**
+  - Iniciante: 1 conta
+  - Premium: 2 contas
+  - Pro: 5 contas
+  - Enterprise: Ilimitado (-1)
+
 
 
 

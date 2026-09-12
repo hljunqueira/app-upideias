@@ -2,6 +2,19 @@ import { InstagramAccount, InstagramDailyMetrics, InstagramMedia, InstagramMedia
 import { supabase } from '../supabase';
 
 export async function syncInstagramMetrics(accountId: string): Promise<boolean> {
+  try {
+    if (typeof window !== 'undefined') {
+      const res = await fetch('/api/integrations/zernio/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountId }),
+      });
+      return res.ok;
+    }
+  } catch (e) {
+    console.warn('[instagramService] sync error, fallback to log:', e);
+  }
+
   const { error } = await supabase.from('sync_logs').insert({
     instagram_account_id: accountId,
     status: 'success',

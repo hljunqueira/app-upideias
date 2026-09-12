@@ -81,3 +81,62 @@
     - `CourseModal.tsx`: Substituídos comentário e preview de XP por carga horária.
     - Grep global confirma 0 ocorrências de VIP, XP, Grátis/Gratis em todo o código.
   - [x] **Validação**: `npx tsc --noEmit` executado com 0 erros.
+
+- [x] **Migração Integral: Substituição do Nango pela API da Zernio (Independente da Meta)**:
+  - [x] **Arquitetura Zernio**: Autenticação oficial com App ID aprovado pela Meta (`1387147079198980`), sem necessidade de Meta App Review, criação de app ou verificação de empresa.
+  - [x] **Padrão de Login**: `loginMethod=instagram_login` como padrão absoluto (conexão direta em 1 etapa sem exigir página do Facebook).
+  - [x] **Design Limpo & Zero Ícones Decorativos**:
+    - Sem emojis, sparkles, escudos ou troféus.
+    - Única exceção: Glifo oficial do Instagram exclusivamente nos botões de conexão para identificação de rede social.
+    - Sem menções a IA ("Inteligência Artificial", robôs, etc.).
+  - [x] **Cliente SDK**: `packages/lib/src/zernio/client.ts` com tipagem para todas as rotas (Connect URL, Contas, Health, Insights, Demographics, Histórico de Seguidores, Content Decay, Publicação com Primeiro Comentário, Ice Breakers e Webhooks).
+  - [x] **Rotas de Integração Backend**:
+    - `/api/integrations/zernio/connect-url`: Geração segura com validação de limites de planos.
+    - `/api/integrations/zernio/callback`: Upsert em `social_accounts` com `postMessage` e fechamento automático da janela popup.
+    - `/api/integrations/zernio/disconnect`: Revogação e limpeza local/remota.
+    - `/api/integrations/zernio/publish`: Publicação e agendamento de posts com `firstComment`.
+    - `/api/integrations/zernio/ice-breakers`: Configuração de perguntas frequentes em DMs (Pro/Enterprise).
+    - `/api/webhooks/zernio`: Receptor de eventos de status de postagem e sincronização.
+  - [x] **Frontend Moderno**:
+    - `SocialConnectModal.tsx`: Fluxo Hosted centralizado com popup seguro, sem F5 e atualizações via `postMessage`.
+    - `AudienceDemographicsCard.tsx`: Distribuição demográfica (idade, gênero e cidades) em design limpo.
+    - `FollowerHistoryCard.tsx`: Evolução e histórico de seguidores.
+    - `Dashboard`: Integrado com novos cards e `SocialConnectModal`.
+    - `OnboardingConnectModal.tsx`: Totalmente limpo de ícones decorativos e apontado para o novo fluxo.
+    - `AdminAccountsPage`: Atualizado com referências à conexão Zernio.
+  - [x] **Erradicação Definitiva de Legados de Nango e Phyllo**:
+    - Excluídos arquivos obsoletos: `packages/lib/src/nango/client.ts`, `NangoConnectModal.tsx`, `PhylloConnectModal.tsx`, endpoints `/api/integrations/nango/*` e webhook `/api/webhooks/nango`.
+    - Removidos listeners legados `open-nango-modal` e `open-phyllo-modal` em `app/layout.tsx` e `OnboardingConnectModal.tsx`.
+    - Limpos campos e variáveis `nangoConnectionId` em `/admin/accounts` e `/api/admin/accounts`.
+    - Grep global em `apps/` e `packages/` confirma 0 ocorrências de "nango" e "phyllo".
+  - [x] **Nova Rota de Sincronização Real**:
+    - Criada `POST /api/integrations/zernio/sync` com suporte a sincronização individual ou global (`all: true`).
+    - Persiste dados cadastrais em `social_accounts`, métricas 30D em `social_account_metrics`, posts em `social_content` e logs de auditoria em `sync_logs`.
+    - Integrada ao painel `/admin/sync-logs` e `packages/lib/src/services/instagramService.ts`.
+  - [x] **Interface com Visual Aprimorado e Foco na Ação**:
+    - `SocialConnectModal.tsx`: Visual dark executivo `#0e0e14`, zero ícones decorativos, glifo do Instagram no botão de ação, monitoramento ativo de fechamento de popup via timer (`popup.closed`) para evitar travamento do botão.
+  - [x] **Atualização Imediata Pós-Conexão**:
+    - Callback busca e grava imediatamente perfil, métricas e posts no PostgreSQL antes de fechar o popup.
+    - Dashboard escuta evento em tempo real e atualiza as informações instantaneamente sem F5.
+  - [x] **White-Label Estrito**:
+    - Zero menções a nomes de fornecedores (Zernio, Nango, Phyllo) em qualquer texto ou tela da interface com o usuário.
+    - Toda comunicação usa exclusivamente "Conexão do Instagram", "Instagram Profissional" e "Meta Graph API".
+
+- [x] **Unificação de Layouts, Ficha Completa do Assinante e Aprovação com Publicação no Instagram**:
+  - [x] **Unificação de Navbars & Eliminação de Duplicações**:
+    - Admin (`/admin`): Redundância entre `/admin/accounts` e `/admin/users` resolvida; navegação limpa em 5 seções principais (`Painel Geral`, `Assinantes`, `Fila de Análise`, `UP Creator`, `Equipe Interna`).
+    - Assinante (`/app`): Página `Aprovações` (`/app/approvals`) promovida para a barra principal com badge numérico em tempo real de pendências. Navbar estruturada em 5 seções centrais (`Visão Geral`, `Publicações`, `Aprovações`, `Calendário`, `UP Creator`). Submenu `Mais` reduzido a utilitários (`Roteiros de Conteúdo`, `Biblioteca`, `Área do Cliente`).
+  - [x] **Ficha Completa do Assinante no Admin (`/admin/users/[id]`)**:
+    - Central única de trabalho do especialista: dados cadastrais, plano, status, conta do Instagram conectada com foto e seguidores.
+    - Botão de sincronização imediata via `/api/integrations/zernio/sync`.
+    - Grade com publicações reais importadas da API oficial, permitindo selecionar qualquer post como referência para nova sugestão.
+    - Módulo do Especialista para redigir recomendações editoriais (título, formato, copy completa, mídia e orientações estratégicas) com notificação automática e sincronização em tempo real via Supabase Realtime.
+  - [x] **Aprovações do Assinante com Publicação Direta no Instagram (`/app/approvals`)**:
+    - Design executivo minimalista sem ícones decorativos ou emojis.
+    - Abas limpas: `Pendentes`, `Em Revisão` e `Aprovados`.
+    - Ações de 1 clique: `Aprovar e Publicar` diretamente no feed oficial do Instagram via `/api/integrations/zernio/publish`, `Apenas Aprovar` e modal minimalista para `Solicitar Alterações`.
+    - Sem qualquer menção a IA (comunicação humana como "Consultoria Editorial UP Ideias") ou nomes de fornecedores.
+  - [x] **Validação & Estabilidade**:
+    - `npx tsc --noEmit` executado com 0 erros.
+    - `npm run build` executado com 100% de sucesso (41/41 páginas compiladas).
+

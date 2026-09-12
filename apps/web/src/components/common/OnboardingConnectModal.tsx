@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Instagram, CheckCircle2, ArrowRight, RefreshCw, ShieldCheck } from "lucide-react";
+import { Instagram } from "lucide-react";
 
 interface OnboardingConnectModalProps {
   isOpen: boolean;
@@ -32,9 +32,8 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
   const handleStartConnection = () => {
     setConnecting(true);
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("open-nango-modal"));
+      window.dispatchEvent(new CustomEvent("open-social-modal"));
     }
-    // Aguarda abertura do modal oficial
     setTimeout(() => {
       setConnecting(false);
     }, 1000);
@@ -50,32 +49,26 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="bg-[#0e0e14] border border-upBorder/80 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl p-6 sm:p-8 space-y-6 relative text-center">
+      <div className="bg-[#0e0e14] border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl p-6 sm:p-8 space-y-6 relative text-center">
         {/* Step 1: Boas-vindas */}
         {step === 1 && (
           <div className="space-y-6 animate-fade-in">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-upPink to-purple-600 p-[1.5px] mx-auto shadow-[0_0_30px_rgba(255,83,104,0.4)]">
-              <div className="w-full h-full rounded-[23px] bg-upDark flex items-center justify-center text-upPink">
-                <Instagram className="w-8 h-8" />
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-widest bg-upPink/20 text-upPink border border-upPink/30 px-3 py-1 rounded-full">
-                Primeiro Acesso • Configuração Rápida
+              <span className="text-[10px] font-mono uppercase tracking-widest bg-rose-500/10 text-rose-400 border border-rose-500/20 px-3 py-1 rounded-full">
+                Configuração Inicial
               </span>
-              <h3 className="text-2xl font-black text-white tracking-tight">
-                Bem-vindo ao UP Analytics
+              <h3 className="text-2xl font-bold text-white tracking-tight">
+                Boas-vindas ao UP Analytics
               </h3>
-              <p className="text-xs text-upGray leading-relaxed max-w-sm mx-auto">
-                Para começar a gerar seus relatórios analíticos, análise de engajamento e diagnósticos de alcance, conecte seu perfil do Instagram.
+              <p className="text-xs text-neutral-400 leading-relaxed max-w-sm mx-auto">
+                Para começar a visualizar relatórios analíticos, engajamento e métricas de alcance, vincule seu perfil profissional do Instagram.
               </p>
             </div>
 
-            <div className="bg-upCard/40 border border-upBorder/60 rounded-2xl p-4 flex items-center gap-3 text-left">
-              <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />
-              <p className="text-[11px] text-upGray leading-relaxed">
-                Conexão 100% segura. Não armazenamos senhas e seus dados permanecem protegidos com criptografia.
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
+              <p className="text-xs text-neutral-300 font-medium">Autenticação Oficial Direta</p>
+              <p className="text-[11px] text-neutral-400 leading-relaxed mt-1">
+                Conexão oficial via Meta Graph API. Senhas nunca são acessadas e todos os dados são protegidos por criptografia de ponta a ponta.
               </p>
             </div>
 
@@ -83,18 +76,17 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
               <button
                 disabled={connecting}
                 onClick={handleStartConnection}
-                className="w-full py-3.5 bg-upPink hover:bg-upPinkDark text-white font-extrabold text-sm rounded-2xl shadow-[0_0_25px_rgba(255,83,104,0.4)] transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                className="w-full py-3 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {connecting ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Abrindo Conexão Segura...</span>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Iniciando Conexão...</span>
                   </>
                 ) : (
                   <>
-                    <Instagram className="w-4 h-4" />
-                    <span>Vincular Meu Instagram Agora</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <Instagram className="w-4 h-4 shrink-0" />
+                    <span>Vincular Perfil do Instagram</span>
                   </>
                 )}
               </button>
@@ -102,9 +94,9 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
               <button
                 type="button"
                 onClick={handleFinish}
-                className="text-xs text-upGray hover:text-white py-2 transition-colors cursor-pointer"
+                className="text-xs text-neutral-400 hover:text-white py-2 transition-colors cursor-pointer"
               >
-                Explorar painel e conectar depois
+                Explorar painel e conectar mais tarde
               </button>
             </div>
           </div>
@@ -113,19 +105,13 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
         {/* Step 2: Sincronizando Métricas */}
         {step === 2 && (
           <div className="py-8 space-y-6 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-upPink/10 text-upPink border border-upPink/20 flex items-center justify-center mx-auto">
-              <RefreshCw className="w-8 h-8 animate-spin" />
-            </div>
+            <div className="w-12 h-12 rounded-full border-2 border-rose-500/20 border-t-rose-500 animate-spin mx-auto" />
 
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-white">Sincronizando Suas Métricas...</h3>
-              <p className="text-xs text-upGray max-w-xs mx-auto">
-                Buscando histórico de publicações, engajamento e métricas de perfil diretamente da API oficial.
+              <h3 className="text-lg font-bold text-white">Sincronizando Métricas Oficiais...</h3>
+              <p className="text-xs text-neutral-400 max-w-xs mx-auto">
+                Consultando histórico de publicações, engajamento e métricas de alcance diretamente da API oficial.
               </p>
-            </div>
-
-            <div className="w-full bg-upCard/60 border border-upBorder/60 h-2 rounded-full overflow-hidden max-w-xs mx-auto">
-              <div className="bg-gradient-to-r from-upPink to-purple-500 h-full rounded-full animate-pulse w-3/4" />
             </div>
           </div>
         )}
@@ -133,24 +119,23 @@ export function OnboardingConnectModal({ isOpen, onClose, onSuccess }: Onboardin
         {/* Step 3: Concluído */}
         {step === 3 && (
           <div className="space-y-6 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-
             <div className="space-y-2">
-              <h3 className="text-2xl font-black text-white tracking-tight">
+              <span className="text-[10px] font-mono uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full">
+                Pronto para Uso
+              </span>
+              <h3 className="text-2xl font-bold text-white tracking-tight">
                 Conexão Estabelecida com Sucesso
               </h3>
-              <p className="text-xs text-upGray max-w-sm mx-auto leading-relaxed">
-                Seu perfil foi vinculado e suas métricas foram sincronizadas com sucesso. O seu painel do UP Analytics está pronto para uso.
+              <p className="text-xs text-neutral-400 max-w-sm mx-auto leading-relaxed">
+                Seu perfil foi vinculado e suas métricas foram sincronizadas. Seu painel do UP Analytics está pronto.
               </p>
             </div>
 
             <button
               onClick={handleFinish}
-              className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-sm rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.4)] transition-all"
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all cursor-pointer"
             >
-              Ir para o Meu Dashboard →
+              Acessar Painel Principal
             </button>
           </div>
         )}

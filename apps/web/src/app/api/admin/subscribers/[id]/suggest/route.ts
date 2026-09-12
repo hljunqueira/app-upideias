@@ -72,6 +72,20 @@ export async function POST(
       return NextResponse.json({ error: 'Erro ao registrar sugestão' }, { status: 500 });
     }
 
+    // Cria notificação no banco para o assinante
+    try {
+      await adminClient.from('notifications').insert({
+        user_id: subscriberId,
+        type: 'content_suggestion',
+        title: 'Nova recomendação do Especialista UP Ideias',
+        message: `O Especialista enviou uma sugestão para o seu perfil: "${title || 'Postagem sugerida'}".`,
+        read: false,
+        data: { approval_id: approval.id, link: '/app/approvals' },
+      });
+    } catch (notifErr) {
+      console.warn('[Admin Suggest] Aviso ao emitir notificação:', notifErr);
+    }
+
     return NextResponse.json({
       success: true,
       approval,

@@ -77,43 +77,17 @@ export default function AdminSyncLogsPage() {
   const handleForceSyncAll = async () => {
     setIsSyncingAll(true);
     try {
-      const { data: accounts } = await supabase
-        .from("social_accounts")
-        .select("id, username, external_account_id")
-        .eq("status", "connected");
+      await fetch("/api/integrations/zernio/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
 
-      if (accounts && accounts.length > 0) {
-        for (const acc of accounts) {
-          const startTime = Date.now();
-          try {
-            await fetch("/api/integrations/nango/sync-account", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ connectionId: acc.external_account_id || acc.id })
-            });
-            const duration = `${((Date.now() - startTime) / 1000).toFixed(1)}s`;
-            await supabase.from("sync_logs").insert({
-              instagram_account_id: acc.id,
-              account_handle: acc.username ? `@${acc.username}` : undefined,
-              sync_type: "Métricas do Instagram",
-              status: "success",
-              execution_time: duration,
-              finished_at: new Date().toISOString()
-            });
-          } catch (err: any) {
-            await supabase.from("sync_logs").insert({
-              instagram_account_id: acc.id,
-              account_handle: acc.username ? `@${acc.username}` : undefined,
-              sync_type: "Métricas do Instagram",
-              status: "error",
-              message: err?.message || "Erro na sincronização",
-              finished_at: new Date().toISOString()
-            });
-          }
-        }
-      }
-
-      const { data: freshLogs } = await supabase.from("sync_logs").select("*").order("created_at", { ascending: false });
+      const { data: freshLogs } = await supabase
+        .from("sync_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
       if (freshLogs) {
         setLogs(freshLogs.map((l: any) => ({
           id: l.id,

@@ -83,11 +83,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const primaryNavItems = [
     { name: "Painel Geral", href: "/admin", icon: LayoutDashboard, exact: true },
-    { name: "Usuários", href: "/admin/users", icon: Users },
+    { name: "Assinantes", href: "/admin/users", icon: Users },
     { name: "Fila de Análise", href: "/admin/analysis", icon: CheckSquare },
-    { name: "Equipe Interna", href: "/admin/team", icon: Shield },
-    { name: "Contas Instagram", href: "/admin/accounts", icon: Instagram },
     { name: "UP Creator", href: "/admin/up-creator", icon: GraduationCap },
+    { name: "Equipe Interna", href: "/admin/team", icon: Shield },
   ];
 
   const handleLogout = async () => {

@@ -6,7 +6,7 @@ export * from './services/automationService';
 export * from './services/contentService';
 export * from './services/upCreatorService';
 export * from './supabase';
-export * from './nango/client';
+export * from './zernio/client';
 export * from './providers/SocialProvider';
 
 

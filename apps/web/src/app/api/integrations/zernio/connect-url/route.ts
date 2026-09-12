@@ -1,14 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { nangoClient } from '@up-analytics/lib';
+import { zernioClient } from '@up-analytics/lib';
 
-export async function POST(request: Request) {
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const platform = body?.platform || undefined;
-
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -17,7 +19,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Busca perfil para identificar limite de contas do plano contratado
+    const body = await req.json().catch(() => ({}));
+    const platform = body?.platform || 'instagram';
+    const loginMethod = body?.loginMethod || 'instagram_login';
+
+    // 1. Identifica os limites do plano contratado (fail-closed em Iniciante)
     const { data: profile } = await supabase
       .from('profiles')
       .select('plan')
@@ -33,7 +39,7 @@ export async function POST(request: Request) {
       ? 2
       : 1;
 
-    // 2. Verifica se o usuário atingiu o teto de contas
+    // 2. Verifica se atingiu o limite de contas
     if (maxAccountsAllowed !== -1) {
       const { count } = await supabase
         .from('social_accounts')
@@ -60,19 +66,32 @@ export async function POST(request: Request) {
       user.email?.split('@')[0] ||
       'Usuário UP';
 
-    const session = await nangoClient.createConnectSession(user.id, user.email, userName, platform);
+    // 3. Obtém ou cria perfil isolado do usuário no Zernio
+    const profileId = await zernioClient.getOrCreateProfile(user.id, userName);
+
+    // 4. Monta a URL de callback oficial da aplicação com fallback de userId
+    const origin = req.headers.get('origin') || req.nextUrl.origin;
+    const redirectUrl = `${origin}/api/integrations/zernio/callback?userId=${user.id}`;
+
+    // 5. Gera a URL oficial de conexão (padrão instagram_login direto)
+    const session = await zernioClient.getConnectUrl({
+      profileId,
+      redirectUrl,
+      platform,
+      loginMethod,
+    });
 
     return NextResponse.json({
       success: true,
-      token: session?.token,
-      connectLink: session?.connectLink,
-      publicKey: process.env.NEXT_PUBLIC_NANGO_PUBLIC_KEY || process.env.NANGO_PUBLIC_KEY || '',
+      authUrl: session.authUrl,
+      state: session.state,
+      profileId,
       userId: user.id,
     });
   } catch (err: any) {
-    console.error('[NangoSessionRoute] Error creating Nango connect session:', err?.message || err);
+    console.error('[ZernioConnectUrlRoute] Error generating connect URL:', err?.message || err);
     return NextResponse.json(
-      { error: err?.message || 'Falha ao iniciar sessão de conexão Nango.' },
+      { error: err?.message || 'Falha ao gerar link de conexão do Instagram.' },
       { status: 500 }
     );
   }

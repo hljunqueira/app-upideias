@@ -396,11 +396,11 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
-                          href={`/admin/users/${user.id}/posts`}
+                          href={`/admin/users/${user.id}`}
                           className="px-3 py-1.5 rounded-xl bg-upPink/20 text-upPink hover:bg-upPink/30 border border-upPink/40 text-xs font-bold transition-all flex items-center gap-1.5"
-                          title="Área de Trabalho: Gerenciar Posts do Assinante"
+                          title="Ficha Completa: Perfil, Instagram, Posts e Sugestões"
                         >
-                          <span>Gerenciar Posts</span>
+                          <span>Ficha Completa</span>
                         </Link>
 
                         <button
