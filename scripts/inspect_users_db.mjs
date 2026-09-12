@@ -23,11 +23,16 @@ const supabase = createClient(url, key);
 async function run() {
   const { data: profiles, error: pErr } = await supabase.from('profiles').select('*');
   console.log('=== PROFILES ===', pErr || '');
-  profiles?.forEach(p => console.log(JSON.stringify({ id: p.id, email: p.email, plan: p.plan, role: p.role, status: p.status })));
+  if (profiles && profiles.length > 0) {
+    console.log('PROFILE KEYS:', Object.keys(profiles[0]));
+  }
 
-  const { data: subs, error: sErr } = await supabase.from('subscriptions').select('*');
-  console.log('\n=== SUBSCRIPTIONS ===', sErr || '');
-  subs?.forEach(s => console.log(JSON.stringify({ id: s.id, user_id: s.user_id, plan_name: s.plan_name, plan_id: s.plan_id, status: s.status })));
+  const testQuery = await supabase
+    .from('profiles')
+    .select('id, name, email, plan, status, instagram_handle, created_at')
+    .eq('id', '00fd084b-78e5-4528-8a7c-655ffce860cd')
+    .maybeSingle();
+  console.log('CORRECTED QUERY RESULT:', testQuery);
 }
 
 run().catch(console.error);

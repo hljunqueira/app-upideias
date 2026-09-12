@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     // 1. Buscar assinantes elegíveis para especialista (Premium, Pro, Enterprise)
     let query = adminClient
       .from("profiles")
-      .select("id, name, full_name, email, plan, status, instagram_handle")
+      .select("id, name, email, plan, status, instagram_handle")
       .in("plan", ["Premium", "Pro", "Enterprise", "Agência"]);
 
     if (planFilter && planFilter !== "all") {
@@ -94,10 +94,14 @@ export async function GET(req: NextRequest) {
         id: appr.id,
         approvalId: appr.id,
         userId: appr.user_id,
-        userName: sub?.name || sub?.full_name || sub?.email?.split("@")[0] || "Assinante",
+        userName: sub?.name || sub?.email?.split("@")[0] || "Assinante",
         userEmail: sub?.email,
         userPlan: sub?.plan || "Pro",
-        instagramHandle: sub?.instagram_handle ? `@${sub.instagram_handle}` : acc?.username ? `@${acc.username}` : "-",
+        instagramHandle: sub?.instagram_handle
+          ? `@${sub.instagram_handle.replace(/^@+/, "")}`
+          : acc?.username
+          ? `@${acc.username.replace(/^@+/, "")}`
+          : "-",
         title: appr.title,
         status: appr.status, // "pending" | "approved" | "rejected" | "adjusted"
         origin: appr.origin,

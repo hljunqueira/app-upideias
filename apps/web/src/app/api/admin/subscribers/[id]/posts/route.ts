@@ -40,9 +40,13 @@ export async function GET(
     // 1. Perfil do assinante
     const { data: subscriber, error: subErr } = await adminClient
       .from('profiles')
-      .select('id, name, full_name, email, plan, status, instagram_handle, created_at')
+      .select('id, name, email, plan, status, instagram_handle, created_at')
       .eq('id', subscriberId)
       .maybeSingle();
+
+    if (subErr) {
+      console.error('[API admin/subscribers/[id]/posts] Erro ao buscar perfil:', subErr);
+    }
 
     if (subErr || !subscriber) {
       return NextResponse.json({ error: 'Assinante não encontrado' }, { status: 404 });
@@ -80,7 +84,7 @@ export async function GET(
     return NextResponse.json({
       subscriber: {
         id: subscriber.id,
-        name: subscriber.name || subscriber.full_name || subscriber.email?.split('@')[0] || 'Assinante',
+        name: subscriber.name || subscriber.email?.split('@')[0] || 'Assinante',
         email: subscriber.email,
         plan: subscriber.plan || 'Iniciante',
         status: subscriber.status || 'Ativo',

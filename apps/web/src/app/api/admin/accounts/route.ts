@@ -63,7 +63,7 @@ export async function GET() {
     const userIds = Array.from(new Set(accounts.map((a) => a.user_id).filter(Boolean)));
     const { data: profiles } = await adminClient
       .from("profiles")
-      .select("id, name, full_name, email, plan")
+      .select("id, name, email, plan")
       .in("id", userIds);
 
     const profileMap = new Map((profiles || []).map((p) => [p.id, p]));
@@ -76,7 +76,7 @@ export async function GET() {
       return {
         id: a.id,
         handle,
-        ownerName: p?.name || p?.full_name || p?.email?.split("@")[0] || "Assinante",
+        ownerName: p?.name || p?.email?.split("@")[0] || "Assinante",
         ownerEmail: p?.email || "-",
         ownerPlan: p?.plan || "Pro",
         followers: (a.followers_count ?? 0).toLocaleString("pt-BR"),
