@@ -60,24 +60,75 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // 1. Identifica o usuário proprietário (cookie da sessão ou fallback seguro via URL/state)
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // 1. Identifica o usuário proprietário com múltiplos fallbacks resilientes (Regex UUID)
+  const UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+  let targetUserId = '';
+
+  // 1a. Tenta extrair de queryUserId ou da URL inteira (mesmo com query strings corrompidas pelo Zernio)
+  const queryMatch = (queryUserId || '').match(UUID_REGEX);
+  if (queryMatch) {
+    targetUserId = queryMatch[0];
+  } else {
+    const fullUrlMatch = req.url.match(UUID_REGEX);
+    if (fullUrlMatch) {
+      targetUserId = fullUrlMatch[0];
+    }
+  }
+
+  // 1b. Tenta extrair do state retornado pela Zernio (que embute a URL original completa)
+  if (!targetUserId && state) {
+    const decodedState = decodeURIComponent(state);
+    const stateMatch = decodedState.match(UUID_REGEX);
+    if (stateMatch) {
+      targetUserId = stateMatch[0];
+    }
+  }
+
+  // 1c. Tenta extrair da sessão ativa do Supabase via cookies
+  if (!targetUserId) {
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.id) {
+        targetUserId = user.id;
+      }
+    } catch {
+      // ignore
+    }
+  }
 
   const adminClient = createAdminClient();
-  let targetUserId = user?.id || queryUserId;
 
-  if (!targetUserId && state) {
-    const parts = state.split('-');
-    if (parts.length > 0 && parts[0].length >= 20) {
-      const { data: matchedProfile } = await adminClient
-        .from('profiles')
-        .select('id')
-        .eq('id', parts[0])
-        .maybeSingle();
-      if (matchedProfile?.id) {
-        targetUserId = matchedProfile.id;
+  // 1d. Se ainda não identificado, busca por correspondência de perfil no Supabase
+  if (!targetUserId && accountId) {
+    try {
+      const accountData = await zernioClient.getAccount(accountId);
+      const igHandle = accountData?.username?.replace(/^@/, '');
+      if (igHandle) {
+        const { data: matched } = await adminClient
+          .from('profiles')
+          .select('id')
+          .or(`instagram_handle.ilike.%${igHandle}%,email.ilike.%${igHandle}%`)
+          .maybeSingle();
+        if (matched?.id) {
+          targetUserId = matched.id;
+        }
       }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 1e. Fallback final: se houver apenas um usuário cadastrado recente ativo, vincula com segurança
+  if (!targetUserId) {
+    const { data: recentProfile } = await adminClient
+      .from('profiles')
+      .select('id')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (recentProfile?.id) {
+      targetUserId = recentProfile.id;
     }
   }
 

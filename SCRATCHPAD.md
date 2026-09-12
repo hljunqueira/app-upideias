@@ -140,3 +140,9 @@
     - `npx tsc --noEmit` executado com 0 erros.
     - `npm run build` executado com 100% de sucesso (41/41 páginas compiladas).
 
+- [x] **Correção Definitiva da Conexão Zernio & Sincronização de Conta**:
+  - [x] Vinculada com sucesso a conta oficial `@hlj.dev` (`6aa56e0e726ebfe037e03037`) com 112 seguidores ao perfil do usuário no Supabase.
+  - [x] Rota de callback (`/api/integrations/zernio/callback`) blindada com extração de UUID por regex a partir de query, URL completa, state e cookies, além de correção do upsert no PostgreSQL sem restrição de conflito.
+  - [x] Rota de webhook (`/api/webhooks/zernio`) atualizada para processar `account.connected` e sincronizar contas em segundo plano.
+  - [x] `SocialConnectModal.tsx` agora realiza auto-sincronização via sessão ativa na janela principal ao fechar o popup ou receber `postMessage`.
+

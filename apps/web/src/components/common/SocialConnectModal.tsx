@@ -82,18 +82,27 @@ export function SocialConnectModal({ isOpen, onClose, onSuccess }: SocialConnect
 
   // Listener para capturar resposta da janela popup
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessage = async (event: MessageEvent) => {
       const type = event.data?.type;
       if (type === "social-account-connected" || type === "zernio-connected") {
         if (checkClosedIntervalRef.current) {
           clearInterval(checkClosedIntervalRef.current);
         }
+        try {
+          await fetch("/api/integrations/zernio/sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          });
+        } catch {
+          // ignore
+        }
         setConnecting(false);
         setSuccessMessage("Conta do Instagram conectada e sincronizada com sucesso.");
-        loadAccounts();
+        await loadAccounts();
         window.dispatchEvent(
           new CustomEvent("social-account-changed", {
-            detail: { accountId: event.data.accountId },
+            detail: { accountId: event.data?.accountId },
           })
         );
         if (onSuccess) {
@@ -185,16 +194,27 @@ export function SocialConnectModal({ isOpen, onClose, onSuccess }: SocialConnect
         );
         setConnecting(false);
       } else {
-        // Monitora fechamento manual da janela pelo usuário
+        // Monitora fechamento da janela de autorização
         if (checkClosedIntervalRef.current) {
           clearInterval(checkClosedIntervalRef.current);
         }
-        checkClosedIntervalRef.current = setInterval(() => {
+        checkClosedIntervalRef.current = setInterval(async () => {
           if (popup.closed) {
             clearInterval(checkClosedIntervalRef.current!);
+            try {
+              await fetch("/api/integrations/zernio/sync", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+              });
+            } catch {
+              // ignore
+            }
             setConnecting(false);
+            await loadAccounts();
+            window.dispatchEvent(new CustomEvent("social-account-changed"));
           }
-        }, 500);
+        }, 600);
       }
     } catch (err: any) {
       setErrorMessage(err?.message || "Erro ao conectar com o Instagram.");
