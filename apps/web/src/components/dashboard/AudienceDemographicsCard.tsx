@@ -6,6 +6,9 @@ interface DemographicsData {
   genderAgeDistribution?: Record<string, number>;
   topCities?: Array<{ city: string; percentage: number }>;
   topCountries?: Array<{ country: string; percentage: number }>;
+  femalePct?: number;
+  malePct?: number;
+  ageRanges?: Array<{ label: string; pct: number }>;
 }
 
 interface AudienceDemographicsCardProps {
@@ -46,18 +49,18 @@ export function AudienceDemographicsCard({
 
   Object.entries(genderAge).forEach(([key, val]) => {
     const num = Number(val) || 0;
-    if (key.startsWith("F.") || key.startsWith("f_")) {
+    if (key.startsWith("F.") || key.startsWith("f_") || key === "F") {
       femaleSum += num;
-    } else if (key.startsWith("M.") || key.startsWith("m_")) {
+    } else if (key.startsWith("M.") || key.startsWith("m_") || key === "M") {
       maleSum += num;
     }
     totalGender += num;
   });
 
-  const femalePct = totalGender > 0 ? Math.round((femaleSum / totalGender) * 100) : 52;
-  const malePct = totalGender > 0 ? Math.round((maleSum / totalGender) * 100) : 48;
+  const femalePct = demographics.femalePct ?? (totalGender > 0 ? Math.round((femaleSum / totalGender) * 100) : 52);
+  const malePct = demographics.malePct ?? (totalGender > 0 ? Math.round((maleSum / totalGender) * 100) : 48);
 
-  const ageRanges = [
+  const ageRanges = demographics.ageRanges || [
     { label: "18-24 anos", pct: 28 },
     { label: "25-34 anos", pct: 44 },
     { label: "35-44 anos", pct: 18 },

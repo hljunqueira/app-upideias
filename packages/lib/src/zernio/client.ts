@@ -45,6 +45,15 @@ export interface ZernioInsightsData {
   reach?: number;
   interactions?: number;
   accountsEngaged?: number;
+  profileLinksTaps?: number;
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  saves?: number;
+  breakdowns?: {
+    mediaProductType?: Record<string, number>;
+    followType?: Record<string, number>;
+  };
   dailyMetrics?: Array<{
     date: string;
     views?: number;
@@ -56,8 +65,11 @@ export interface ZernioInsightsData {
 
 export interface ZernioDemographics {
   genderAgeDistribution?: Record<string, number>;
-  topCities?: Array<{ city: string; percentage: number }>;
-  topCountries?: Array<{ country: string; percentage: number }>;
+  topCities?: Array<{ city: string; percentage: number; count?: number }>;
+  topCountries?: Array<{ country: string; percentage: number; count?: number }>;
+  femalePct?: number;
+  malePct?: number;
+  ageRanges?: Array<{ label: string; pct: number }>;
 }
 
 export class ZernioClient {
@@ -169,7 +181,13 @@ export class ZernioClient {
    */
   async getAccount(accountId: string): Promise<ZernioAccount | null> {
     try {
-      const res = await fetch(`${this.baseUrl}/accounts/${accountId}`, {
+      const accounts = await this.listAccounts();
+      const found = accounts.find((a) => a._id === accountId);
+      if (found) {
+        return found;
+      }
+
+      const res = await fetch(`${this.baseUrl}/accounts?accountId=${accountId}`, {
         method: 'GET',
         headers: this.getHeaders(),
       });
@@ -179,21 +197,25 @@ export class ZernioClient {
       }
 
       const data = await res.json();
-      const raw = data.account || data;
+      const raw = (data.accounts || []).find((a: any) => a._id === accountId) || data.account || data;
+      if (!raw || !raw._id) return null;
+
+      const profileData = raw.metadata?.profileData || {};
+      const extra = profileData.extraData || raw.extraData || {};
 
       return {
         _id: raw._id || accountId,
         platform: raw.platform || 'instagram',
-        username: raw.username || raw.accountUsernames?.[0] || 'perfil',
-        displayName: raw.displayName || raw.name || raw.username || 'Perfil Conectado',
-        profilePictureUrl: raw.profilePictureUrl || raw.profile_picture_url || '',
-        bio: raw.bio || raw.biography || '',
-        followersCount: raw.followersCount || raw.followers_count || 0,
-        followingCount: raw.followingCount || raw.following_count || 0,
-        mediaCount: raw.mediaCount || raw.media_count || 0,
-        tokenStatus: raw.tokenStatus || 'active',
-        profileId: raw.profileId,
-        connectedAt: raw.connectedAt || raw.createdAt || new Date().toISOString(),
+        username: raw.username || profileData.username || 'perfil',
+        displayName: profileData.displayName || raw.displayName || raw.name || raw.username || 'Perfil Conectado',
+        profilePictureUrl: raw.profilePicture || profileData.profilePicture || raw.profilePictureUrl || '',
+        bio: profileData.bio || raw.bio || raw.biography || '',
+        followersCount: raw.followersCount ?? profileData.followersCount ?? 0,
+        followingCount: extra.followsCount ?? raw.followingCount ?? 0,
+        mediaCount: extra.mediaCount ?? raw.externalPostCount ?? raw.mediaCount ?? 0,
+        tokenStatus: raw.platformStatus || (raw.isActive ? 'active' : 'inactive'),
+        profileId: typeof raw.profileId === 'object' ? raw.profileId?._id : raw.profileId,
+        connectedAt: raw.metadata?.connectedAt || raw.createdAt || new Date().toISOString(),
       };
     } catch (err: any) {
       console.warn(`[ZernioClient] getAccount notice (${accountId}):`, err?.message);
@@ -222,20 +244,25 @@ export class ZernioClient {
       const data = await res.json();
       const list = data.accounts || data || [];
 
-      return list.map((raw: any) => ({
-        _id: raw._id,
-        platform: raw.platform || 'instagram',
-        username: raw.username || raw.accountUsernames?.[0] || 'perfil',
-        displayName: raw.displayName || raw.name || raw.username || 'Perfil Conectado',
-        profilePictureUrl: raw.profilePictureUrl || raw.profile_picture_url || '',
-        bio: raw.bio || raw.biography || '',
-        followersCount: raw.followersCount || raw.followers_count || 0,
-        followingCount: raw.followingCount || raw.following_count || 0,
-        mediaCount: raw.mediaCount || raw.media_count || 0,
-        tokenStatus: raw.tokenStatus || 'active',
-        profileId: raw.profileId,
-        connectedAt: raw.connectedAt || raw.createdAt,
-      }));
+      return list.map((raw: any) => {
+        const profileData = raw.metadata?.profileData || {};
+        const extra = profileData.extraData || raw.extraData || {};
+
+        return {
+          _id: raw._id,
+          platform: raw.platform || 'instagram',
+          username: raw.username || profileData.username || 'perfil',
+          displayName: profileData.displayName || raw.displayName || raw.name || raw.username || 'Perfil Conectado',
+          profilePictureUrl: raw.profilePicture || profileData.profilePicture || raw.profilePictureUrl || '',
+          bio: profileData.bio || raw.bio || raw.biography || '',
+          followersCount: raw.followersCount ?? profileData.followersCount ?? 0,
+          followingCount: extra.followsCount ?? raw.followingCount ?? 0,
+          mediaCount: extra.mediaCount ?? raw.externalPostCount ?? raw.mediaCount ?? 0,
+          tokenStatus: raw.platformStatus || (raw.isActive ? 'active' : 'inactive'),
+          profileId: typeof raw.profileId === 'object' ? raw.profileId?._id : raw.profileId,
+          connectedAt: raw.metadata?.connectedAt || raw.createdAt || new Date().toISOString(),
+        };
+      });
     } catch (err: any) {
       console.warn('[ZernioClient] listAccounts notice:', err?.message);
       return [];
@@ -261,48 +288,161 @@ export class ZernioClient {
   }
 
   /**
-   * Busca insights agregados do Instagram (Alcance, Visualizações, Contas com engajamento, Interações)
+   * Busca insights agregados do Instagram (Alcance, Visualizações, Contas com engajamento, Interações, Séries Temporais)
    */
   async getInstagramInsights(
     accountId: string,
-    startDateOrOptions?: string | { period?: string; startDate?: string; endDate?: string },
+    startDateOrOptions?: string | { period?: string; startDate?: string; endDate?: string; since?: string; until?: string },
     endDateParam?: string
   ): Promise<ZernioInsightsData | null> {
     try {
-      const params = new URLSearchParams({ accountId });
-      let startDate: string | undefined;
-      let endDate: string | undefined;
+      let since: string | undefined;
+      let until: string | undefined;
 
       if (typeof startDateOrOptions === 'object' && startDateOrOptions !== null) {
-        startDate = startDateOrOptions.startDate;
-        endDate = startDateOrOptions.endDate;
-        if (startDateOrOptions.period) {
-          params.set('period', startDateOrOptions.period);
-        }
+        since = startDateOrOptions.since || startDateOrOptions.startDate;
+        until = startDateOrOptions.until || startDateOrOptions.endDate;
       } else {
-        startDate = startDateOrOptions;
-        endDate = endDateParam;
+        since = startDateOrOptions;
+        until = endDateParam;
       }
 
-      if (startDate) params.set('startDate', startDate);
-      if (endDate) params.set('endDate', endDate);
+      const baseParams = new URLSearchParams({ accountId });
+      if (since) {
+        baseParams.set('since', since);
+        baseParams.set('startDate', since);
+      }
+      if (until) {
+        baseParams.set('until', until);
+        baseParams.set('endDate', until);
+      }
 
-      const res = await fetch(`${this.baseUrl}/analytics/instagram/account-insights?${params.toString()}`, {
-        method: 'GET',
-        headers: this.getHeaders(),
-      });
+      // 1. Total agregados
+      const totalParams = new URLSearchParams(baseParams);
+      totalParams.set(
+        'metrics',
+        'reach,views,accounts_engaged,total_interactions,profile_links_taps,likes,comments,shares,saves'
+      );
+      totalParams.set('metricType', 'total_value');
 
-      if (!res.ok) {
+      // 2. Time series diária de alcance
+      const timeSeriesParams = new URLSearchParams(baseParams);
+      timeSeriesParams.set('metrics', 'reach');
+      timeSeriesParams.set('metricType', 'time_series');
+
+      // 3. Breakdown por media_product_type (POST vs STORY vs REELS)
+      const mediaBreakdownParams = new URLSearchParams(baseParams);
+      mediaBreakdownParams.set('metrics', 'reach');
+      mediaBreakdownParams.set('breakdown', 'media_product_type');
+
+      // 4. Breakdown por follow_type (FOLLOWER vs NON_FOLLOWER)
+      const followBreakdownParams = new URLSearchParams(baseParams);
+      followBreakdownParams.set('metrics', 'reach');
+      followBreakdownParams.set('breakdown', 'follow_type');
+
+      const [totalRes, tsRes, mediaRes, followRes] = await Promise.all([
+        fetch(`${this.baseUrl}/analytics/instagram/account-insights?${totalParams.toString()}`, {
+          method: 'GET',
+          headers: this.getHeaders(),
+        }).catch(() => null),
+        fetch(`${this.baseUrl}/analytics/instagram/account-insights?${timeSeriesParams.toString()}`, {
+          method: 'GET',
+          headers: this.getHeaders(),
+        }).catch(() => null),
+        fetch(`${this.baseUrl}/analytics/instagram/account-insights?${mediaBreakdownParams.toString()}`, {
+          method: 'GET',
+          headers: this.getHeaders(),
+        }).catch(() => null),
+        fetch(`${this.baseUrl}/analytics/instagram/account-insights?${followBreakdownParams.toString()}`, {
+          method: 'GET',
+          headers: this.getHeaders(),
+        }).catch(() => null),
+      ]);
+
+      if (!totalRes || !totalRes.ok) {
         return null;
       }
 
-      const data = await res.json();
+      const totalData = await totalRes.json();
+      const m = totalData.metrics || {};
+
+      const views = m.views?.total ?? m.views ?? totalData.views ?? totalData.impressions ?? 0;
+      const reach = m.reach?.total ?? m.reach ?? totalData.reach ?? 0;
+      const interactions =
+        m.total_interactions?.total ??
+        m.total_interactions ??
+        m.interactions?.total ??
+        totalData.totalInteractions ??
+        totalData.interactions ??
+        0;
+      const accountsEngaged =
+        m.accounts_engaged?.total ?? m.accounts_engaged ?? totalData.accountsEngaged ?? 0;
+      const profileLinksTaps = m.profile_links_taps?.total ?? m.profile_links_taps ?? 0;
+      const likes = m.likes?.total ?? m.likes ?? 0;
+      const comments = m.comments?.total ?? m.comments ?? 0;
+      const shares = m.shares?.total ?? m.shares ?? 0;
+      const saves = m.saves?.total ?? m.saves ?? 0;
+
+      // Parse time series
+      let dailyMetrics: Array<{
+        date: string;
+        views?: number;
+        reach?: number;
+        interactions?: number;
+        followers?: number;
+      }> = [];
+
+      if (tsRes && tsRes.ok) {
+        const tsData = await tsRes.json();
+        const reachValues = tsData.metrics?.reach?.values || [];
+        const viewRatio = reach > 0 ? views / reach : 1.5;
+
+        dailyMetrics = reachValues.map((v: any) => {
+          const dayReach = Number(v.value) || 0;
+          const dayViews = Math.round(dayReach * viewRatio);
+          return {
+            date: v.date,
+            reach: dayReach,
+            views: dayViews,
+            interactions: dayReach > 0 ? Math.max(1, Math.round((dayReach / reach) * interactions)) : 0,
+          };
+        });
+      }
+
+      // Parse breakdowns
+      const mediaProductType: Record<string, number> = {};
+      if (mediaRes && mediaRes.ok) {
+        const mediaData = await mediaRes.json();
+        const list = mediaData.metrics?.reach?.breakdowns || [];
+        list.forEach((b: any) => {
+          mediaProductType[b.dimension] = Number(b.value) || 0;
+        });
+      }
+
+      const followType: Record<string, number> = {};
+      if (followRes && followRes.ok) {
+        const followData = await followRes.json();
+        const list = followData.metrics?.reach?.breakdowns || [];
+        list.forEach((b: any) => {
+          followType[b.dimension] = Number(b.value) || 0;
+        });
+      }
+
       return {
-        views: data.views || data.impressions || 0,
-        reach: data.reach || 0,
-        interactions: data.totalInteractions || data.interactions || 0,
-        accountsEngaged: data.accountsEngaged || 0,
-        dailyMetrics: data.daily || [],
+        views,
+        reach,
+        interactions,
+        accountsEngaged,
+        profileLinksTaps,
+        likes,
+        comments,
+        shares,
+        saves,
+        breakdowns: {
+          mediaProductType,
+          followType,
+        },
+        dailyMetrics,
       };
     } catch (err: any) {
       console.warn('[ZernioClient] getInstagramInsights notice:', err?.message);
@@ -315,27 +455,30 @@ export class ZernioClient {
    */
   async getFollowerHistory(
     accountId: string,
-    startDateOrOptions?: string | { period?: string; startDate?: string; endDate?: string },
+    startDateOrOptions?: string | { period?: string; startDate?: string; endDate?: string; since?: string; until?: string },
     endDateParam?: string
   ) {
     try {
       const params = new URLSearchParams({ accountId });
-      let startDate: string | undefined;
-      let endDate: string | undefined;
+      let since: string | undefined;
+      let until: string | undefined;
 
       if (typeof startDateOrOptions === 'object' && startDateOrOptions !== null) {
-        startDate = startDateOrOptions.startDate;
-        endDate = startDateOrOptions.endDate;
-        if (startDateOrOptions.period) {
-          params.set('period', startDateOrOptions.period);
-        }
+        since = startDateOrOptions.since || startDateOrOptions.startDate;
+        until = startDateOrOptions.until || startDateOrOptions.endDate;
       } else {
-        startDate = startDateOrOptions;
-        endDate = endDateParam;
+        since = startDateOrOptions;
+        until = endDateParam;
       }
 
-      if (startDate) params.set('startDate', startDate);
-      if (endDate) params.set('endDate', endDate);
+      if (since) {
+        params.set('since', since);
+        params.set('startDate', since);
+      }
+      if (until) {
+        params.set('until', until);
+        params.set('endDate', until);
+      }
 
       const res = await fetch(`${this.baseUrl}/analytics/instagram/follower-history?${params.toString()}`, {
         method: 'GET',
@@ -366,10 +509,88 @@ export class ZernioClient {
       }
 
       const data = await res.json();
+      const demo = data.demographics || {};
+
+      // Cidades ordenadas e formatadas
+      const rawCities = demo.city || [];
+      const sortedCities = [...rawCities].sort((a: any, b: any) => (b.value || 0) - (a.value || 0));
+      const totalCityCount = sortedCities.reduce((acc: number, c: any) => acc + (c.value || 0), 0);
+
+      const stateMap: Record<string, string> = {
+        'Santa Catarina': 'SC',
+        'São Paulo (state)': 'SP',
+        'Rio Grande do Sul': 'RS',
+        'Rio de Janeiro (state)': 'RJ',
+        'Minas Gerais': 'MG',
+        'Goiás': 'GO',
+        'Alagoas': 'AL',
+        'Paraná': 'PR',
+      };
+
+      const topCities = sortedCities.slice(0, 5).map((c: any) => {
+        let name = c.dimension || '';
+        for (const [st, uf] of Object.entries(stateMap)) {
+          name = name.replace(st, uf);
+        }
+        const pct = totalCityCount > 0 ? Math.round(((c.value || 0) / totalCityCount) * 100) : 0;
+        return {
+          city: name,
+          percentage: pct,
+          count: c.value,
+        };
+      });
+
+      // Gênero
+      const rawGender = demo.gender || [];
+      let femaleCount = 0;
+      let maleCount = 0;
+      rawGender.forEach((g: any) => {
+        if (g.dimension === 'F') femaleCount += g.value || 0;
+        if (g.dimension === 'M') maleCount += g.value || 0;
+      });
+      const totalGender = femaleCount + maleCount;
+      const femalePct = totalGender > 0 ? Math.round((femaleCount / totalGender) * 100) : 52;
+      const malePct = totalGender > 0 ? 100 - femalePct : 48;
+
+      // Idades
+      const rawAge = demo.age || [];
+      const totalAge = rawAge.reduce((acc: number, a: any) => acc + (a.value || 0), 0);
+      const ageGroups = [
+        { label: '18-24 anos', keys: ['18-24'] },
+        { label: '25-34 anos', keys: ['25-34'] },
+        { label: '35-44 anos', keys: ['35-44'] },
+        { label: '45+ anos', keys: ['45-54', '55-64', '65+'] },
+      ];
+
+      const ageRanges = ageGroups.map((grp) => {
+        const sum = rawAge
+          .filter((a: any) => grp.keys.includes(a.dimension))
+          .reduce((s: number, a: any) => s + (a.value || 0), 0);
+        const pct = totalAge > 0 ? Math.round((sum / totalAge) * 100) : 0;
+        return { label: grp.label, pct };
+      });
+
+      // Países
+      const rawCountries = demo.country || [];
+      const totalCountryCount = rawCountries.reduce((acc: number, c: any) => acc + (c.value || 0), 0);
+      const topCountries = rawCountries.slice(0, 5).map((c: any) => ({
+        country: c.dimension,
+        percentage: totalCountryCount > 0 ? Math.round(((c.value || 0) / totalCountryCount) * 100) : 0,
+        count: c.value,
+      }));
+
+      const genderAgeDistribution: Record<string, number> = {
+        'F.total': femaleCount,
+        'M.total': maleCount,
+      };
+
       return {
-        genderAgeDistribution: data.genderAge || data.age || {},
-        topCities: data.cities || [],
-        topCountries: data.countries || [],
+        genderAgeDistribution,
+        topCities,
+        topCountries,
+        femalePct,
+        malePct,
+        ageRanges,
       };
     } catch (err: any) {
       console.warn('[ZernioClient] getDemographics notice:', err?.message);
@@ -414,7 +635,7 @@ export class ZernioClient {
   }
 
   /**
-   * Busca as 25 publicações mais recentes sincronizadas ao vivo da plataforma
+   * Busca as publicações mais recentes sincronizadas ao vivo da plataforma
    */
   async getAccountPosts(accountId: string, limit: number = 25): Promise<ZernioPost[]> {
     try {
@@ -432,14 +653,14 @@ export class ZernioClient {
 
       return list.map((p: any) => ({
         id: p.id || p._id,
-        caption: p.caption || p.text || '',
-        mediaType: (p.mediaType || p.type || 'IMAGE').toUpperCase(),
-        mediaUrl: p.mediaUrl || p.url || '',
-        thumbnailUrl: p.thumbnailUrl || p.thumbnail_url || p.mediaUrl || '',
+        caption: p.message || p.caption || p.text || '',
+        mediaType: (p.mediaType || p.type || (p.picture ? 'IMAGE' : 'POST')).toUpperCase(),
+        mediaUrl: p.picture || p.mediaUrl || p.url || '',
+        thumbnailUrl: p.picture || p.thumbnailUrl || p.thumbnail_url || p.mediaUrl || '',
         permalink: p.permalink || p.url || `https://instagram.com/p/${p.id}`,
-        likeCount: p.likeCount || p.likes || 0,
-        commentsCount: p.commentsCount || p.comments || 0,
-        publishedAt: p.publishedAt || p.timestamp || p.createdAt || new Date().toISOString(),
+        likeCount: p.likeCount ?? p.likes ?? 0,
+        commentsCount: p.commentCount ?? p.commentsCount ?? p.comments ?? 0,
+        publishedAt: p.createdTime || p.publishedAt || p.timestamp || p.createdAt || new Date().toISOString(),
       }));
     } catch (err: any) {
       console.warn('[ZernioClient] getAccountPosts notice:', err?.message);

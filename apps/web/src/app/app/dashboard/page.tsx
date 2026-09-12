@@ -168,11 +168,14 @@ export default function Dashboard() {
   });
 
   // Dados do gráfico temporal
-  const chartData = metrics.map((m) => ({
-    name: m.metric_date ? m.metric_date.split("-").slice(1).join("/") : "",
-    reach: m.reach || 0,
-    views: m.impressions || m.views || 0,
-  }));
+  const chartData = metrics.map((m) => {
+    const rawDate = m.metric_date || m.date || "";
+    return {
+      name: rawDate ? rawDate.split("-").slice(1).join("/") : "",
+      reach: m.reach || 0,
+      views: m.impressions || m.views || 0,
+    };
+  });
 
   const isAccountConnected = Boolean(
     account &&
