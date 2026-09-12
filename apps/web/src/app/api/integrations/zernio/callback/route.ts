@@ -148,39 +148,20 @@ export async function GET(req: NextRequest) {
         const followingCount = accountData.followingCount || 0;
         const mediaCount = accountData.mediaCount || 0;
 
-        // Verifica se a conta já existe para este usuário
-        const { data: existing } = await adminClient
+        // 1. Verifica se a conta já existe pela chave única (platform, external_account_id)
+        const { data: existingByExt } = await adminClient
           .from('social_accounts')
           .select('id')
-          .eq('user_id', targetUserId)
           .eq('platform', 'instagram')
-          .or(`external_account_id.eq.${accountId},username.eq.${username}`)
+          .eq('external_account_id', accountId)
           .maybeSingle();
 
-        if (existing?.id) {
-          accountDbId = existing.id;
+        if (existingByExt?.id) {
+          accountDbId = existingByExt.id;
           await adminClient
             .from('social_accounts')
             .update({
-              external_account_id: accountId,
-              username,
-              name: displayName,
-              profile_picture_url: profilePictureUrl,
-              bio,
-              followers_count: followersCount,
-              following_count: followingCount,
-              media_count: mediaCount,
-              status: 'connected',
-              connected_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', existing.id);
-        } else {
-          const { data: inserted } = await adminClient
-            .from('social_accounts')
-            .insert({
               user_id: targetUserId,
-              platform: 'instagram',
               external_account_id: accountId,
               username,
               name: displayName,
@@ -193,9 +174,56 @@ export async function GET(req: NextRequest) {
               connected_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             })
+            .eq('id', existingByExt.id);
+        } else {
+          // Verifica se o usuário já tem outra conta do instagram cadastrada
+          const { data: existingByUser } = await adminClient
+            .from('social_accounts')
             .select('id')
-            .single();
-          accountDbId = inserted?.id || '';
+            .eq('user_id', targetUserId)
+            .eq('platform', 'instagram')
+            .maybeSingle();
+
+          if (existingByUser?.id) {
+            accountDbId = existingByUser.id;
+            await adminClient
+              .from('social_accounts')
+              .update({
+                external_account_id: accountId,
+                username,
+                name: displayName,
+                profile_picture_url: profilePictureUrl,
+                bio,
+                followers_count: followersCount,
+                following_count: followingCount,
+                media_count: mediaCount,
+                status: 'connected',
+                connected_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', existingByUser.id);
+          } else {
+            const { data: inserted } = await adminClient
+              .from('social_accounts')
+              .insert({
+                user_id: targetUserId,
+                platform: 'instagram',
+                external_account_id: accountId,
+                username,
+                name: displayName,
+                profile_picture_url: profilePictureUrl,
+                bio,
+                followers_count: followersCount,
+                following_count: followingCount,
+                media_count: mediaCount,
+                status: 'connected',
+                connected_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .select('id')
+              .single();
+            accountDbId = inserted?.id || '';
+          }
         }
 
         // Atualiza o instagram_handle no perfil
@@ -278,14 +306,17 @@ export async function GET(req: NextRequest) {
           .card { background: #12121a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 32px 24px; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
           .dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; margin-bottom: 12px; }
           h2 { color: #fff; margin: 0 0 8px 0; font-size: 18px; font-weight: 700; }
-          p { color: #a1a1aa; font-size: 13px; line-height: 1.5; margin: 0; }
+          p { color: #a1a1aa; font-size: 13px; line-height: 1.5; margin: 0 0 20px 0; }
+          .btn { display: inline-block; background: #FF5368; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; transition: background 0.2s; }
+          .btn:hover { background: #e04457; }
         </style>
       </head>
       <body>
         <div class="card">
           <div class="dot"></div>
           <h2>Instagram Conectado com Sucesso</h2>
-          <p>Métricas e publicações sincronizadas. Esta janela será fechada automaticamente.</p>
+          <p>Métricas e publicações sincronizadas com sua conta.</p>
+          <button class="btn" onclick="finishAndClose()">Concluir e Ver Painel</button>
         </div>
         <script>
           const payload = {
@@ -293,17 +324,33 @@ export async function GET(req: NextRequest) {
             accountId: '${accountId || ''}',
             platform: 'instagram'
           };
+          function finishAndClose() {
+            if (window.opener) {
+              try {
+                window.opener.postMessage(payload, '*');
+                window.opener.postMessage({ ...payload, type: 'zernio-connected' }, '*');
+              } catch(e) {}
+              window.close();
+            } else {
+              window.location.href = '/app/dashboard?connected=true';
+            }
+          }
+          // Dispara mensagens imediatamente
           if (window.opener) {
             try {
               window.opener.postMessage(payload, '*');
               window.opener.postMessage({ ...payload, type: 'zernio-connected' }, '*');
             } catch(e) {}
             setTimeout(() => {
-              window.close();
-            }, 500);
-          } else {
-            window.location.href = '/app/dashboard?connected=true';
+              try { window.close(); } catch(e) {}
+            }, 600);
           }
+          // Fallback se a janela não fechar
+          setTimeout(() => {
+            if (!window.opener) {
+              window.location.href = '/app/dashboard?connected=true';
+            }
+          }, 1500);
         </script>
       </body>
     </html>
