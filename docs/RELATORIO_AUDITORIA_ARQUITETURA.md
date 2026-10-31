@@ -2,7 +2,7 @@
 
 > **Data de Atualização:** 11 de Agosto de 2026  
 > **Projeto:** UP Analytics / UP Creator  
-> **Domínio Oficial:** `upideias.com` (Deploy em produção na Vercel)  
+> **Domínio Oficial:** `upideias.com` (Deploy em produção na VPS Docker - Ver docs/PLANO_MIGRACAO_VERCEL_PARA_VPS.md)  
 > **Objetivo:** Estabelecer a arquitetura oficial, consolidar os pacotes compartilhados, definir a abstração agnóstica de provedores sociais (`SocialProvider`) e preparar o caminho seguro para Supabase, Phyllo API, Workers e Capacitor sem alterar o visual, o comportamento ou quebrar o deploy existente na Vercel.
 
 ---

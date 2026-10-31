@@ -12,7 +12,7 @@
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:mobile": "npm run start --workspace=apps/mobile",
     "build:web": "npm run build --workspace=apps/web",
-    "deploy-all": "vercel --prod",
+    "deploy": "bash scripts/deploy-vps.sh",
     "deploy:vps": "bash scripts/deploy-vps.sh",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
@@ -26,6 +26,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@typesafe-ai/sdk": "0.6.0",
     "ajv": "^8.20.0"
   }
 }

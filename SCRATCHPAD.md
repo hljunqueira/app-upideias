@@ -20,9 +20,11 @@
 - [x] **Acesso e Contingência para o Usuário James (`@up_ideias`)**:
   - Senha do usuário `javageral09@gmail.com` resetada e validada via Supabase Auth: `UpIdeias@2026`.
   - Adicionado botão de contingência no modal Nango: "Abrir Autorização em Nova Aba" caso o navegador bloqueie pop-ups.
-- [x] **Deploy de Produção**:
-  - **Vercel**: Ativo e operando normalmente em `https://www.upideias.com` (commit `e79d257` - `● Ready`).
-  - **VPS Docker**: Ativo e sincronizado em `http://184.107.141.97:3000` e `https://api.upideias.com` (container `up-analytics-web` recriado com sucesso).
+- [x] **Plano de Descontinuação da Vercel e Centralização na VPS**:
+  - **Diagnóstico**: Mapeada toda a infraestrutura Docker (`up-analytics-web` Next.js 14 na porta 3000), banco PostgreSQL 17 (Supabase self-hosted) e Caddy reverse proxy na VPS `184.107.141.97`.
+  - **Planejamento Completo**: Criado `docs/PLANO_MIGRACAO_VERCEL_PARA_VPS.md` com 5 fases (Preparação, Caddyfile, Virada de DNS, Remoção Vercel, Homologação e Rollback).
+  - **Otimização Docker**: Criado `.dockerignore` para acelerar builds no Docker Compose da VPS e reduzir consumo de RAM.
+  - **Documentação Sincronizada**: Atualizados `AGENTS.md`, `CLAUDE.md`, `.agents/skills/deploy-and-database/SKILL.md`, `package.json` e `docs/RELATORIO_AUDITORIA_ARQUITETURA.md`.
 
 ## Planejamento em Andamento
 - [x] **Auditoria Global de Gaps e Inconsistências**:

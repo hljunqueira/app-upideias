@@ -1,42 +1,35 @@
 ---
 name: deploy-and-database
-description: Guia operacional de deploy (Vercel Frontend e Docker VPS Backend) e referência exata do schema de todas as tabelas e colunas do PostgreSQL (Supabase) do UP Ideias.
+description: Guia operacional de deploy (Docker VPS Unificado) e referência exata do schema de todas as tabelas e colunas do PostgreSQL (Supabase) do UP Ideias.
 ---
 
 # Deploy & Database Reference - UP Ideias
 
-Este documento é a referência operacional definitiva para **deploys de frontend e backend** e para a estrutura de **tabelas e colunas do banco de dados PostgreSQL** da plataforma UP Ideias.
+Este documento é a referência operacional definitiva para **deploy unificado de frontend e backend na VPS** e para a estrutura de **tabelas e colunas do banco de dados PostgreSQL** da plataforma UP Ideias.
 
 ---
 
 ## 1. Arquitetura e Procedimentos de Deploy
 
-### A. Frontend (Vercel)
-- **Domínio Principal**: `https://www.upideias.com`
-- **Ambiente**: Produção (Vercel Project `henriques-projects-31af9234/app-upideias`)
-- **Gatilho de Deploy**:
-  1. **Automático**: Qualquer `git push origin main` dispara o build e deploy de produção na Vercel.
-  2. **Manual (CLI)**:
-     ```bash
-     cd apps/web
-     npx vercel --prod
-     ```
-- **Rotas e Páginas**: Next.js 14 App Router com 44 rotas estáticas e dinâmicas pré-renderizadas.
+### A. Frontend e Backend Unificados (VPS Hostinger / Docker)
+- **Domínio Principal**: `https://www.upideias.com` e `https://upideias.com`
+- **Ambiente**: Produção (VPS Hostinger Ubuntu 24.04 / Docker Compose)
+- **IP do Servidor**: `184.107.141.97`
+- **Usuário SSH**: `root@184.107.141.97` (autenticação por chave SSH sem senha)
+- **Diretório do Projeto na VPS**: `/opt/upideias/app-upideias`
+- **URL da API & Supabase**: `https://api.upideias.com`
+- **Porta Local da Aplicação Web**: `3000` (mapeada no container `up-analytics-web`)
+- **Proxy Reverso**: `main-caddy` (Caddy) gerenciando portas 80/443 com certificados automáticos Let's Encrypt para `www.upideias.com`, `upideias.com` e `api.upideias.com`.
+- **Roteamento Caddy**:
+  - `upideias.com`: Redirecionamento permanente para `https://www.upideias.com`
+  - `www.upideias.com`: `reverse_proxy localhost:3000` (Next.js 14 Web & API)
+  - `api.upideias.com`: `reverse_proxy` para a stack Supabase / Gateway
+- **Rotas e Páginas**: Next.js 14 App Router com 44 rotas estáticas e dinâmicas pré-renderizadas servidas diretamente pelo container `up-analytics-web`.
 - **Validação prévia obrigatória**:
   ```bash
   cd apps/web
   npx tsc --noEmit
   ```
-
----
-
-### B. Backend e Container Web (VPS Hostinger / Docker)
-- **IP do Servidor**: `184.107.141.97`
-- **Usuário SSH**: `root@184.107.141.97` (autenticação por chave SSH sem senha)
-- **Diretório do Projeto na VPS**: `/opt/upideias/app-upideias`
-- **URL da API**: `https://api.upideias.com`
-- **Porta Local da Aplicação Web**: `3000` (mapeada no container `up-analytics-web`)
-- **Proxy Reverso**: `main-caddy` (Caddy) gerenciando portas 80/443 com certificados automáticos Let's Encrypt.
 - **Script Oficial de Deploy**:
   O script `/opt/upideias/app-upideias/scripts/deploy-vps.sh` executa o fluxo completo:
   1. `git fetch origin main && git reset --hard origin/main`
@@ -56,6 +49,11 @@ Este documento é a referência operacional definitiva para **deploys de fronten
   - `supabase-storage`: Serviço de arquivos e upload
   - `supabase-studio`: Painel visual do Supabase
   - `main-caddy`: Proxy reverso global da VPS
+
+### B. Descontinuação da Vercel (Histórico)
+- O frontend foi totalmente descontinuado da Vercel em favor da arquitetura de container unificado na VPS.
+- Registros DNS A e CNAME foram apontados diretamente para o IP `184.107.141.97`.
+- Guia detalhado de migração disponível em `docs/PLANO_MIGRACAO_VERCEL_PARA_VPS.md`.
 
 ---
 
