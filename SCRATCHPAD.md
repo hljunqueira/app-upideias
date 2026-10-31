@@ -20,11 +20,15 @@
 - [x] **Acesso e Contingência para o Usuário James (`@up_ideias`)**:
   - Senha do usuário `javageral09@gmail.com` resetada e validada via Supabase Auth: `UpIdeias@2026`.
   - Adicionado botão de contingência no modal Nango: "Abrir Autorização em Nova Aba" caso o navegador bloqueie pop-ups.
-- [x] **Plano de Descontinuação da Vercel e Centralização na VPS**:
-  - **Diagnóstico**: Mapeada toda a infraestrutura Docker (`up-analytics-web` Next.js 14 na porta 3000), banco PostgreSQL 17 (Supabase self-hosted) e Caddy reverse proxy na VPS `184.107.141.97`.
-  - **Planejamento Completo**: Criado `docs/PLANO_MIGRACAO_VERCEL_PARA_VPS.md` com 5 fases (Preparação, Caddyfile, Virada de DNS, Remoção Vercel, Homologação e Rollback).
-  - **Otimização Docker**: Criado `.dockerignore` para acelerar builds no Docker Compose da VPS e reduzir consumo de RAM.
-  - **Documentação Sincronizada**: Atualizados `AGENTS.md`, `CLAUDE.md`, `.agents/skills/deploy-and-database/SKILL.md`, `package.json` e `docs/RELATORIO_AUDITORIA_ARQUITETURA.md`.
+- [x] **Migração Vercel -> VPS Concluída e Validada**:
+  - **Deploy VPS**: Container `up-analytics-web` compilado e ativo em `0.0.0.0:3000`.
+  - **Rede & Caddy**: Container `main-caddy` conectado à rede `app-upideias_default`; `/root/infra/Caddyfile` configurado para `upideias.com` (301 redirect) e `www.upideias.com` (reverse proxy para `up-analytics-web:3000`).
+  - **Certificados SSL**: Negociados e emitidos automaticamente pelo Caddy (Let's Encrypt).
+  - **Evidências curl**:
+    - `curl -I https://www.upideias.com` $\rightarrow$ `HTTP 200 OK` (X-Powered-By: Next.js, Via: 1.1 Caddy).
+    - `curl -I http://upideias.com` $\rightarrow$ `HTTP 308/301` redirecionando para `https://www.upideias.com/`.
+    - `curl -I https://www.upideias.com/api/admin/plans` $\rightarrow$ `HTTP 200 OK` (Content-Type: application/json).
+    - `curl -I https://api.upideias.com` $\rightarrow$ `HTTP 401 Unauthorized` (Envoy/Supabase ativo).
 
 ## Planejamento em Andamento
 - [x] **Auditoria Global de Gaps e Inconsistências**:
